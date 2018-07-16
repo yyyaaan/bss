@@ -1,0 +1,123 @@
+---
+output:
+  html_document:
+    code_folding: show
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+    df_print: kable
+    theme: 'readable'
+---
+
+<style>p{margin-bottom:50px}</style>
+
+## BSS Model
+
+BSS model $\underbrace{\boldsymbol x}_{(p \times  n)}= \underbrace{\boldsymbol \mu}_\text{location} +\underbrace{\boldsymbol \Omega}_{\text{mixing }p\times p\ } \underbrace{\boldsymbol z}_{p\text{-vector}}$
+
+BSS goal is to estimate unmixing matrix $\Gamma: \Gamma x \sim z$ based on $X$.
+
+## Intro to ICA and FOBI
+
+ICA is a BSS based $\begin{cases} E(z)=0 \\ E(zz')= I_p \\ z\text{ independent} \end{cases}$, and the identifiability of parameters requires at most one component is normally distributed.
+
+Singular value decomposition $\Omega=U\Lambda V'$ and then $\Sigma:=Cov(x)=U\Lambda^2 U',\ \ VU'\Sigma^{-1/2}(x-\mu)=z$. Therefore, the orthogonal matrix $VU'$ is the components.
+
+Scatter matrices, $S_1, S_2$ (symmetric, positive definite and affine equivariant), and solve $\begin{cases} \Gamma S_1 \Gamma'=I_p &\text{standardization} \\ \Gamma S_2 \Gamma' = \Lambda &\text{uncorrelatoin}\end{cases}$. The solution is eigenvector-eigenvalue of $S_1^{-1}S_2$
+
+FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-E(x)\big)'\ Cov(x)^{-1}\ \big(x-E(x)\big)\big(x-E(x)\big)' \bigg) \end{cases}$
+
+## SOBI Model and Assumptions
+
+SOS model $\boldsymbol x_t = \boldsymbol\mu + \boldsymbol\Omega \boldsymbol z_t,\ \ \ t =  0, \pm 1,\pm2,\dots$
+
+Latent time series are assumed to be uncorrelated and weakly stationary $\begin{cases} \text{A1} &E(\boldsymbol z_t)=0 \\ \text{A1} & E(\boldsymbol z_t \boldsymbol z_t') = \boldsymbol I_p \\ \text{A2} & E(\boldsymbol z_{t} \boldsymbol z_{t+\tau}') = e(\boldsymbol z_{t+\tau} \boldsymbol z_{t}') = \boldsymbol\Lambda_\tau \text{ is diagonal }\forall \tau = 1,2,\dots \end{cases}$ 
+
+Given ts-observations, the goal is to estimate $\hat{\boldsymbol \Gamma}:\ \boldsymbol{\Gamma x}$ has uncorrelated components. Clearly, $\boldsymbol\Gamma = \boldsymbol{C\Omega}^{-1}$, where $\boldsymbol C$ has exactly one non-zero element in each row and each column
+
+## BSS on Autocovariance Matrix
+
+Joint diagonalization; suppose $\boldsymbol \mu = \boldsymbol 0$
+$$\begin{aligned} 
+E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}') &= E(\boldsymbol{\Omega z}_t \boldsymbol z' _{t+\tau} \boldsymbol\Omega') = \boldsymbol{\Omega\Lambda}_\tau \boldsymbol{ \Omega}'
+\\ \Rightarrow \boldsymbol\Gamma_\tau \text{ satisfies } & \begin{cases} \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t}') \boldsymbol \Gamma_\tau' = \boldsymbol I _p \\ \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}')\boldsymbol \Gamma_\tau' = \underbrace{ \boldsymbol P_\tau \boldsymbol \Lambda_\tau \boldsymbol P'_\tau}_{\text{decreasing ordered } \boldsymbol\Lambda_\tau }\end{cases} 
+\end{aligned}$$
+
+AMUSE algorithm only consider the unique $\boldsymbol S_0 = E(\boldsymbol x_{t} \boldsymbol x_{t}'), \ \boldsymbol S_\tau = E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}')$.
+
+SOBI algorithm consider lags at $\tau_1, \dots, \tau_K$, and find unmixing $\boldsymbol\Gamma_{p\times p} = (\gamma_1,\dots,\gamma_p)'$ by
+$$\begin{aligned} \text{ under constraint } \boldsymbol {\Gamma S}_0 \boldsymbol \Gamma' = \boldsymbol I _p
+\\ \text{minimize } & \sum\limits_{k=1}^K \big|\big| \text{off}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma ') \big |\big|^2 ,\ \ \ \text{off}( \boldsymbol S) = \boldsymbol S - \text{diag}( \boldsymbol S)
+\\ \Leftrightarrow \text{ maximize } & \sum\limits_{k=1}^K \big|\big| \text{diag}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma ') \big |\big|^2 = \sum\limits_{j=1}^p \sum\limits_{k=1}^K (\gamma_j' \boldsymbol S_k \gamma_j)^2
+\end{aligned}$$
+
+Facts: $\boldsymbol {\Gamma S}_k \boldsymbol\Gamma' = \boldsymbol I_p \ \Rightarrow \ \boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}$, where $\boldsymbol U_{p\times p} = (u_1,\dots,u_p)'$ orthogonal.
+
+Solving the optimization problem depends on the methdology below.
+
+## Deflation-based Approach
+
+Find unmixing matrix rows one by one: $\gamma_j = \arg\max \sum\limits_{k=1}^K (\gamma_j' \boldsymbol S_k \gamma_j)^2$ under the constrain $\gamma_j' \boldsymbol S_k \gamma_j = \delta_{ij},\ \ i= 1,\dots,j$. The solution optimizes the Lagrangian function.
+
+The estimateing equation:
+$$
+T(\gamma_j)= \boldsymbol S_0 \bigg( \sum\limits_{r=1}^j \gamma_r\gamma_r'\bigg) T(\gamma_j)
+\\ \text{where, }\boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma'\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+$$
+
+As $\boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}$, solve $u_j$ one by one (after $u_1,\dots, u_{j-1}$ and init) following 2 steps until convergence
+$$\begin{aligned} 
+& T(u) := \sum\limits_{k=1}^K(u' \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } & u_j \leftarrow \bigg( \boldsymbol I_p - \sum\limits_{i=1}^{j-1} u_i u_i' \bigg)T(u_j)
+\\ \text{step 2: } & u_j \leftarrow ||u_j||^{-1}u_j
+\\ *\ & \text{different initial values should be tried.}
+\end{aligned}$$
+
+## Symmetric approach
+
+Simultaneously find all rows, and the estimating equations:
+$$\begin{aligned}
+&\begin{cases} \gamma_i' T(\gamma_j) = \gamma_j\ T(\gamma_i)
+\\ \gamma_i' \boldsymbol S_0 \gamma_j = \delta_{ij}
+\end{cases}
+\\ \text{where, } & 2 T(\gamma_j) = \boldsymbol S_0 \bigg( 2 \theta_{jj}\gamma_j + \sum\limits_{i=1}^{j-1}\theta_{ij}\gamma_i + \sum\limits_{i=j+1}^p \theta_{ji}\gamma_i \bigg)
+\\ \text{and } & \boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma'\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+\end{aligned}
+$$
+
+
+Repeat until convergence
+$$\begin{aligned} 
+& T(u) := \sum\limits_{k=1}^K(u' \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } & T \leftarrow (T(u_1), \dots, T(u_p))'
+\\ \text{step 2: } & U \leftarrow (TT')^{-1/2} T
+\end{aligned}$$
+
+
+
+
+
+
+
+
+
+
+
+
+
+Langrangian
+Miettinen et al. (2014) Appendix A
+
+
+
+
+
+
+
+
+
+
+
+
+
