@@ -1,7 +1,7 @@
 ---
 title: Blind Source Separation
 output:
-  html_notebook:
+  html_document:
     code_folding: show
     toc: true
     toc_depth: 3
