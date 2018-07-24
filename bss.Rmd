@@ -2,7 +2,6 @@
 title: Blind Source Separation
 output:
   html_document:
-    code_folding: show
     toc: true
     toc_depth: 3
     toc_float:
@@ -11,7 +10,7 @@ output:
     theme: 'paper'
 bibliography: ref.bib
 notice: |
-  @miettinen2017blind, @miettinen2016separation, @yeredor2003tv
+  @miettinen2017blind, @miettinen2016separation, @yeredor2003tv, @hyvarinen2000independent
 ---
 
 <style>
@@ -231,7 +230,12 @@ FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-
 
 <div class="btn-group btn-group-justified" style="margin-top: 66px">
   <a href="https://r.boring.fi/files/bss/ref.jade.pkg.pdf" class="btn btn-default">JADE-BSS</a>
+  <a href="https://r.boring.fi/files/bss/ref.ica.pdf" class="btn btn-default">ICA</a>
   <a href="https://r.boring.fi/files/bss/ref.stationary.bss.pdf" class="btn btn-default">Stationary-TS</a>
   <a href="https://r.boring.fi/files/bss/ref.tvsobi.intro.pdf" class="btn btn-default">TV-SOBI</a>
   <a href="https://cran.r-project.org/web/packages/JADE/JADE.pdf" class="btn btn-default">JADE-CRAN</a>
 </div>
+
+```{bash, eval = F, echo = F}
+notedown input.Rmd --knit > output.ipynb
+```
