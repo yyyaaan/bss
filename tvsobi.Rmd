@@ -1,0 +1,47 @@
+---
+title: TV-SOBI
+output: html_document
+bibliography: ref.bib
+notice: |
+  @miettinen2017blind, @miettinen2016separation, @yeredor2003tv
+---
+
+The model, assumptions and requirements
+
+$$\begin{aligned} 
+\boldsymbol x_t =  \boldsymbol \Omega_t \boldsymbol  z_t
+\\ & \begin{cases}  
+\text{zero-mean} & E( \boldsymbol z_t) = \boldsymbol 0 ,\ \ \forall t \text{ pre-centered}
+\\ \text{independence} & \text{each component of } \boldsymbol z \text{ is mutually independent}
+\\ \text{stationary} & \text{the process } ( \boldsymbol z_t)_{t\in \mathbb Z} \text{ weak stationary time-series} 
+\end{cases}
+\\
+\\ & \begin{cases}  
+t = \dots, -2,-1,0,1,2,\dots \text{ centered }
+\\ \text{time-varying mixing matrix } \boldsymbol \Omega_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 
+\\ \text{slow variation of mixing } \boldsymbol{\mathcal E} << \boldsymbol I
+\end{cases} 
+\end{aligned}$$
+
+Above can be written into a semi-parametric (up to rotation) optimization problem as,
+
+$$\begin{aligned} 
+\boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t
+\\
+\\ (1.1)\ & E( \boldsymbol z_t) = \boldsymbol 0 
+\\ (1.2)\ & E( \boldsymbol z_t \boldsymbol z_t') = \boldsymbol I
+\\ (2.1)\ & E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda \text{ diagonal and constant }\forall \tau = 1,2,\dots
+\\
+\\ \text{Given } \boldsymbol x_t, \text{ optimize } \boldsymbol\Omega_0 \text{ and } \boldsymbol{\mathcal E}  &\text{ for (2.1) under restricstions of (1.1) and (1.2)}
+\end{aligned}$$
+
+Notations:
+
+$$\begin{aligned} \boldsymbol \Gamma = \boldsymbol {}
+&= right
+\\ &= 
+\\ &=
+\\ &=
+\end{aligned}$$
+
+Question: symbols of mixing? transpose? 

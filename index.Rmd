@@ -1,22 +1,10 @@
 ---
 title: Blind Source Separation
-output:
-  html_document:
-    toc: true
-    toc_depth: 3
-    toc_float:
-      collapsed: false
-    df_print: kable
-    theme: 'paper'
+output: html_document
 bibliography: ref.bib
 notice: |
   @miettinen2017blind, @miettinen2016separation, @yeredor2003tv, @hyvarinen2000independent
 ---
-
-<style>
-p{margin-bottom:50px}    
-h2{border-bottom: 3px solid lightgrey; text-align: right; margin:33px}
-</style>
 
 $$\begin{aligned} 
 x= zA^T + \mu
@@ -237,5 +225,5 @@ FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-
 </div>
 
 ```{bash, eval = F, echo = F}
-notedown input.Rmd --knit > output.ipynb
+notedown bss.Rmd --knit > bss.ipynb
 ```

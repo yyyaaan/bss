@@ -1,0 +1,24 @@
+name: "Blind Source Separation"
+navbar:
+  title: "Blind Source Separation"
+  left:
+    - text: "Notebook"
+      href: index.Rmd
+    - text: "TV-SOBI"
+      href: tvsobi.Rmd
+    - text: "R-lab"
+      href: rlab.Rmd
+  right:
+    - icon: fa-home fa-lg
+      href: https://yan.fi
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+    df_print: kable
+    theme: 'paper'
+    include:
+      after_body: _style.Rmd
+
