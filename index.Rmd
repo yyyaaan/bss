@@ -1,12 +1,8 @@
 ---
-title: Blind Source Separation
-output: html_document
-bibliography: ref.bib
-notice: |
-  @miettinen2017blind, @miettinen2016separation, @yeredor2003tv, @hyvarinen2000independent
+title: Independent Component Analysis 
 ---
 
-$$\begin{aligned} 
+$$\begin{aligned}
 x= zA^T + \mu
 \\ & z \text{ is source signal, zero-mean}
 \\ & \mu \text{ is location param, }p \text{-vector}
@@ -213,16 +209,6 @@ Singular value decomposition $\Omega=U\Lambda V'$ and then $\Sigma:=Cov(x)=U\Lam
 Scatter matrices, $S_1, S_2$ (symmetric, positive definite and affine equivariant), and solve $\begin{cases} \Gamma S_1 \Gamma'=I_p &\text{standardization} \\ \Gamma S_2 \Gamma' = \Lambda &\text{uncorrelatoin}\end{cases}$. The solution is eigenvector-eigenvalue of $S_1^{-1}S_2$
 
 FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-E(x)\big)'\ Cov(x)^{-1}\ \big(x-E(x)\big)\big(x-E(x)\big)' \bigg) \end{cases}$
-
-## References
-
-<div class="btn-group btn-group-justified" style="margin-top: 66px">
-  <a href="https://r.boring.fi/files/bss/ref.jade.pkg.pdf" class="btn btn-default">JADE-BSS</a>
-  <a href="https://r.boring.fi/files/bss/ref.ica.pdf" class="btn btn-default">ICA</a>
-  <a href="https://r.boring.fi/files/bss/ref.stationary.bss.pdf" class="btn btn-default">Stationary-TS</a>
-  <a href="https://r.boring.fi/files/bss/ref.tvsobi.intro.pdf" class="btn btn-default">TV-SOBI</a>
-  <a href="https://cran.r-project.org/web/packages/JADE/JADE.pdf" class="btn btn-default">JADE-CRAN</a>
-</div>
 
 ```{bash, eval = F, echo = F}
 notedown bss.Rmd --knit > bss.ipynb

@@ -1,12 +1,8 @@
 ---
 title: TV-SOBI
-output: html_document
-bibliography: ref.bib
-notice: |
-  @miettinen2017blind, @miettinen2016separation, @yeredor2003tv
 ---
 
-The model, assumptions and requirements
+## Concept
 
 $$\begin{aligned} 
 \boldsymbol x_t =  \boldsymbol \Omega_t \boldsymbol  z_t
@@ -23,25 +19,56 @@ t = \dots, -2,-1,0,1,2,\dots \text{ centered }
 \end{cases} 
 \end{aligned}$$
 
-Above can be written into a semi-parametric (up to rotation) optimization problem as,
+## Formulation
 
 $$\begin{aligned} 
 \boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t
 \\
 \\ (1.1)\ & E( \boldsymbol z_t) = \boldsymbol 0 
-\\ (1.2)\ & E( \boldsymbol z_t \boldsymbol z_t') = \boldsymbol I
+\\ (1.2)\ & E( \boldsymbol z_t \boldsymbol z_t') = \text{Var}( \boldsymbol z_t) = \boldsymbol I
 \\ (2.1)\ & E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda \text{ diagonal and constant }\forall \tau = 1,2,\dots
 \\
 \\ \text{Given } \boldsymbol x_t, \text{ optimize } \boldsymbol\Omega_0 \text{ and } \boldsymbol{\mathcal E}  &\text{ for (2.1) under restricstions of (1.1) and (1.2)}
 \end{aligned}$$
 
-Notations:
+## Autocovariance (Second-Order)
 
-$$\begin{aligned} \boldsymbol \Gamma = \boldsymbol {}
-&= right
-\\ &= 
-\\ &=
-\\ &=
+$$\begin{aligned} 
+\text{Let unmixing matrix } & \boldsymbol \Gamma = \boldsymbol {C \Omega_0}^{-1}, \text{ where } \boldsymbol C \text{ permutation matrix} 
+\\ \text{Let "mixed autocovariance"}& \boldsymbol R_\tau^{(0)} = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \text{ for convenience (symmetric)}
+\\
+\\ \text{Cov}( \boldsymbol x_t , \boldsymbol x_{t+\tau}) &= E(\boldsymbol x_t \boldsymbol x_{t+\tau}')
+\\ & = E[( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t\ \boldsymbol  z_{t+\tau} ' \boldsymbol \Omega_0 '( \boldsymbol I + t \boldsymbol{\mathcal E}')]
+\\ &= \boldsymbol R_\tau^{(0)}
+ + t (\boldsymbol{\mathcal E R}^{(0)}_\tau +  \boldsymbol{R}^{(0)}_\tau \boldsymbol{\mathcal E}')
+ + t^2 (\boldsymbol{\mathcal E R}^{(0)}_\tau \boldsymbol{\mathcal E}')
+ + \underbrace {\tau (\boldsymbol{\mathcal E R}^{(0)}_\tau)
+ + t \tau (\boldsymbol{\mathcal E R}^{(0)}_\tau \boldsymbol{\mathcal E}')}_\text{ignorable}
+\\ &\approx \boldsymbol R_\tau^{(0)} + t \boldsymbol R_\tau^{(1)} + t^2 \boldsymbol R_\tau^{(2)}
 \end{aligned}$$
 
-Question: symbols of mixing? transpose? 
+Then, the solutions for $\boldsymbol\Omega_0$ and $\boldsymbol{\mathcal E}$ can be found through the equation group
+
+$$\begin{cases} 
+E(\boldsymbol x_t \boldsymbol x_{t+\tau}') = \boldsymbol R_\tau^{(0)} + t \boldsymbol R_\tau^{(1)} + t^2 \boldsymbol R_\tau^{(2)}  & \text{(step  1) linear model}\\
+\boldsymbol R_\tau^{(0)} = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'  & \text{(step 2a) optimization} \\
+\boldsymbol R_\tau^{(1)} = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}' & \text{(step 2b) optimization}\\ 
+\boldsymbol R_\tau^{(2)} = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'  & \text{(step 2c) optimization} \end{cases}$$
+
+## Algorithm
+
+Step 1 is to estimate $\boldsymbol R_\tau^{(0)}, \ \boldsymbol R_\tau^{(1)}, \ \boldsymbol R_\tau^{(0)}$ through a linear model (element-wise) with the empirical autocovariance.
+
+$$\begin{aligned} 
+\text{for each } i,j = 1,2,\dots, p
+\\ \underbrace {\begin{bmatrix} \vdots \\ E(\boldsymbol x_{-1} \boldsymbol x'_{-1+\tau})[i,j] \\ E(\boldsymbol x_{0} \boldsymbol x'_{\tau})\ [i,j] \\ E(\boldsymbol x_{1} \boldsymbol x'_{1+\tau})[i,j] \\ E(\boldsymbol x_{2} \boldsymbol x'_{2+\tau})[i,j] \\ \vdots  \end{bmatrix}}_{ \boldsymbol y_\tau [i,j]}
+ &= \underbrace{ \begin{bmatrix} \vdots &\vdots &\vdots \\ 1 & -1 & (-1)^2 \\ 1 & 0 & 0^2 \\ 1 & 1 & 1^2 \\ 2 & 2 & 2^2\\ \vdots & \vdots & \vdots \end{bmatrix}  }_{ \boldsymbol H} \ 
+ \underbrace{ \begin{bmatrix} \boldsymbol R_\tau^{(0)}[i,j] \\ \boldsymbol R_\tau^{(1)}[i,j] \\ \boldsymbol R_\tau^{(2)}[i,j] \end{bmatrix}  }_{ \boldsymbol \theta_\tau [i,j]} 
+\\ \\ \text{LS/ML-estimator gives }
+\\ \begin{bmatrix} \boldsymbol R_\tau^{(0)}[i,j] \\ \boldsymbol R_\tau^{(1)}[i,j] \\ \boldsymbol R_\tau^{(2)}[i,j] \end{bmatrix} &= ( \boldsymbol H ' \boldsymbol H)^{-1} \boldsymbol H' \boldsymbol y_\tau[i,j]
+\\ 
+\end{aligned}$$
+
+## Question
+symbols of mixing? transpose? 
+ignorable, why?

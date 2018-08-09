@@ -1,8 +1,16 @@
 ---
 title: R-Lab for BSS
-output: html_document
 ---
 
+## Matrix Calculation
+```{r matrix}
+a <- matrix(rnorm(9), nrow = 3)
+b <- diag(rnorm(3))
+
+a %*% b %*% t(a)
+```
+
+## R-Joint Diagnolization
 
 ```{r}
 library(JADE)
@@ -21,9 +29,12 @@ for (i in 2:12) {
   corrs <- rbind(corrs, cov$acf[i+1,,2])
   corrs <- rbind(corrs, cov$acf[i+1,,3])
 }
-rjd(corrs)
 
-  # ica
-SOBI(X)
+ans1 <- rjd(corrs)
+```
 
+## SOBI-methods
+
+```{r sobi}
+ans2 <- SOBI(X)
 ```

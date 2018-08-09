@@ -2,3 +2,32 @@
 p{margin-bottom:50px}    
 h2{border-bottom: 3px solid lightgrey; text-align: right; margin:33px}
 </style>
+
+<h2>References</h2>
+
+<p>Baloch, S.H., Krim, H. and Genton, M.G., 2005, July. Robust independent component analysis. <i>In Statistical Signal Processing</i>, 2005 IEEE/SP 13th Workshop on (pp. 61-64). IEEE.
+<br /><br />
+Hyvärinen, Aapo, and Erkki Oja. 2000. “Independent Component Analysis: Algorithms and Applications.” <i>Neural Networks</i> 13 (4-5). Elsevier: 411–30.
+<br /><br />
+Miettinen, Jari, Katrin Illner, Klaus Nordhausen, Hannu Oja, Sara Taskinen, and Fabian J Theis. 2016. “Separation of Uncorrelated Stationary Time Series Using Autocovariance Matrices.” <i>Journal of Time Series Analysis</i> 37 (3). Wiley Online Library: 337–54.
+<br /><br />
+Miettinen, Jari, Klaus Nordhausen, and Sara Taskinen. 2017. “Blind Source Separation Based on Joint Diagonalization in R: The Packages Jade and Bssasymp.” <i>Journal of Statistical Software</i> 76. Foundation for Open Access Statistics.
+<br /><br />
+Virta, J. and Nordhausen, K., 2017. Blind source separation of tensor-valued time series. <i>Signal Processing</i>, 141, pp.204-216.
+<br /><br />
+Yeredor, Arie. 2003. “TV-Sobi: An Expansion of Sobi for Linearly Time-Varying Mixtures.” In Proc. <i>4th International Symposium on Independent Component Analysis and Blind Source Separation</i> (Ica’03), Nara, Japan.</p>
+
+<div class="btn-group btn-group-justified" style="margin-top: 66px">
+  <a href="https://r.boring.fi/files/bss/ref.jade.pkg.pdf" class="btn btn-default">JADE-BSS</a>
+  <a href="https://r.boring.fi/files/bss/ref.stationary.bss.pdf" class="btn btn-default">Stationary-TS</a>
+  <a href="https://r.boring.fi/files/bss/ref.tvsobi.intro.pdf" class="btn btn-default">TV-SOBI</a>
+  <a href="https://r.boring.fi/files/bss/ref.robust.pdf" class="btn btn-default">Robust</a>
+  <a href="https://r.boring.fi/files/bss/ref.tensor.pdf" class="btn btn-default">Tensor</a>
+</div>
+
+<div class="btn-group btn-group-justified" style="margin-top: 22px">
+  <a href="https://cran.r-project.org/web/packages/JADE/JADE.pdf" class="btn btn-default">JADE-CRAN</a>
+  <a href="https://r.boring.fi/files/bss/ref.ica.pdf" class="btn btn-default">ICA Tutorial</a>
+  <a href="https://r.boring.fi/files/bss/ref.icabook.pdf" class="btn btn-default">ICA Book</a>
+  <a href="https://r.boring.fi/files/bss/ref.recentICA.pdf" class="btn btn-default">ICA Recent</a>
+</div>
