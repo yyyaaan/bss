@@ -23,7 +23,7 @@ $$\begin{aligned} \text{Simultaneous Diag Problem }
 \\ \text{Simultaneous Diag Solution }
 & \begin{cases} 
   \text{1. Solve eigen } & S_1 V^T = V^T \Lambda_1 \\ 
-  \text{2. Square root } & S_1^{-1/2} = V^T \Lambda-1 ^{-1/2} V \\ 
+  \text{2. Square root } & S_1^{-1/2} = V^T \Lambda_1 ^{-1/2} V \\ 
   \text{3. Solve eigen } & \big( S_1^{-1/2}\ S_2\ S_1^{-1/2\ T} \big) U^T = U^T \Lambda_2 \\
   \text{Solution: } & W=US_1^{-1/2},\ D= \Lambda_2
   \end{cases} 
