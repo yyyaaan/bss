@@ -90,13 +90,24 @@ $$\begin{aligned}
 \\ \boldsymbol\Omega_0 &= \bigg(\boldsymbol R_0^{(0)}\bigg)^{1/2} \boldsymbol U
 \end{aligned}$$
 
-### Step 3 $\boldsymbol{\mathcal E}$ by linear estimator or jd?
+### Step 3 Estimate $\boldsymbol{\mathcal E}$
 
-Use (2.2) can solve for $\boldsymbol{\mathcal E}$
+Potentially 3 methods
 
-Use (2.3) clearly follows again the Sub-SOBI procedure.
+First, it can be transformed to a linear optimization problem after vectorization, and the ML/LS-estimator give the estimator as in Step 1.
 
-## Question
-symbols of mixing? transpose? 
-how matrix arranged
-ignorable, why?
+$$\begin{aligned}
+\tau = 1,2,\dots,L
+\\ \text{vec}( \boldsymbol R _\tau^{(1)}) &= \big( \boldsymbol H_{\tau,1} + \boldsymbol H_{\tau,2}  \big) \text{vec}( \boldsymbol{\mathcal E})  
+\\ \text{where } &   \boldsymbol H_{\tau,1}, \ \boldsymbol H_{\tau,2} \text{ are proper vectorization of }  \boldsymbol R_{\tau}^{(0)}
+\end{aligned}$$
+
+Second, it can be solve analytically by the formula given in (2b) after sum-up $\tau=1,2,\dots,L$
+
+$$ \sum\limits_{\tau=1}^L \boldsymbol R_\tau^{(1)} = \boldsymbol{\mathcal E} \bigg( \sum\limits_{\tau=1}^L \boldsymbol R_\tau^{(0)} \bigg) + \bigg( \sum\limits_{\tau=1}^L \boldsymbol R_\tau^{(0)'} \bigg) \boldsymbol{\mathcal E'}   $$
+
+The third appraoch may potentially be less accurate due to the use of (2c), which are supposed to carry less information. It is a joint diagonalization problem searching for $\boldsymbol{\mathcal E \Omega_0}$, but the challenge could be spatial whitening.
+
+$$\boldsymbol R_\tau^{(2)} = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$$
+
+The methods 1 and 2 obviously coincide each other in the unique solution. The 3rd method ignores $\boldsymbol R_\tau^{(1)}$
