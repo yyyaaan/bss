@@ -2,12 +2,12 @@ name: "Blind Source Separation"
 navbar:
   title: "Blind Source Separation"
   left:
-    - text: "Notebook"
-      href: index.Rmd
     - text: "TV-SOBI"
-      href: tvsobi.Rmd
+      href: index.Rmd
+    - text: "BSS Basics"
+      href: bss.Rmd
     - text: "R-lab"
-      href: rlab.Rmd
+      href: lab.Rmd
   right:
     - icon: fa-home fa-lg
       href: https://yan.fi

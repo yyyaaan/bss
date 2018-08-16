@@ -1,0 +1,215 @@
+---
+title: BSS Basics 
+---
+
+$$\begin{aligned}
+x= zA^T + \mu
+\\ & z \text{ is source signal, zero-mean}
+\\ & \mu \text{ is location param, }p \text{-vector}
+\\ & A \text{ is mixing matrix; } W:= A^{-1} \text{ unmixing}
+\\
+\\ & W \text{ is not unique up to signs and scales}
+\\ & W^*=CW,\ C_{p\times p} \text{ has exactly one non-zero in each row and column}
+\\ & \text{usually define }x_{st}= (x-\mu)\Sigma^{-1/2},\ \ \Sigma= \text{Cov}(x)=AA^T
+\end{aligned}$$
+
+## Joint Diagonalization
+
+$S_1,\ S_2$ are know symmetric matrices; $W_{p\times p}$ nonsingular and $D_{p\times p}$ diagonal.
+
+$$\begin{aligned} \text{Simultaneous Diag Problem }
+& \begin{cases} WS_1 W^T &= I_p \\ W S_2 W^T & = D \end{cases}
+\\
+\\ \text{Simultaneous Diag Solution }
+& \begin{cases} 
+  \text{1. Solve eigen } & S_1 V^T = V^T \Lambda_1 \\ 
+  \text{2. Square root } & S_1^{-1/2} = V^T \Lambda_1 ^{-1/2} V \\ 
+  \text{3. Solve eigen } & \big( S_1^{-1/2}\ S_2\ S_1^{-1/2\ T} \big) U^T = U^T \Lambda_2 \\
+  \text{Solution: } & W=US_1^{-1/2},\ D= \Lambda_2
+  \end{cases} 
+\end{aligned}$$
+
+For more matrices, try to make $WS_K W^T$ as diagonal as possible. $\text{off}(M) = M - \text{diag}(M)$.
+
+$$\begin{aligned} 
+\text{To minimize diagonality } & 
+\begin{cases} \sum\limits_{k=1}^K M(WS_K W^T) \\  \\ M(V):= || \text{off}(V)||^2 = \sum\limits_{i\neq j}V_{ij}^2 \text{ as a common choice} \end{cases}
+\\
+\\ \text{Approximation Solution }
+& \begin{cases} 
+  \text{1. Whitening } & S_k^*= S_1^{-1/2}\ S_k\ S_1^{-1/2\ T}\\
+  & S_1 \text{ usually covariance matrix}\\
+  \text{2. Find orthogonal }U & \text{minimize }\sum\limits_{k=2}^K|| \text{off}(US_k^* U^T)||^2  \\
+  \ \ \ \ \ \text{(or) }\iff &\text{maximize }\sum\limits_{k=2}^K|| \text{diag}(US_k^* U^T)||^2 \\
+  \text{use algorithms e.g.}& \text{deflation-based }\textbf{djd} \text{; Given's rotation }\textbf{rjd}
+\end{cases} 
+\end{aligned}$$
+
+## Independent Component Analysis
+
+$$\begin{aligned}
+\\ \text{ICA assumptions} 
+& \begin{cases} 
+    \text{source components are mutually independent} \\
+    E(z)=0 \text{ and }E(z^T z) = I_p \\
+    \text{at most one component is Gaussian} \\
+    \text{each component is i.i.d}
+  \end{cases}
+\\
+\\ \text{ICA-FOBI}
+& \begin{cases} 
+    \text{find unmixing } W \ \begin{cases} WS_1(F_x)W^T = I_p \\ WS_2(F_x)W^T = D \end{cases}\\
+    \text{ where, } \begin{aligned} &S_1(F_x)=Cov(x) \\ &S_2(F_x) = \frac{1}{p+2} E \bigg[ \big|\big|S_1^{-1/2} \big(x-Ex\big)\big|\big|^2  \big(x-Ex\big)^T \big(x-Ex\big)\bigg] \end{aligned}
+  \end{cases}
+\\
+\\ \text{ICA-JADE}
+& \begin{cases} 
+    \text{Fourth order cumulant } & C(M):= E[(x_{st}M x_{st}^T)x_{st}^T x_{st}]-M-M^T - \text{tr}(M)I_p \\
+    \text{Joint diagonalize }C(E^{ij}) & E^{ij}=e_i^T e_j,\ \ \ e_k \ p\text{-vector containing all 0 but 1 at }k 
+  \end{cases}
+\\
+\\ \text{ICA-}k \text{-JADE}
+& \begin{cases} 
+    \text{same as JADE, but limit to } \{C(E^{ij}): |i-j|<k\} \\
+    k \text{ is guess of largest multiplicity of identical kurosis}
+  \end{cases}
+\end{aligned}$$
+
+## Second Order Source Separation
+
+$$\begin{aligned}
+\\ \text{SOS assumptions}
+& \begin{cases} 
+    \text{(time series) } (z_t)_{t=0,\pm 1,\pm 2} \\
+    E(z_t)=0 \text{ and }E(z_t^T z_t) = I_p \\
+    E(z_t^T z_{t+\tau }) = D_\tau \text{ diagonal }\forall \tau \text{ (stationarity)}
+  \end{cases}
+\\
+\\ \text{SOS-AMUSE}
+& \begin{cases} 
+    \text{Given a lag }\tau: \\ 
+    \text{find unmixing } W_\tau \ \begin{cases} W_\tau S_0(F_x)W_\tau^T = I_p \\ W_\tau S_\tau(F_x)W_\tau^T = D_\tau \end{cases}\\
+    \text{ where, } \begin{aligned} &S_0(F_x)=Cov(x) \\ &S_\tau(F_x) = E \big[ \big(x_t-Ex_t\big)^T \big(x_{t+\tau} -Ex_{t}\big)\big] \end{aligned}
+  \end{cases}
+\\
+\\ \text{SOS-SOBI}
+& \begin{cases} 
+    \text{Consider lags }\tau_1,\tau_2,\dots, \tau_k: \\ 
+    \text{find unmixing } W \ \begin{cases} W S_0(F_x)W^T &= I_p \\ W S_{\tau_1}(F_x)W^T &= D_{\tau_1} \\ &\vdots \\ W S_{\tau_K}(F_x)W^T &= D_{\tau_K} \end{cases}\\
+    \text{then, joint diagonalization. } \textbf{rjd} \text{ is preferable}
+  \end{cases}
+\end{aligned}$$
+
+## Nonstationary Source Separation
+
+$$\begin{aligned}
+\\ \text{NSS assumptions}
+& \begin{cases} 
+    E(z_t)=0 \ \forall t\\
+    E(z_t^T z_t) \text{ diagonal and positive definite }\forall t \\
+    E(z_t^T z_{t+\tau })\text{ diagonal }\forall t,\ \tau \text{ (not constant, i.e. non-stationary)}
+  \end{cases}
+\\
+\\ & S_{T,\tau}(F_x):= \frac 1 {|T|-\tau} \sum\limits_{t\in T} E \big[ \big(x_t-Ex_t\big)^T \big(x_{t+\tau} -Ex_{t}\big)\big]
+\\
+\\ \text{NSS-SD}
+& \begin{cases} 
+    \text{simultaneously diagonalize } S_{T_1,0}(F_x), \ S_{T_2,0}(F_x) \\ 
+    \text{choose } T_1,\ T_2\subset [1,n] \text{that makes above as different as possible}
+  \end{cases}
+\\
+\\ \text{NSS-JD}
+& \begin{cases} 
+    \text{1. whitening using covariance }S_{[1,n],0}(F_x)\\
+    \text{2. jointly diagonalize } S_{T_1,0}(F_x), \ S_{T_2,0}(F_x),\dots,\ S_{T_K,0}(F_x)
+  \end{cases}
+\\
+\\ \text{NSS-TD-JD}
+& \begin{cases}
+    \text{consider time dependence, where some intervals may comply SOS} \\
+    \text{1. whitening using covariance }S_{[1,n],0}(F_x)\\
+    \text{2. jointly diagonalize } S_{T_i,\tau_j}(F_x),\ i=1,\dots,K,\ j=1,\dots,L\\
+    \text{length if inteval selection: random effects not too large}\\
+    \text{number of intervals: } K=12 \text{ if large enough, each interval }\gt 100 \text{ obs}
+  \end{cases}  
+\end{aligned}$$
+
+## SOBI Topic: Stationary Time Series
+
+SOS model $\boldsymbol x_t = \boldsymbol\mu + \boldsymbol\Omega \boldsymbol z_t,\ \ \ t =  0, \pm 1,\pm2,\dots$
+
+Latent time series are assumed to be uncorrelated and weakly stationary $\begin{cases} \text{A1} &E(\boldsymbol z_t)=0 \\ \text{A1} & E(\boldsymbol z_t \boldsymbol z_t') = \boldsymbol I_p \\ \text{A2} & E(\boldsymbol z_{t} \boldsymbol z_{t+\tau}') = e(\boldsymbol z_{t+\tau} \boldsymbol z_{t}') = \boldsymbol\Lambda_\tau \text{ is diagonal }\forall \tau = 1,2,\dots \end{cases}$ 
+
+Given ts-observations, the goal is to estimate $\hat{\boldsymbol \Gamma}:\ \boldsymbol{\Gamma x}$ has uncorrelated components. Clearly, $\boldsymbol\Gamma = \boldsymbol{C\Omega}^{-1}$, where $\boldsymbol C$ has exactly one non-zero element in each row and each column
+
+### BSS on Autocovariance Matrix
+
+Joint diagonalization; suppose $\boldsymbol \mu = \boldsymbol 0$
+$$\begin{aligned} 
+E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}') &= E(\boldsymbol{\Omega z}_t \boldsymbol z' _{t+\tau} \boldsymbol\Omega') = \boldsymbol{\Omega\Lambda}_\tau \boldsymbol{ \Omega}'
+\\ \Rightarrow \boldsymbol\Gamma_\tau \text{ satisfies } & \begin{cases} \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t}') \boldsymbol \Gamma_\tau' = \boldsymbol I _p \\ \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}')\boldsymbol \Gamma_\tau' = \underbrace{ \boldsymbol P_\tau \boldsymbol \Lambda_\tau \boldsymbol P'_\tau}_{\text{decreasing ordered } \boldsymbol\Lambda_\tau }\end{cases} 
+\end{aligned}$$
+
+AMUSE algorithm only consider the unique $\boldsymbol S_0 = E(\boldsymbol x_{t} \boldsymbol x_{t}'), \ \boldsymbol S_\tau = E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}')$.
+
+SOBI algorithm consider lags at $\tau_1, \dots, \tau_K$, and find unmixing $\boldsymbol\Gamma_{p\times p} = (\gamma_1,\dots,\gamma_p)'$ by
+$$\begin{aligned} \text{ under constraint } \boldsymbol {\Gamma S}_0 \boldsymbol \Gamma' = \boldsymbol I _p
+\\ \text{minimize } & \sum\limits_{k=1}^K \big|\big| \text{off}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma ') \big |\big|^2 ,\ \ \ \text{off}( \boldsymbol S) = \boldsymbol S - \text{diag}( \boldsymbol S)
+\\ \Leftrightarrow \text{ maximize } & \sum\limits_{k=1}^K \big|\big| \text{diag}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma ') \big |\big|^2 = \sum\limits_{j=1}^p \sum\limits_{k=1}^K (\gamma_j' \boldsymbol S_k \gamma_j)^2
+\end{aligned}$$
+
+Facts: $\boldsymbol {\Gamma S}_k \boldsymbol\Gamma' = \boldsymbol I_p \ \Rightarrow \ \boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}$, where $\boldsymbol U_{p\times p} = (u_1,\dots,u_p)'$ orthogonal.
+
+Solving the optimization problem depends on the methdology below.
+
+### Deflation-based Approach
+
+Find unmixing matrix rows one by one: $\gamma_j = \arg\max \sum\limits_{k=1}^K (\gamma_j' \boldsymbol S_k \gamma_j)^2$ under the constrain $\gamma_j' \boldsymbol S_k \gamma_j = \delta_{ij},\ \ i= 1,\dots,j$. The solution optimizes the Lagrangian function.
+
+The estimateing equation:
+$$
+T(\gamma_j)= \boldsymbol S_0 \bigg( \sum\limits_{r=1}^j \gamma_r\gamma_r'\bigg) T(\gamma_j)
+\\ \text{where, }\boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma'\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+$$
+
+As $\boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}$, solve $u_j$ one by one (after $u_1,\dots, u_{j-1}$ and init) following 2 steps until convergence
+$$\begin{aligned} 
+& T(u) := \sum\limits_{k=1}^K(u' \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } & u_j \leftarrow \bigg( \boldsymbol I_p - \sum\limits_{i=1}^{j-1} u_i u_i' \bigg)T(u_j)
+\\ \text{step 2: } & u_j \leftarrow ||u_j||^{-1}u_j
+\\ *\ & \text{different initial values should be tried.}
+\end{aligned}$$
+
+### Symmetric Approach
+
+Simultaneously find all rows, and the estimating equations:
+$$\begin{aligned}
+&\begin{cases} \gamma_i' T(\gamma_j) = \gamma_j\ T(\gamma_i)
+\\ \gamma_i' \boldsymbol S_0 \gamma_j = \delta_{ij}
+\end{cases}
+\\ \text{where, } & 2 T(\gamma_j) = \boldsymbol S_0 \bigg( 2 \theta_{jj}\gamma_j + \sum\limits_{i=1}^{j-1}\theta_{ij}\gamma_i + \sum\limits_{i=j+1}^p \theta_{ji}\gamma_i \bigg)
+\\ \text{and } & \boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma'\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+\end{aligned}
+$$
+
+
+Repeat until convergence
+$$\begin{aligned} 
+& T(u) := \sum\limits_{k=1}^K(u' \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } & T \leftarrow (T(u_1), \dots, T(u_p))'
+\\ \text{step 2: } & U \leftarrow (TT')^{-1/2} T
+\end{aligned}$$
+
+## Another Intro to ICA and FOBI
+
+ICA is a BSS based $\begin{cases} E(z)=0 \\ E(zz')= I_p \\ z\text{ independent} \end{cases}$, and the identifiability of parameters requires at most one component is normally distributed.
+
+Singular value decomposition $\Omega=U\Lambda V'$ and then $\Sigma:=Cov(x)=U\Lambda^2 U',\ \ VU'\Sigma^{-1/2}(x-\mu)=z$. Therefore, the orthogonal matrix $VU'$ is the components.
+
+Scatter matrices, $S_1, S_2$ (symmetric, positive definite and affine equivariant), and solve $\begin{cases} \Gamma S_1 \Gamma'=I_p &\text{standardization} \\ \Gamma S_2 \Gamma' = \Lambda &\text{uncorrelatoin}\end{cases}$. The solution is eigenvector-eigenvalue of $S_1^{-1}S_2$
+
+FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-E(x)\big)'\ Cov(x)^{-1}\ \big(x-E(x)\big)\big(x-E(x)\big)' \bigg) \end{cases}$
+
+```{bash, eval = F, echo = F}
+notedown bss.Rmd --knit > bss.ipynb
+```

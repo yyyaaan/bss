@@ -1,0 +1,32 @@
+---
+title: R-Lab for BSS
+---
+
+## Simulate Sources
+
+Source signals are "standardized" in terms of center and scale.
+
+```{r source}
+N <- 1e3 + 1
+
+s1 <- arima.sim(list(ar = c(0.3, 0.3)), N)
+s2 <- arima.sim(list(ar = c(0.8, 0.1)), N)
+s3 <- arima.sim(list(ar = c(-.3, 0.2)), N)
+
+s <- ts(cbind(scale(s1), scale(s2), scale(s3)), start = -T)
+# apply(s, 2, var) # should be 1
+# apply(s, 2, mean) # should be 0
+# plot(s)
+```
+
+## Mixed Data
+
+```{r mixing}
+
+```
+
+## SOBI-methods
+
+```{r sobi}
+ans2 <- SOBI(X)
+```
