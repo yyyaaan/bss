@@ -1,0 +1,42 @@
+---
+title: "Topics"
+---
+
+## Time Index Not Centered
+
+In the case of linear time-varying mixture, the time-index $t$ should not be centered. On the other hand, centered time indicies provides symmetric time-varying structure (the far away from the center, the more varying. "triangle-shaped").
+
+## Whitening in TV-SOBI May not be Possible
+
+The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol I_p$. Since almost all JD-algorithms can only find orthogonal matrix, the autocovariances have to be whiten by $\boldsymbol R_0^{-1/2} \boldsymbol R_k \boldsymbol R_0^{-1/2}$. This is not a challenge for ordinary (non-time-varying) second-ordered methodologies, as covariance matrix are always postive semi-definite. However, there is no guareentee for $ \boldsymbol{Ra}$ having the same property.
+
+`Topic` How to ensure $\boldsymbol {Ra}_0^$ positive semi-definite | How to perform whitening if not.
+
+## Measuring the Accuracy of Time-Varying Factor
+
+It is clear that MD can be use to evaluate the accuracy of $\boldsymbol{\mathcal E \Omega}$, as it can be seen as a joint diagnolization problem from $\boldsymbol{Rc}$. However, such performance index does not specify how well does the estimation of $\boldsymbol{\mathcal E}$ alone.
+
+`Topic` Study the proerty of $\boldsymbol{\mathcal E}$, and establish similar performance index like MD.
+
+## Keynotes
+
+- colMeans needed?
+
+## Matrix Calculation Review
+
+```{r matrix}
+  # covariance of something...
+A <- cov(matrix(rnorm(3000), ncol = 3)) 
+  # eigen
+eig <- eigen(A)
+  # eigen decompose = 0
+round(eig$vectors %*% diag(eig$values) %*% solve(eig$vectors) - A, 5)
+  # find sqrt
+A.sqrt <- eig$vectors %*% diag(eig$values^{1/2}) %*% solve(eig$vectors)
+round(A.sqrt %*% A.sqrt - A, 5)
+  # find ^-1/2 = solve(A.sqrt)
+A.invsqrt <-  eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
+round(solve(A.invsqrt %*% A.invsqrt) - A, 5)
+
+```
+

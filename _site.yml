@@ -4,10 +4,12 @@ navbar:
   left:
     - text: "TV-SOBI"
       href: index.Rmd
-    - text: "BSS Basics"
-      href: bss.Rmd
     - text: "R-lab"
       href: lab.Rmd
+    - text: "Issues"
+      href: issues.Rmd
+    - text: "BSS Basics"
+      href: bss.Rmd
   right:
     - icon: fa-home fa-lg
       href: https://yan.fi
@@ -17,6 +19,7 @@ output:
     toc_depth: 3
     toc_float:
       collapsed: false
+    highlight: tango
     df_print: kable
     theme: 'paper'
     include:

@@ -4,28 +4,185 @@ title: R-Lab for BSS
 
 ## Simulate Sources
 
-Source signals are "standardized" in terms of center and scale.
+Sources are generated from `arima.sim` with different parameters set. The source signals should be very closed to independent and stationary. 
+
+Though not compulsory, the sources are scales to zero-mean and unit-variance before mixing.
+
+This step generate a list of `sim` that includes `x.simple` as normal mixing, and `x.tv` with a time-varying factor $\boldsymbol{\mathcal E}$.
+
+Note that the matrix are transposed from the literature, but is consistent with `ts` class.
 
 ```{r source}
-N <- 1e3 + 1
+N <- 1e4
+sim <- list()
 
-s1 <- arima.sim(list(ar = c(0.3, 0.3)), N)
-s2 <- arima.sim(list(ar = c(0.8, 0.1)), N)
-s3 <- arima.sim(list(ar = c(-.3, 0.2)), N)
+omega <- matrix(rnorm(9) , ncol = 3)
+epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
+s1 <- arima.sim(list(ar=c(0.3,0.6)),N)
+s2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
+s3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
+s <- cbind(s1,s2,s3)
+s <- apply(s, 2, scale)
 
-s <- ts(cbind(scale(s1), scale(s2), scale(s3)), start = -T)
-# apply(s, 2, var) # should be 1
-# apply(s, 2, mean) # should be 0
-# plot(s)
+sim$x.simple <- s %*% t(omega)
+sim$x.tv <- matrix(nrow = nrow(s), ncol = ncol(s))
+for (i in 1:N) sim$x.tv[i,] <- s[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
+
+remove(s1,s2,s3,s) #clean
+plot.ts(sim$x.tv)
 ```
 
-## Mixed Data
+In addtion, one parameter (+ the mixed signals) is required for TV-SOBI Algorithm.
 
-```{r mixing}
-
+```{r param}
+lag.max <- 4
+X <- sim$x.tv
+p <- ncol(X); n <- nrow(X) # dims from X, not params
 ```
 
-## SOBI-methods
+## Step 1. Decompose Autocovariance into 3 parts.
+
+Through a linear estimation method, the autocovariance matrices (up to required lag.max) are decomposed into 3 parts, $Ra$, $Rb$ and $Rc$
+
+The `lm` function is preferred over matricies calculation, which is mainly due to the "computationally singular" problem may persist for inverse-matrix.
+
+```{r step1}
+Ra <- Rb <- Rc <- array(dim = c(p, p, lag.max+1))
+
+# elment wise estimation
+for (lag in 0:lag.max) {
+  for (i in 1:p){
+    for(j in 1:p){
+      # lag = 1; i = 2; j = 3
+      y.design <- X[(1+lag):n,i] * X[1:(n-lag),j] # empirical autocovariance
+      x.design <- cbind(rep(1, n-lag), 1:(n-lag), (1:(n-lag))^2)
+      est <- lm(y.design ~ x.design - 1)$coefficients # using lm avoids the singular problem
+      Ra[i, j, lag+1] <- est[1]
+      Rb[i, j, lag+1] <- est[2]
+      Rc[i, j, lag+1] <- est[3]
+    }
+  }
+}
+
+# should be symmetric -> fix it
+for (i in 1:(lag.max+1)) {
+  Ra[,,i] <- (Ra[,,i] + t(Ra[,,i]))/2
+  Rb[,,i] <- (Rb[,,i] + t(Rb[,,i]))/2
+  Rc[,,i] <- (Rc[,,i] + t(Rc[,,i]))/2
+}
+```
+
+It can be observed that $Ra > Rb > Rc$ and the last one is really small
+
+## Step 2: JD on $Ra$
+
+This joint diagnolization problem requires first whitening the autocovariance matricies using covariance matrix, and a handy function is created to achieve this. The function itslef is in fact the SOBI algorithm without calculation of (auto)covariance matrix. However, practically, it seems differ from `JADE::SOBI` slightly, which is most likely due to the matrix-eigen problem.
+
+$\boldsymbol W := \boldsymbol\Omega_0 ^{-1}$
+
+```{r step2}
+myCovJD <- function(covs){
+
+    require(JADE)
+  
+  # whitening using S_0^{-1/2}, through eigen calculation
+  eig <- eigen(covs[,,1])
+  white <- solve(eig$vectors %*% sqrt(diag(eig$values)))
+  
+  # whiten and format to rjd
+  covs.white <- array(dim = c(dim(white),lag.max))
+  for (i in 1:lag.max) covs.white[,,i] <- white %*% covs[,,i+1] %*% t(white)
+  
+  # joint diagnolization for V | note for the transpose of V
+  jd <- frjd(covs.white, maxiter = 1e5)
+  
+  # D is the estimated diagnals
+  list(W = t(jd$V) %*% white, D = jd$D, white = white)
+}
+
+# now it is easy
+jd <- myCovJD(Ra)
+W.est <- jd$W
+omega.est <- solve(W.est)
+```
+
+## Step 3: Look for $\boldsymbol{\mathcal E}$
+
+### Alternative 1: use $Rb$
+
+It is again a linear optimization problem given nicely designed hat-matrix
+
+```{r step3a}
+Q <- Ra
+
+# design matricies
+H1 <- H2 <- array(0, dim = c(p^2, p^2, lag.max + 1))
+for(lag in 0:lag.max){
+  for(i in 1:p^2){
+      # the column to use  
+    Qi <- Q[,ceiling(i/p),lag+1]
+      # H1 similar to diagonal
+    pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
+    H1[i, pos, lag+1] <- Qi
+      # H2 similar to vec
+    pos <- (ceiling(i/p) - 1) * p + (1:p)
+    H2[i, pos, lag+1] <- Qi
+  }
+}
+
+y.design <-matrix(as.vector(Rb[,,1]), nrow = p^2)
+x.design <- H1[,,1] + H2[,,1]
+for (i in 2:p) {
+  y.design <- y.design + matrix(as.vector(Rb[,,i]), nrow = p^2)
+  x.design <- x.design + H1[,,i] + H2[,,i]
+}
+
+# estimate
+est <- lm(y.design ~ x.design - 1)$coefficients
+epsilon.est1 <- matrix(est, nrow = p)
+```
+
+### Alternative 2: use $ \boldsymbol{\hat\Omega \hat\Lambda \hat\Omega}$
+
+The algorithm is exact with the first alternative, but choose $Q$ different by using the result from Step 2.
+
+In fact, if the joint diagnolization is perfect, above two alternatives are exact.
+
+```{r step3b, eval=FALSE}
+# not run
+# replace the Q in above with
+Q <- array(dim = c(p, p, lag.max + 1))
+Q[,,1] <- omega.est %*% t(omega.est)
+for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
+```
+
+### Alternative 3： Joint Diagnolization on $Rc$
+
+Though $Rc$ is rather small in value, it is possible to estimate via joint diagonlization (for $\boldsymbol{\mathcal E \Omega} $). The accuracy/loss is dependent on the linear estimators in step 1 and the loss from Joint Diagnolization.
+
+```{r step3c}
+jd <- myCovJD(Rc)
+epsilon.est2 <- solve(jd$W) %*% W.est
+```
+
+## Brief Evaluation on the result
+
+```{r md, results=`hold`}
+cat("Accuracy of Omega:\n using TV-SOBI", MD(W.est, omega), "\n using SOBI", MD(SOBI(X)$W, omega), "\n\n")
+print(epsilon)
+print(epsilon.est1)
+print(epsilon.est2)
+```
+
+## Notes and Further Considerations
+
+The autocovariance matricies are always arranged as in `JADE` package ($dim=c(p,p,lag)$), but is different from `acf` function ($dim=c(lag,p,p)$). Furthermore, the index is always starting with 1, implying that lag=0 is stored in $[,,1]$, and lag=1 in $[,,2]$..
+
+Implementation to class `bss` not yet achieved.
+
+For the compatibility with `JADE` packages, the function `JADE:bsscomponents` may need to be extend in order to correctly restore sources from TV-SOBI.
+
+## Memo on SOBI with new function
 
 ```{r sobi}
 ans2 <- SOBI(X)
