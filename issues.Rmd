@@ -6,11 +6,15 @@ title: "Topics"
 
 In the case of linear time-varying mixture, the time-index $t$ should not be centered. On the other hand, centered time indicies provides symmetric time-varying structure (the far away from the center, the more varying. "triangle-shaped").
 
+`Solution` it is not an issue with index.
+
 ## Whitening in TV-SOBI May not be Possible
 
 The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol I_p$. Since almost all JD-algorithms can only find orthogonal matrix, the autocovariances have to be whiten by $\boldsymbol R_0^{-1/2} \boldsymbol R_k \boldsymbol R_0^{-1/2}$. This is not a challenge for ordinary (non-time-varying) second-ordered methodologies, as covariance matrix are always postive semi-definite. However, there is no guareentee for $ \boldsymbol{Ra}$ having the same property.
 
 `Topic` How to ensure $\boldsymbol {Ra}_0^$ positive semi-definite | How to perform whitening if not.
+
+`Solution` Currently, a rather naive and inaccurate way is implemented, where the negative eigenvalues are replaced by 0.
 
 ## Measuring the Accuracy of Time-Varying Factor
 
@@ -18,9 +22,10 @@ It is clear that MD can be use to evaluate the accuracy of $\boldsymbol{\mathcal
 
 `Topic` Study the proerty of $\boldsymbol{\mathcal E}$, and establish similar performance index like MD.
 
-## Keynotes
+## Plan to Create a BSS Dashboard
 
-- colMeans needed?
+To visualize the different ways of BSS and evalute the performace interactively
+
 
 ## Matrix Calculation Review
 
@@ -37,6 +42,5 @@ round(A.sqrt %*% A.sqrt - A, 5)
   # find ^-1/2 = solve(A.sqrt)
 A.invsqrt <-  eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
 round(solve(A.invsqrt %*% A.invsqrt) - A, 5)
-
 ```
 

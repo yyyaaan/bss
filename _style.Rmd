@@ -1,6 +1,8 @@
 <style>
 p{margin-bottom:50px}    
 h2{border-bottom: 3px solid lightgrey; text-align: right; margin:33px}
+h3{border-right: 3px solid lightgrey; text-align: right; margin:13px}
+pre#runcode_expr{font-size: 11px !important}
 blockquote {
     font-size: inherit;
     color: #212121;
@@ -10,7 +12,7 @@ blockquote {
 }
 </style>
 
-<h2>References</h2>
+<h2 style="margin-top: 66px;">References</h2>
 
 <p>Baloch, S.H., Krim, H. and Genton, M.G., 2005, July. Robust independent component analysis. <i>In Statistical Signal Processing</i>, 2005 IEEE/SP 13th Workshop on (pp. 61-64). IEEE.
 <br /><br />

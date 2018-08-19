@@ -1,189 +1,252 @@
 ---
-title: R-Lab for BSS
+output:
+  html_document:
+    toc: false
+    code_folding: hide
+runtime: shiny
 ---
 
-## Simulate Sources
-
-Sources are generated from `arima.sim` with different parameters set. The source signals should be very closed to independent and stationary. 
-
-Though not compulsory, the sources are scales to zero-mean and unit-variance before mixing.
-
-This step generate a list of `sim` that includes `x.simple` as normal mixing, and `x.tv` with a time-varying factor $\boldsymbol{\mathcal E}$.
-
-Note that the matrix are transposed from the literature, but is consistent with `ts` class.
-
-```{r source}
-N <- 1e4
-sim <- list()
-
-omega <- matrix(rnorm(9) , ncol = 3)
-epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
-s1 <- arima.sim(list(ar=c(0.3,0.6)),N)
-s2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
-s3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
-s <- cbind(s1,s2,s3)
-s <- apply(s, 2, scale)
-
-sim$x.simple <- s %*% t(omega)
-sim$x.tv <- matrix(nrow = nrow(s), ncol = ncol(s))
-for (i in 1:N) sim$x.tv[i,] <- s[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-remove(s1,s2,s3,s) #clean
-plot.ts(sim$x.tv)
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(comment=NA, warning = FALSE, message = FALSE )
+library(shiny); library(shinyjs)
 ```
 
-In addtion, one parameter (+ the mixed signals) is required for TV-SOBI Algorithm.
+## TVSOBI function in R
 
-```{r param}
-lag.max <- 4
-X <- sim$x.tv
-p <- ncol(X); n <- nrow(X) # dims from X, not params
-```
+```{r fun}
+# TV-SOBI function uses nonJD function and require JADE
 
-## Step 1. Decompose Autocovariance into 3 parts.
+# non-orthogonal JD -------------------------------------------------------
 
-Through a linear estimation method, the autocovariance matrices (up to required lag.max) are decomposed into 3 parts, $Ra$, $Rb$ and $Rc$
-
-The `lm` function is preferred over matricies calculation, which is mainly due to the "computationally singular" problem may persist for inverse-matrix.
-
-```{r step1}
-Ra <- Rb <- Rc <- array(dim = c(p, p, lag.max+1))
-
-# elment wise estimation
-for (lag in 0:lag.max) {
-  for (i in 1:p){
-    for(j in 1:p){
-      # lag = 1; i = 2; j = 3
-      y.design <- X[(1+lag):n,i] * X[1:(n-lag),j] # empirical autocovariance
-      x.design <- cbind(rep(1, n-lag), 1:(n-lag), (1:(n-lag))^2)
-      est <- lm(y.design ~ x.design - 1)$coefficients # using lm avoids the singular problem
-      Ra[i, j, lag+1] <- est[1]
-      Rb[i, j, lag+1] <- est[2]
-      Rc[i, j, lag+1] <- est[3]
-    }
-  }
-}
-
-# should be symmetric -> fix it
-for (i in 1:(lag.max+1)) {
-  Ra[,,i] <- (Ra[,,i] + t(Ra[,,i]))/2
-  Rb[,,i] <- (Rb[,,i] + t(Rb[,,i]))/2
-  Rc[,,i] <- (Rc[,,i] + t(Rc[,,i]))/2
-}
-```
-
-It can be observed that $Ra > Rb > Rc$ and the last one is really small
-
-## Step 2: JD on $Ra$
-
-This joint diagnolization problem requires first whitening the autocovariance matricies using covariance matrix, and a handy function is created to achieve this. The function itslef is in fact the SOBI algorithm without calculation of (auto)covariance matrix. However, practically, it seems differ from `JADE::SOBI` slightly, which is most likely due to the matrix-eigen problem.
-
-$\boldsymbol W := \boldsymbol\Omega_0 ^{-1}$
-
-```{r step2}
-myCovJD <- function(covs){
-
-    require(JADE)
+nonJD <- function(covs, method = "frjd", fix = FALSE){
+  # param covs as in JADE | in the form of dim = p,p,lag.max+1 | lag 0 at index 1
+  # methods are frjd, fjd, djd
+  # NOTE for acf(.)$acf | dim = lag.max+1,p,p 
   
-  # whitening using S_0^{-1/2}, through eigen calculation
+  require(JADE)
+  
+  if(dim(covs)[1] != dim(covs)[2]) stop('Autocovariance matrices should be in dim(p,p,k)')
+  lag.max <- dim(covs)[3] - 1
+  
+  # whitening using R_0^{-1/2}, through eigen calculation
+  # error handling is needed
   eig <- eigen(covs[,,1])
-  white <- solve(eig$vectors %*% sqrt(diag(eig$values)))
+  if (min(eig$values) < 0) {
+    if(!fix) stop("first matrix used for whitening is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy")
+    eig$values[eig$values<0] <- 0
+  }
+  white <- eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
+  
   
   # whiten and format to rjd
   covs.white <- array(dim = c(dim(white),lag.max))
   for (i in 1:lag.max) covs.white[,,i] <- white %*% covs[,,i+1] %*% t(white)
   
   # joint diagnolization for V | note for the transpose of V
-  jd <- frjd(covs.white, maxiter = 1e5)
-  
+  # NOTE djd return type is different
+  jd <- do.call(method, list(X = covs.white))
+  if(method == "djd") {
+    W <- jd %*% white
+    D <- NA
+  } else {
+    W <- t(jd$V) %*% white
+    D <- jd$D
+  } 
+
   # D is the estimated diagnals
-  list(W = t(jd$V) %*% white, D = jd$D, white = white)
+  list(W = W, D = D, white = white)
 }
 
-# now it is easy
-jd <- myCovJD(Ra)
-W.est <- jd$W
-omega.est <- solve(W.est)
-```
+# tv-sobi -----------------------------------------------------------------
 
-## Step 3: Look for $\boldsymbol{\mathcal E}$
-
-### Alternative 1: use $Rb$
-
-It is again a linear optimization problem given nicely designed hat-matrix
-
-```{r step3a}
-Q <- Ra
-
-# design matricies
-H1 <- H2 <- array(0, dim = c(p^2, p^2, lag.max + 1))
-for(lag in 0:lag.max){
-  for(i in 1:p^2){
-      # the column to use  
-    Qi <- Q[,ceiling(i/p),lag+1]
-      # H1 similar to diagonal
-    pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
-    H1[i, pos, lag+1] <- Qi
-      # H2 similar to vec
-    pos <- (ceiling(i/p) - 1) * p + (1:p)
-    H2[i, pos, lag+1] <- Qi
+tvsobi <- function(X, lag.max = 12, jd.method = "frjd", epsilon.method = 1, fix = F){
+  p <- ncol(X)
+  n <- nrow(X)
+  
+  # step 1. estimate R0 R1 R2 matrices --------------------------------------
+  
+  Ra <- Rb <- Rc <- array(dim = c(p, p, lag.max+1))
+  for (lag in 0:lag.max) {
+    for (i in 1:p){
+      for(j in 1:p){
+        # lag = 1; i = 2; j = 3
+        y.design <- X[(1+lag):n,i] * X[1:(n-lag),j] # empirical autocovariance
+        h.design <- cbind(rep(1, n-lag), 1:(n-lag), (1:(n-lag))^2)
+        est <- lm(y.design ~ h.design - 1)$coefficients # using lm avoids the singular problem
+        Ra[i, j, lag+1] <- est[1]
+        Rb[i, j, lag+1] <- est[2]
+        Rc[i, j, lag+1] <- est[3]
+      }
+    }
   }
+  # fix for symmetric
+  for (i in 1:(lag.max+1)) {
+    Ra[,,i] <- (Ra[,,i] + t(Ra[,,i]))/2
+    Rb[,,i] <- (Rb[,,i] + t(Rb[,,i]))/2
+    Rc[,,i] <- (Rc[,,i] + t(Rc[,,i]))/2
+  }
+  # remove useless
+  remove(i,j,lag, h.design, y.design, est)
+  
+  # step 2. JD for omega using Ra -------------------------------------------
+  jd <- nonJD(Ra, method = jd.method, fix = fix)
+  W.est <- jd$W
+  omega.est <- solve(W.est)
+
+  # step 3. solve for epsilon using Rb --------------------------------------
+    
+  if(epsilon.method == 3) { # = jd(Rc) and exit
+    # this method directly return the results
+    # potential error -> warnings and return NA for Epsilon
+    jd <- tryCatch(nonJD(Rc), 
+                   error = function(e) warning("Rc[,,1] is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy"))
+    epsilon.est <- NA
+    epsilon.est <- try(solve(jd$W) %*% W.est, silent = T)
+    
+    return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = Rc))
+  }
+  
+  # for method 1 and 2, code continues after if{}
+  if(epsilon.method == 2) { # = Omega Lambda Omega from JD in step 2
+    if(jd.method == "djd") {
+      warning("djd is not compatible with Epsilon estimation method 2")
+      return(list(W = W.est, Epsilon = NA, Ra = Ra, Rb = Rb, Rc = Rc))
+    }
+    
+    Q <- array(dim = c(p, p, lag.max + 1))
+    Q[,,1] <- omega.est %*% t(omega.est) 
+    for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
+  }
+
+  if(epsilon.method == 1) { # = Ra
+    Q <- Ra
+  }
+  
+  # design matricies
+  H1 <- H2 <- array(0, dim = c(p^2, p^2, lag.max + 1))
+  for(lag in 0:lag.max){
+    for(i in 1:p^2){
+      # the column to use  
+      Qi <- Q[,ceiling(i/p),lag+1]
+      # H1 similar to diagnal
+      pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
+      H1[i, pos, lag+1] <- Qi
+      # H2 similar to vec
+      pos <- (ceiling(i/p) - 1) * p + (1:p)
+      H2[i, pos, lag+1] <- Qi
+    }
+  }
+  
+  y.design <-matrix(as.vector(Rb[,,1]), nrow = p^2)
+  h.design <- H1[,,1] + H2[,,1]
+  for (i in 2:(lag.max + 1)) {
+    y.design <- y.design + matrix(as.vector(Rb[,,i]), nrow = p^2)
+    h.design <- h.design + H1[,,i] + H2[,,i]
+  }
+  
+  est <- lm(y.design ~ h.design - 1)$coefficients
+  epsilon.est <- matrix(est, nrow = p, byrow = T)
+  # remove(Q, Qi, H1, H2, y.design, h.design, i, lag, est, pos, jd)
+  
+  return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = Rc))
+}
+```
+
+Click the "code" button on the right to expand. You may skip the code and try the lab directly.
+
+
+## TV-SOBI Lab (alpha)
+
+This interactive dashboard is designed to evaluate the result and performance of tv-SOBI method.
+
+```{r, echo = FALSE}
+maxDigits <- 3
+SimCode <- '# you can overwrite the simulation here
+N <- 1e4
+
+omega <- matrix(rnorm(9) , ncol = 3)
+epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
+
+z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
+z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
+z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
+z <- apply(cbind(z1,z2,z3), 2, scale) # z is needed
+
+# tv-mixing | usually no need to change
+x <- matrix(nrow = nrow(z), ncol = ncol(z))
+for (i in 1:N) x[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
+'
+
+ui <- fluidPage(
+  useShinyjs(),
+  
+  fluidRow(
+    column(12, "Simulate sources"),
+    column(12, runcodeUI(code = SimCode, type = "ace",  height = "266px")),
+    tags$hr(),
+    column(12, tags$p(id = "Info", "After Running Code, more options will show below"))
+  ),
+  
+  fluidRow(
+    id = "PanelSimulation", style = "display:none", tags$hr(),
+    column(4, 
+           inputPanel(
+             radioButtons("ShowSim", "Plot Simulation", choices = c("Mixtures", "Sources"))
+            ),
+           tags$p("Covariance matrix"),
+           verbatimTextOutput("SimPrint")
+    ),
+    column(8, plotOutput("SimPlot"))
+  ),
+  
+  fluidRow(
+    id = "PanelSobi", style = "display:none", tags$hr(), 
+    column(4, inputPanel(
+      "TV-SOBI Parameters",
+      selectInput("Param1", "Max Lag", choices = 2:20),
+      selectInput("Param2", "JD Method", choices = c("frjd", "rjd", "djd")),
+      selectInput("Param3", "Epsilon Estimation Method", choices = 1:3),
+      selectInput("Param4", "Fix for eigen", choices = c("NO", "YES")),
+      actionButton("RunSobi", "Run TV-SOBI")
+    )),
+    column(4, "W", verbatimTextOutput("ResultSobi1")),
+    column(4, "Epsilon", verbatimTextOutput("ResultSobi2")),
+    column(4, "MD (Accuracy of W)", verbatimTextOutput("ResultSobi3"))
+  )
+)
+
+
+
+server <- function(input, output) {
+  runcodeServer()
+  
+  onclick("runcode_run", {
+    show("PanelSimulation"); show("PanelSobi"); hide("Info")
+    x <- as.ts(x)
+    output$SimPlot <- renderPlot(plot.ts(x))
+    output$SimPrint <- renderPrint(round(cov(x), maxDigits))
+  })
+  
+  observeEvent(input$ShowSim, if(exists("x")){
+    if(input$ShowSim == "Mixtures") this <- x
+    if(input$ShowSim == "Sources") this <- z
+    output$SimPlot <- renderPlot(plot.ts(this, main = input$ShowSim))
+    output$SimPrint <- renderPrint(round(cov(this), maxDigits))
+  })
+  
+  observeEvent(input$RunSobi, if(exists("x")){
+    result <- tvsobi(x, 
+                     as.numeric(input$Param1), 
+                     input$Param2, 
+                     as.numeric(input$Param3),
+                     input$Param4 == "YES")
+    output$ResultSobi1 <- renderPrint(result[[1]])
+    output$ResultSobi2 <- renderPrint(result[[2]])
+    output$ResultSobi3 <- renderPrint(MD(result[[1]], omega))
+  })
+
 }
 
-y.design <-matrix(as.vector(Rb[,,1]), nrow = p^2)
-x.design <- H1[,,1] + H2[,,1]
-for (i in 2:p) {
-  y.design <- y.design + matrix(as.vector(Rb[,,i]), nrow = p^2)
-  x.design <- x.design + H1[,,i] + H2[,,i]
-}
-
-# estimate
-est <- lm(y.design ~ x.design - 1)$coefficients
-epsilon.est1 <- matrix(est, nrow = p)
-```
-
-### Alternative 2: use $ \boldsymbol{\hat\Omega \hat\Lambda \hat\Omega}$
-
-The algorithm is exact with the first alternative, but choose $Q$ different by using the result from Step 2.
-
-In fact, if the joint diagnolization is perfect, above two alternatives are exact.
-
-```{r step3b, eval=FALSE}
-# not run
-# replace the Q in above with
-Q <- array(dim = c(p, p, lag.max + 1))
-Q[,,1] <- omega.est %*% t(omega.est)
-for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
-```
-
-### Alternative 3： Joint Diagnolization on $Rc$
-
-Though $Rc$ is rather small in value, it is possible to estimate via joint diagonlization (for $\boldsymbol{\mathcal E \Omega} $). The accuracy/loss is dependent on the linear estimators in step 1 and the loss from Joint Diagnolization.
-
-```{r step3c}
-jd <- myCovJD(Rc)
-epsilon.est2 <- solve(jd$W) %*% W.est
-```
-
-## Brief Evaluation on the result
-
-```{r md, results=`hold`}
-cat("Accuracy of Omega:\n using TV-SOBI", MD(W.est, omega), "\n using SOBI", MD(SOBI(X)$W, omega), "\n\n")
-print(epsilon)
-print(epsilon.est1)
-print(epsilon.est2)
-```
-
-## Notes and Further Considerations
-
-The autocovariance matricies are always arranged as in `JADE` package ($dim=c(p,p,lag)$), but is different from `acf` function ($dim=c(lag,p,p)$). Furthermore, the index is always starting with 1, implying that lag=0 is stored in $[,,1]$, and lag=1 in $[,,2]$..
-
-Implementation to class `bss` not yet achieved.
-
-For the compatibility with `JADE` packages, the function `JADE:bsscomponents` may need to be extend in order to correctly restore sources from TV-SOBI.
-
-## Memo on SOBI with new function
-
-```{r sobi}
-ans2 <- SOBI(X)
+# Run the application 
+shinyApp(ui, server, options = list(height = 3500))
 ```
