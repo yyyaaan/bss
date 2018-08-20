@@ -179,10 +179,12 @@ for (i in 1:N) x[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
 
 ui <- fluidPage(
   useShinyjs(),
-  
+  inlineCSS(list("pre#runcode_expr" = "font-size: 11px !important")),
+
   fluidRow(
     column(12, "Simulate sources"),
-    column(12, runcodeUI(code = SimCode, type = "ace",  height = "266px")),
+    column(12,
+           runcodeUI(code = SimCode, type = "ace", height = "233px")),
     tags$hr(),
     column(12, tags$p(id = "Info", "After Running Code, more options will show below"))
   ),
@@ -240,9 +242,13 @@ server <- function(input, output) {
                      input$Param2, 
                      as.numeric(input$Param3),
                      input$Param4 == "YES")
-    output$ResultSobi1 <- renderPrint(result[[1]])
-    output$ResultSobi2 <- renderPrint(result[[2]])
-    output$ResultSobi3 <- renderPrint(MD(result[[1]], omega))
+    result.sobi <- SOBI(x, as.numeric(input$Param1))
+    output$ResultSobi1 <- renderPrint(round(result[[1]], maxDigits))
+    output$ResultSobi2 <- renderPrint(round(result[[2]], maxDigits + 4))
+    output$ResultSobi3 <- renderPrint(
+      cat("TV-SOBI's Omega\n", MD(result[[1]], omega), 
+          "\n===\nCompared with SOBI\n", MD(result.sobi[[1]], omega))
+    )
   })
 
 }

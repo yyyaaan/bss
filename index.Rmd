@@ -1,5 +1,5 @@
 ---
-title: TV-SOBI with R
+title: TV-SOBI (with R)
 ---
 
 Time-varying second order blind source separation.

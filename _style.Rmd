@@ -2,7 +2,7 @@
 p{margin-bottom:50px}    
 h2{border-bottom: 3px solid lightgrey; text-align: right; margin:33px}
 h3{border-right: 3px solid lightgrey; text-align: right; margin:13px}
-pre#runcode_expr{font-size: 11px !important}
+pre#runcode_expr {font-size: 10px !important}
 blockquote {
     font-size: inherit;
     color: #212121;
