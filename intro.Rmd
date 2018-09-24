@@ -210,6 +210,24 @@ Scatter matrices, $S_1, S_2$ (symmetric, positive definite and affine equivarian
 
 FOBI chooses $\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-E(x)\big)'\ Cov(x)^{-1}\ \big(x-E(x)\big)\big(x-E(x)\big)' \bigg) \end{cases}$
 
+## Matrix Calculation Review
+
+```{r matrix}
+  # covariance of something...
+A <- cov(matrix(rnorm(3000), ncol = 3)) 
+  # eigen
+eig <- eigen(A)
+  # eigen decompose = 0
+round(eig$vectors %*% diag(eig$values) %*% solve(eig$vectors) - A, 5)
+  # find sqrt
+A.sqrt <- eig$vectors %*% diag(eig$values^{1/2}) %*% solve(eig$vectors)
+round(A.sqrt %*% A.sqrt - A, 5)
+  # find ^-1/2 = solve(A.sqrt)
+A.invsqrt <-  eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
+round(solve(A.invsqrt %*% A.invsqrt) - A, 5)
+```
+
+
 ```{bash, eval = F, echo = F}
 notedown bss.Rmd --knit > bss.ipynb
 ```

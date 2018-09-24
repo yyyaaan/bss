@@ -6,10 +6,11 @@ navbar:
       href: index.Rmd
     - text: "R-lab"
       href: lab.Rmd
-    - text: "Issues"
-      href: issues.Rmd
     - text: "BSS Basics"
-      href: bss.Rmd
+      href: intro.Rmd
+    - text: "Researches"
+      href: issues.Rmd
+
   right:
     - icon: fa-home fa-lg
       href: https://yan.fi
@@ -24,4 +25,3 @@ output:
     theme: 'paper'
     include:
       after_body: _style.Rmd
-

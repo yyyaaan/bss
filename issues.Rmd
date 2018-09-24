@@ -1,46 +1,75 @@
 ---
-title: "Topics"
+title: "Research Plan"
+bibliography: ref.bibtex
+nocite: | 
+  @yeredor2003tv
 ---
 
-## Time Index Not Centered
+Blind source separation (BSS) seeks to recover the true signals from an observed mixture, and there is usually no prior information (blind) about mixing matrix [@belouchrani1997blind]. Independent component analysis is a BSS algorithm that originally seeks to solve cocktail-party problems and later also applies to feature extraction [@hyvarinen2000independent]. Second order source separation (SOS) model is a popular BSS/ICA model that assumes weakly stationary and mutually uncorrelated time-series sources[@belouchrani1997blind], and a recent identification procedure, SOBI, is achieved through joint diagonalization of autocovarariances [@miettinen2016separation]. Time variation of mixing parameter in SOS model was introduced by Yeredor (2003), accomondating a semi-dynamic model with linear slow variation over time, and TV-SOBI algorithm identifies both initial unmixing matrix and time varying matrix simultaneously. 
 
-In the case of linear time-varying mixture, the time-index $t$ should not be centered. On the other hand, centered time indicies provides symmetric time-varying structure (the far away from the center, the more varying. "triangle-shaped").
+This research seeks to improve the original TV-SOBI procedure using approximate joint diagonlization after a linear estimation process, and finally extends the _JADE_ [@miettinen2017blind] with TV-SOBI _R_-function and potentially a BSS dashboard inspired by _causaleffect_ package, aiming to visually compare different BSS approaches. In addition, non-stationary sources TV-SOBI will be briefly discussed, and trials will be made to address more dynamic model with non-linear time variation.
+
+## Research Modules and Scheudle
+
+The overall report/thesis workload is mainly divided to two categories, experimental module and academic module, where the former emphasizes the mathematical approaches in simple formulas and _R_-implementation and the later for academical writing.
+
+| Module                  | Tasks                                                                                                                                                | Schedule         | Note                                     |
+|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|------------------------------------------|
+| Experimental Module 1   | ordinary TV-SOBI formulation and first trial on _R_-function implementation                                                                          | done             | continuous improvements in other modules |
+| Experimental Module 2   | performance/accuracy measuring on simulated data, together with an interactive BSS-dashboard (shiny-application, prototype) to visually investigate. | October 2018     | currently >50% done                      |
+| Experimental Module 3   | full implementation of _R_ function and BSS-dashboard                                                                                                | February 2019    |                                          |
+| Experimental Module 4   | locate a real world data-set, and compare the performance. The challenge actually lays to find an appropriate data-sets, but backup plan exists      | January 2019*    | hard-to-estimate                         |
+| Experimental Module 5   | TV-SOBI on non-stationary sources (block-stationary seems relatively easy) | December 2019    | partially challenging  |
+| Experimental Module 6 * | Trials on dynamic/non-linear time varying mixture; Trials on Bayesian maximal posterior (time varying effects can have prior)                        | March-April 2019 | as additional options and may fail       |
+| Academic Module 1       | Literature review/introduction; model formulation in nice texts and equations; ordinary TV-SOBI algorithm in details                                 | October 2018     | rewrite current keynote-style outcomes   |
+| Academic Module 2       | Ordinary TV-SOBI algorithms in nice text and graphs; Simulation data performance well written                                                        | November 2018    | standardize formula and graph styles     |
+| Academic Module 3       | Careful review on thesis structure and coherence                                                                                                     | January 2019     |                                          |
+| Academic Module 4       | Final fine-touching in academic writing with abstracts in Finnish                                                                                    | March-April 2019 |                                          |
+|                         |                                                                                                                                                      |                  |                                          |
+
+
+## Outline
+
+At this moment, the final report shall follow the structure below (* section may be skipped):
+
+ 1. Introduction / Motivation
+ 2. Second-Order Blind Source Separation and ICA  
+  2.1 Definition of SOBI  
+  2.2 Ambiguities of ICA and SOBI  
+  2.3 Independence and Uncorrelation  
+ 3. TV-SOS Model  
+  3.1 Stationary and Independent Time Series Sources  
+  3.2 Time-Varying Mixture  
+ 4. TV-SOBI Procedure based on Autocovariance Matrices  
+  4.1. Estimation of Linear Autocovariance Structure  
+  4.2. Estimation of Initial Unmixing Matrix $\boldsymbol W_0$  
+  4.3. Estimation of Time Varying Effect   $\boldsymbol{\mathcal E}$
+ 5. Dynamic Mixture with Non-linear Time Variation *
+ 6. Non-stationary TV-SOBI
+ 7. Efficiency Comparisons by MDI  
+  7.1 Simulated Data  
+  7.2 TBD-real Data  
+  7.3 Efficiency Comparison Dashboard  
+ 8. Conclusion / Discussion
+
+## Current Topics and Challenges
+
+### Time Index NOT Centered
+
+In the case of linear time-varying mixture, the time-index $t$ should not be centered. On the other hand, centered time indices provides symmetric time-varying structure (the far away from the center, the more varying. "triangle-shaped").
 
 `Solution` it is not an issue with index.
 
-## Whitening in TV-SOBI May not be Possible
+### Whitening in TV-SOBI May not be Possible
 
-The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol I_p$. Since almost all JD-algorithms can only find orthogonal matrix, the autocovariances have to be whiten by $\boldsymbol R_0^{-1/2} \boldsymbol R_k \boldsymbol R_0^{-1/2}$. This is not a challenge for ordinary (non-time-varying) second-ordered methodologies, as covariance matrix are always postive semi-definite. However, there is no guareentee for $ \boldsymbol{Ra}$ having the same property.
+The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol I_p$. Since almost all JD-algorithms can only find orthogonal matrix, the autocovariances have to be whiten by $\boldsymbol R_0^{-1/2} \boldsymbol R_k \boldsymbol R_0^{-1/2}$. This is not a challenge for ordinary (non-time-varying) second-ordered methodologies, as covariance matrix are always postie semi-definite. However, there is no guarantee for $ \boldsymbol{Ra}$ having the same property.
 
-`Topic` How to ensure $\boldsymbol {Ra}_0^$ positive semi-definite | How to perform whitening if not.
+`Topic` How to ensure $\boldsymbol {Ra}_0$ positive semi-definite | How to perform whitening if not.
 
 `Solution` Currently, a rather naive and inaccurate way is implemented, where the negative eigenvalues are replaced by 0.
 
-## Measuring the Accuracy of Time-Varying Factor
+### Measuring the Accuracy of Time-Varying Factor
 
 It is clear that MD can be use to evaluate the accuracy of $\boldsymbol{\mathcal E \Omega}$, as it can be seen as a joint diagnolization problem from $\boldsymbol{Rc}$. However, such performance index does not specify how well does the estimation of $\boldsymbol{\mathcal E}$ alone.
 
-`Topic` Study the proerty of $\boldsymbol{\mathcal E}$, and establish similar performance index like MD.
-
-## Plan to Create a BSS Dashboard
-
-To visualize the different ways of BSS and evalute the performace interactively
-
-
-## Matrix Calculation Review
-
-```{r matrix}
-  # covariance of something...
-A <- cov(matrix(rnorm(3000), ncol = 3)) 
-  # eigen
-eig <- eigen(A)
-  # eigen decompose = 0
-round(eig$vectors %*% diag(eig$values) %*% solve(eig$vectors) - A, 5)
-  # find sqrt
-A.sqrt <- eig$vectors %*% diag(eig$values^{1/2}) %*% solve(eig$vectors)
-round(A.sqrt %*% A.sqrt - A, 5)
-  # find ^-1/2 = solve(A.sqrt)
-A.invsqrt <-  eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
-round(solve(A.invsqrt %*% A.invsqrt) - A, 5)
-```
-
+`Topic` Study the property of $\boldsymbol{\mathcal E}$, and establish similar performance index like MD.

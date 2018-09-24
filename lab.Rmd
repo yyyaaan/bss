@@ -213,7 +213,7 @@ ui <- fluidPage(
     )),
     column(4, "W", verbatimTextOutput("ResultSobi1")),
     column(4, "Epsilon", verbatimTextOutput("ResultSobi2")),
-    column(4, "MD (Accuracy of W)", verbatimTextOutput("ResultSobi3"))
+    column(4, "MD (Accuracy of W)", verbatimTextOutput("ResultSobi3"), p("please click run-sobi in the left first"))
   )
 )
 
@@ -254,5 +254,5 @@ server <- function(input, output) {
 }
 
 # Run the application 
-shinyApp(ui, server, options = list(height = 3500))
+shinyApp(ui, server, options = list(height = 1900))
 ```
