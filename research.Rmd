@@ -73,3 +73,5 @@ The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol 
 It is clear that MD can be use to evaluate the accuracy of $\boldsymbol{\mathcal E \Omega}$, as it can be seen as a joint diagnolization problem from $\boldsymbol{Rc}$. However, such performance index does not specify how well does the estimation of $\boldsymbol{\mathcal E}$ alone.
 
 `Topic` Study the property of $\boldsymbol{\mathcal E}$, and establish similar performance index like MD.
+
+## References

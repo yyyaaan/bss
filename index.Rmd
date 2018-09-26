@@ -1,14 +1,14 @@
 ---
-title: TV-SOBI (with R)
+title: TV-SOBI Algorithm with R
 bibliography: ref.bibtex
 nocite: | 
-  @hyvarinen2000independent, 
+  @hyvarinen2000independent,
   @miettinen2017blind,
   @hyvarinen2013independent,
   @baloch2005robust,
   @miettinen2016separation,
   @virta2017blind,
-  @yeredor2003tv
+  @yeredor2003tv 
 ---
 
 Time-varying second order blind source separation.

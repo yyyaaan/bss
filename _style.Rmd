@@ -1,7 +1,7 @@
 <style>
 p{margin-bottom:33px}    
-h2{border-bottom: 3px solid lightgrey; text-align: right; margin:50px}
-h3{text-align: right; margin:13px}
+h2{color:grey; border-bottom: 3px solid lightgrey; text-align: right; margin:50px}
+h3{color:grey; margin-top:13px}
 pre#runcode_expr {font-size: 10px !important}
 blockquote {
     font-size: inherit;

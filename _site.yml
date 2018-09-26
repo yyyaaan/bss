@@ -8,12 +8,9 @@ navbar:
       href: lab.Rmd
     - text: "BSS Basics"
       href: intro.Rmd
-    - text: "Researches"
-      href: issues.Rmd
-
   right:
-    - icon: fa-home fa-lg
-      href: https://yan.fi
+    - text: "Researches"
+      href: research.Rmd
 output:
   html_document:
     toc: true
