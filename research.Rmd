@@ -2,55 +2,59 @@
 title: "Research Plan"
 bibliography: ref.bibtex
 nocite: | 
-  @yeredor2003tv
+  @hyvarinen2000independent,
+  @miettinen2017blind,
+  @hyvarinen2013independent,
+  @baloch2005robust,
+  @miettinen2016separation,
+  @virta2017blind,
+  @yeredor2003tv 
 ---
 
-Blind source separation (BSS) seeks to recover the true signals from an observed mixture, and there is usually no prior information (blind) about mixing matrix [@belouchrani1997blind]. Independent component analysis is a BSS algorithm that originally seeks to solve cocktail-party problems and later also applies to feature extraction [@hyvarinen2000independent]. Second order source separation (SOS) model is a popular BSS/ICA model that assumes weakly stationary and mutually uncorrelated time-series sources[@belouchrani1997blind], and a recent identification procedure, SOBI, is achieved through joint diagonalization of autocovarariances [@miettinen2016separation]. Time variation of mixing parameter in SOS model was introduced by Yeredor (2003), accomondating a semi-dynamic model with linear slow variation over time, and TV-SOBI algorithm identifies both initial unmixing matrix and time varying matrix simultaneously. 
+## Abstract
 
-This research seeks to improve the original TV-SOBI procedure using approximate joint diagonlization after a linear estimation process, and finally extends the _JADE_ [@miettinen2017blind] with TV-SOBI _R_-function and potentially a BSS dashboard inspired by _causaleffect_ package, aiming to visually compare different BSS approaches. In addition, non-stationary sources TV-SOBI will be briefly discussed, and trials will be made to address more dynamic model with non-linear time variation.
+Blind source separation (BSS) seeks to recover the true signals from the only observed values, the multivariate time-series mixture, and usually no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably SOBI seeks to identify sources through the spatial independence in second order statistics. This paper extends the Second Order Source Separation (SOS) model   in terms of hidden time variation in mixing, as initially introduced by Yeredor (2003), and presents JD-TV-SOBI procedure aiming to estimate through joint diagonalization the time-varying unmixing matrices and ultimately derives the latent independent sources. The generalised JD-TV-SOBI will be covered in non-linear time variation and non-stationary source signals, and finally attempts towards the corresponding unsupervised machine learning with tensorial time-series. The performance of JD-TV-SOBI will be analyzed with simulated data and compared to other most common BSS methods. 
 
 ## Research Modules and Scheudle
 
 The overall report/thesis workload is mainly divided to two categories, experimental module and academic module, where the former emphasizes the mathematical approaches in simple formulas and _R_-implementation and the later for academical writing.
 
-| Module                  | Tasks                                                                                                                                                | Schedule         | Note                                     |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|------------------------------------------|
-| Experimental Module 1   | ordinary TV-SOBI formulation and first trial on _R_-function implementation                                                                          | done             | continuous improvements in other modules |
-| Experimental Module 2   | performance/accuracy measuring on simulated data, together with an interactive BSS-dashboard (shiny-application, prototype) to visually investigate. | October 2018     | currently >50% done                      |
-| Experimental Module 3   | full implementation of _R_ function and BSS-dashboard                                                                                                | February 2019    |                                          |
-| Experimental Module 4   | locate a real world data-set, and compare the performance. The challenge actually lays to find an appropriate data-sets, but backup plan exists      | January 2019*    | hard-to-estimate                         |
-| Experimental Module 5   | TV-SOBI on non-stationary sources (block-stationary seems relatively easy) | December 2019    | partially challenging  |
-| Experimental Module 6 * | Trials on dynamic/non-linear time varying mixture; Trials on Bayesian maximal posterior (time varying effects can have prior)                        | March-April 2019 | as additional options and may fail       |
-| Academic Module 1       | Literature review/introduction; model formulation in nice texts and equations; ordinary TV-SOBI algorithm in details                                 | October 2018     | rewrite current keynote-style outcomes   |
-| Academic Module 2       | Ordinary TV-SOBI algorithms in nice text and graphs; Simulation data performance well written                                                        | November 2018    | standardize formula and graph styles     |
-| Academic Module 3       | Careful review on thesis structure and coherence                                                                                                     | January 2019     |                                          |
-| Academic Module 4       | Final fine-touching in academic writing with abstracts in Finnish                                                                                    | March-April 2019 |                                          |
-|                         |                                                                                                                                                      |                  |                                          |
+| Module                | Tasks                                                                                                                | Schedule         | Note                                   |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------|------------------|----------------------------------------|
+| Experimental Module 1 | reproductive JD-TV-SOBI formulation and first trial on _R_-function implementation                                   | October 2018     | about 65% done                         |
+| Experimental Module 2 | performance/accuracy measuring on simulated data in a basic interactive UI                                           | October 2018     | about 50% done                         |
+| Experimental Module 3 | full implementation of _R_ function with robust error handling                                                       | February 2019    |                                        |
+| Experimental Module 4 | non-stationary JD-TV-SOBI; at least "block-stationary" will be carefully presented                                   | December 2019    |                                        |
+| Experimental Module 5 | tensorial JD-TV-SOBI as an unsupervised machine learning; at least "proper vectorization of tensors" will be covered | March-April 2019 |                                        |
+| Experimental Module 6 | Trials on dynamic/non-linear time varying mixture;                                                                   | March-April 2019 | failure possible                       |
+| Academic Module 1     | Literature review/introduction; model formulation in nice texts and equations; ordinary TV-SOBI algorithm in details | October 2018     | rewrite current keynote-style outcomes |
+| Academic Module 2     | Ordinary TV-SOBI algorithms in nice text and graphs; Simulation data performance well written                        | November 2018    | standardize formula and graph styles   |
+| Academic Module 3     | Careful review on thesis structure and coherence                                                                     | January 2019     |                                        |
+| Academic Module 4     | Final fine-touching in academic writing with abstracts in Finnish                                                    | March-April 2019 |                                        |
 
 
 ## Outline
 
-At this moment, the final report shall follow the structure below (* section may be skipped):
+At this moment, the final report shall follow the structure below:
 
  1. Introduction / Motivation
  2. Second-Order Blind Source Separation and ICA  
   2.1 Definition of SOBI  
   2.2 Ambiguities of ICA and SOBI  
-  2.3 Independence and Uncorrelation  
- 3. TV-SOS Model  
-  3.1 Stationary and Independent Time Series Sources  
-  3.2 Time-Varying Mixture  
- 4. TV-SOBI Procedure based on Autocovariance Matrices  
-  4.1. Estimation of Linear Autocovariance Structure  
-  4.2. Estimation of Initial Unmixing Matrix $\boldsymbol W_0$  
-  4.3. Estimation of Time Varying Effect   $\boldsymbol{\mathcal E}$
- 5. Dynamic Mixture with Non-linear Time Variation *
- 6. Non-stationary TV-SOBI
- 7. Efficiency Comparisons by MDI  
-  7.1 Simulated Data  
-  7.2 TBD-real Data  
-  7.3 Efficiency Comparison Dashboard  
- 8. Conclusion / Discussion
+  2.3 Stationary and Independent Source Series
+  2.5 Time-Varying Mixture and TV-SOS Model
+ 3. JD-TV-SOBI Procedure based on Autocovariance Matrices  
+  3.1. Estimation of Linear Autocovariance Structure  
+  3.2. Estimation of Initial Unmixing Matrix $\boldsymbol W_0$  
+  3.3. Estimation of Time Varying Effect   $\boldsymbol{\mathcal E}$
+ 4. Generalization in JD-TV-SOBI  
+  4.1. Non-stationary Sources  
+  4.2. Tensor-valued Data - Unsupervised Machine Learning Approach
+ 5. Efficiency Comparisons by MDI  
+  5.1 Simulated Data
+  5.2 TBD-real Data  ***
+  5.3 Efficiency Comparison Dashboard  
+ 6. Conclusion / Discussion
 
 ## Current Topics and Challenges
 
