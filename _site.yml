@@ -19,6 +19,6 @@ output:
       collapsed: false
     highlight: tango
     df_print: kable
-    theme: 'paper'
+    theme: 'readable'
     include:
       after_body: _style.Rmd

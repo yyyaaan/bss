@@ -1,45 +1,43 @@
-# use git, especially v1.0 for older versions
-# removed from 1.0 simData FUN and other simulation
-# add nonJD FUN
-# add tvsobi FUN
-# simulation example add to function to avoid run
 
 # non-orthogonal JD -------------------------------------------------------
 
-nonJD <- function(covs, method = "frjd", fix = FALSE){
+nonJD <- function(covs, method = "frjd", fix = TRUE){
   # param covs as in JADE | in the form of dim = p,p,lag.max+1 | lag 0 at index 1
-  # methods are frjd, fjd, djd
+  # methods are frjd, fjd | djd no longer accepted
   # NOTE for acf(.)$acf | dim = lag.max+1,p,p 
   
   require(JADE)
   
-  if(dim(covs)[1] != dim(covs)[2]) stop('Autocovariance matrices should be in dim(p,p,k)')
+  if(dim(covs)[1] != dim(covs)[2]) 
+    stop('Autocovariance matrices should be in dim(p,p,k+1)')
   lag.max <- dim(covs)[3] - 1
   
   # whitening using R_0^{-1/2}, through eigen calculation
-  # error handling is needed
-  eig <- eigen(covs[,,1])
-  if (min(eig$values) < 0) {
-    if(!fix) stop("first matrix used for whitening is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy")
-    eig$values[eig$values<0] <- 0
+  # error handling for non-postive semi-definite
+  EVD <- eigen(covs[,,1], symmetric = T)
+  if (min(EVD$values) < 0) {
+    if(!fix)
+      stop("first matrix used for whitening is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy")
+    EVD$values[EVD$values<0] <- 0
+    warning("matrix is NOT semi-definite, basic fix applied")
   }
-  white <- eig$vectors %*% diag(eig$values^{-1/2}) %*% solve(eig$vectors)
-  
+  white <- EVD$vectors %*% tcrossprod(diag(EVD$values^{-1/2}), EVD$vectors)
   
   # whiten and format to rjd
+  # covs.white has 1 dimension smaller, the first (covariance) is excluded
   covs.white <- array(dim = c(dim(white),lag.max))
-  for (i in 1:lag.max) covs.white[,,i] <- white %*% covs[,,i+1] %*% t(white)
+  for (i in 1:lag.max) {
+    covs.white[,,i] <- white %*% covs[,,i+1] %*% t(white)
+    # symmetry fix is very very important!!!
+    covs.white[,,i] <- (covs.white[,,i] + t(covs.white[,,i]))/2
+  }
   
+
   # joint diagnolization for V | note for the transpose of V
-  # NOTE djd return type is different
   jd <- do.call(method, list(X = covs.white))
-  if(method == "djd") {
-    W <- jd %*% white
-    D <- NA
-  } else {
-    W <- t(jd$V) %*% white
-    D <- jd$D
-  } 
+  W <- t(jd$V) %*% white
+  W <- sweep(W, 1, sign(rowMeans(W)), "*")
+  D <- jd$D
 
   # D is the estimated diagnals
   list(W = W, D = D, white = white)
@@ -183,13 +181,61 @@ toAvoidRun <- function(){
   
   cat("\n\non simulated ordinary mixture, the minimum distance index:",
       "\nOriginal SOBI:",  MD(SOBI(X, lag.max)$W, omega),
-      "\nSOBI with nonJD:",   MD(nonJD(covs)$W, omega),
-      "\nNew TV-SOBI:", MD(tvsobi(X, lag.max)$W, omega))
+      "\nSOBI with nonJD:",   MD(nonJD(covs)$W, omega))
 }
 
 
 
 
+
+
+# NOTinUSE: diagnose covariance -------------------------------------------
+
+myCOV <- function(X, k = 12){
+  
+  # accept two types of k
+  if(length(k) == 1) k <- 1:k
+  nk <- length(k)
+  
+  # centering
+  MEAN <- colMeans(X)
+  Y <- sweep(X, 2, MEAN, "-")
+  
+  # autocovariance matrix
+  p <- ncol(X)
+  n <- nrow(X)
+  R <- array(0, dim = c(p, p, nk + 1))
+  R[, , 1] <- cov(X)
+  for (i in 1:nk) {
+    Yt <- Y[1:(n - k[i]), ]
+    Yti <- Y[(1 + k[i]):n, ]
+    Ri <- crossprod(Yt, Yti)/nrow(Yt)
+    R[, , i+1] <- (Ri + t(Ri))/2
+  }
+  
+  R
+}
+
+JDfromCOV <- function(R){
+  # dim(R) = p,p,lag.max | no covariance
+  
+  # the "whitener" S^{-1/2}
+  COV <- R[,,1]
+  EVD <- eigen(COV, symmetric = TRUE)
+  COV.sqrt.i <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
+  
+  # whitening covs
+  covs.white <- array(dim = c(dim(COV.sqrt.i),lag.max))
+  for (i in 1:lag.max) covs.white[,,i] <- COV.sqrt.i %*% tcrossprod(covs[,,i+1] %*% COV.sqrt.i)
+  
+  # call frjd
+  JD <- frjd(covs.white)$V
+  W <- crossprod(JD, COV.sqrt.i)
+  W <- sweep(W, 1, sign(rowMeans(W)), "*")
+  
+  list(W = W)
+  
+}
 
 
 
