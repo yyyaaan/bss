@@ -1,9 +1,23 @@
 
-# non-orthogonal JD -------------------------------------------------------
+# Nearest SPD -------------------------------------------------------------
 
-nonJD <- function(covs, method = "frjd", fix = TRUE){
+nearestSPD <- function(X){
+  if(length(dim(X)) != 2 ){
+    stop("only works for matrix")
+  } else if(dim(X)[1] != dim(X)[2]){
+    stop("only works for square matrix")
+  }
+  
+  RES <- Matrix::nearPD(X, ensureSymmetry = T)
+  
+  list(mat = RES$mat, normF = RES$normF)
+}
+
+# Approximate Joint Diagnolization ----------------------------------------
+# follow the name in Miettinen, Nordhausen & Taskinen (2017)
+
+approxJD <- function(covs, method = "frjd"){
   # param covs as in JADE | in the form of dim = p,p,lag.max+1 | lag 0 at index 1
-  # methods are frjd, fjd | djd no longer accepted
   # NOTE for acf(.)$acf | dim = lag.max+1,p,p 
   
   require(JADE)
@@ -13,92 +27,90 @@ nonJD <- function(covs, method = "frjd", fix = TRUE){
   lag.max <- dim(covs)[3] - 1
   
   # whitening using R_0^{-1/2}, through eigen calculation
-  # error handling for non-postive semi-definite
-  EVD <- eigen(covs[,,1], symmetric = T)
+  EVD <- eigen(covs[ , , 1], symmetric = T)
   if (min(EVD$values) < 0) {
-    if(!fix)
-      stop("first matrix used for whitening is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy")
-    EVD$values[EVD$values<0] <- 0
-    warning("matrix is NOT semi-definite, basic fix applied")
+    spd <- nearestSPD(covs[ , , 1])
+    EVD <- eigen(spd$mat, symmetric = T)
+    warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
+                  "Frobenius norm:", spd$normF))
   }
-  white <- EVD$vectors %*% tcrossprod(diag(EVD$values^{-1/2}), EVD$vectors)
+  white <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
   
-  # whiten and format to rjd
-  # covs.white has 1 dimension smaller, the first (covariance) is excluded
+  # whiten autocovariance, format to rjd with symmetry fix
   covs.white <- array(dim = c(dim(white),lag.max))
   for (i in 1:lag.max) {
-    covs.white[,,i] <- white %*% covs[,,i+1] %*% t(white)
-    # symmetry fix is very very important!!!
-    covs.white[,,i] <- (covs.white[,,i] + t(covs.white[,,i]))/2
+    covs.white[ , , i] <- white %*% tcrossprod(covs[ , , i+1], white)
+    covs.white[ , , i] <- (covs.white[ , , i] + t(covs.white[ , , i]))/2
   }
-  
 
   # joint diagnolization for V | note for the transpose of V
-  jd <- do.call(method, list(X = covs.white))
-  W <- t(jd$V) %*% white
+  JD <- do.call(method, list(X = covs.white))
+  W <- crossprod(JD$V, white)
   W <- sweep(W, 1, sign(rowMeans(W)), "*")
-  D <- jd$D
+  D <- JD$D
 
   # D is the estimated diagnals
-  list(W = W, D = D, white = white)
+  list(W = W, D = D)
 }
 
-# tv-sobi -----------------------------------------------------------------
 
-tvsobi <- function(X, lag.max = 12, jd.method = "frjd", epsilon.method = 1, fix = F){
+# TV-SOBI -----------------------------------------------------------------
+
+tvsobi <- function(X, lag.max = 12, 
+                   useQuadratic = TRUE,
+                   epsilon.method = 1,
+                   jd.method = "frjd"){
+
+  if((!useQuadratic) & (epsilon.method == 3)) 
+    stop("non-quadratic and the 3rd method for epsilon are incompatible")
   p <- ncol(X)
   n <- nrow(X)
   
-  # step 1. estimate R0 R1 R2 matrices --------------------------------------
+  # step 1. estimate R0 R1 (R2) matrices ------------------------------------
   
-  Ra <- Rb <- Rc <- array(dim = c(p, p, lag.max+1))
+  Ra <- Rb <- Rc <- array(dim = c(p, p, lag.max + 1))
   for (lag in 0:lag.max) {
     for (i in 1:p){
       for(j in 1:p){
-        # lag = 1; i = 2; j = 3
-        y.design <- X[(1+lag):n,i] * X[1:(n-lag),j] # empirical autocovariance
-        h.design <- cbind(rep(1, n-lag), 1:(n-lag), (1:(n-lag))^2)
-        est <- lm(y.design ~ h.design - 1)$coefficients # using lm avoids the singular problem
-        Ra[i, j, lag+1] <- est[1]
-        Rb[i, j, lag+1] <- est[2]
-        Rc[i, j, lag+1] <- est[3]
+        y.design <- X[(1 + lag):n, i] * X[1:(n - lag), j] # empirical autocovariance
+        if( useQuadratic) h.design <- cbind(1:(n - lag), (1:(n - lag))^2)
+        if(!useQuadratic) h.design <- 1:(n - lag)
+        est <- lm(y.design ~ h.design)$coefficients # using lm
+        Ra[i, j, lag + 1] <- est[1]
+        Rb[i, j, lag + 1] <- est[2]
+        if(useQuadratic) Rc[i, j, lag + 1] <- est[3]
       }
     }
   }
   # fix for symmetric
-  for (i in 1:(lag.max+1)) {
-    Ra[,,i] <- (Ra[,,i] + t(Ra[,,i]))/2
-    Rb[,,i] <- (Rb[,,i] + t(Rb[,,i]))/2
-    Rc[,,i] <- (Rc[,,i] + t(Rc[,,i]))/2
+  for (i in 1:(lag.max + 1)) {
+    Ra[ , , i] <- (Ra[ , , i] + t(Ra[ , , i]))/2
+    Rb[ , , i] <- (Rb[ , , i] + t(Rb[ , , i]))/2
+    if(useQuadratic) Rc[ , , i] <- (Rc[ , , i] + t(Rc[ , , i]))/2
   }
-  # remove useless
-  remove(i,j,lag, h.design, y.design, est)
+  remove(i, j, lag, h.design, y.design, est)
+  
+  
   
   # step 2. JD for omega using Ra -------------------------------------------
-  jd <- nonJD(Ra, method = jd.method, fix = fix)
+  
+  jd <- approxJD(Ra, method = jd.method)
   W.est <- jd$W
   omega.est <- solve(W.est)
 
+  
   # step 3. solve for epsilon using Rb --------------------------------------
-    
+
   if(epsilon.method == 3) { # = jd(Rc) and exit
     # this method directly return the results
-    # potential error -> warnings and return NA for Epsilon
-    jd <- tryCatch(nonJD(Rc), 
-                   error = function(e) warning("Rc[,,1] is NOT postive semi-definite\nAdd fix = TRUE can dismiss the error but at cost of accuracy"))
+    jd <- approxJD(Rc)
     epsilon.est <- NA
     epsilon.est <- try(solve(jd$W) %*% W.est, silent = T)
-    
-    return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = Rc))
+    return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
   }
   
   # for method 1 and 2, code continues after if{}
   if(epsilon.method == 2) { # = Omega Lambda Omega from JD in step 2
-    if(jd.method == "djd") {
-      warning("djd is not compatible with Epsilon estimation method 2")
-      return(list(W = W.est, Epsilon = NA, Ra = Ra, Rb = Rb, Rc = Rc))
-    }
-    
     Q <- array(dim = c(p, p, lag.max + 1))
     Q[,,1] <- omega.est %*% t(omega.est) 
     for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
@@ -113,7 +125,7 @@ tvsobi <- function(X, lag.max = 12, jd.method = "frjd", epsilon.method = 1, fix 
   for(lag in 0:lag.max){
     for(i in 1:p^2){
       # the column to use  
-      Qi <- Q[,ceiling(i/p),lag+1]
+      Qi <- Q[ , ceiling(i/p), lag+1]
       # H1 similar to diagnal
       pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
       H1[i, pos, lag+1] <- Qi
@@ -123,32 +135,30 @@ tvsobi <- function(X, lag.max = 12, jd.method = "frjd", epsilon.method = 1, fix 
     }
   }
   
-  y.design <-matrix(as.vector(Rb[,,1]), nrow = p^2)
-  h.design <- H1[,,1] + H2[,,1]
+  y.design <-matrix(as.vector(Rb[ , , 1]), nrow = p^2)
+  h.design <- H1[ , , 1] + H2[ , , 1]
   for (i in 2:(lag.max + 1)) {
-    y.design <- y.design + matrix(as.vector(Rb[,,i]), nrow = p^2)
-    h.design <- h.design + H1[,,i] + H2[,,i]
+    y.design <- y.design + matrix(as.vector(Rb[ , , i]), nrow = p^2)
+    h.design <- h.design + H1[ , , i] + H2[ , , i]
   }
   
   est <- lm(y.design ~ h.design - 1)$coefficients
   epsilon.est <- matrix(est, nrow = p, byrow = T)
   # remove(Q, Qi, H1, H2, y.design, h.design, i, lag, est, pos, jd)
   
-  return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = Rc))
+  return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
 }
-
-
 
 # simulation test ---------------------------------------------------------
 
 toAvoidRun <- function(){
-  
+  require(JADE)
   lag.max = 6
 
   # sim data ----------------------------------------------------------------
   N <- 1e5
   omega <- matrix(rnorm(9) , ncol = 3)
-  epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
+  epsilon <- matrix(rnorm(9) * 1e-7, ncol = 3)
   z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
   z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
   z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
@@ -163,15 +173,20 @@ toAvoidRun <- function(){
   covs <- array(dim = dim(covs1)[3:1])
   for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
   
-  cat("\n\non simulated time varying mixture, the minimum distance index:",
-      "\nOriginal SOBI:",  MD(SOBI(X, lag.max)$W, omega),
-      "\nSOBI with nonJD:",   MD(nonJD(covs)$W, omega),
-      "\nNew TV-SOBI:", MD(tvsobi(X, lag.max)$W, omega))
+  cat("\n\non simulated TIME-VARING mixture, MDIs:",
+      "\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega),
+      "\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega),
+      "\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega),
+      "\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega),
+      "\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega),
+      "\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega),
+      "\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega),
+      "\n")
 
   
   # original SOBI -----------------------------------------------------------
   
-  # a normal mixture; to understand how nonJD works
+  # a normal mixture; to understand how approxJD works
   X <- z %*% t(omega)
   
   # autocovariance from acf, correct dimension to JADE
@@ -179,65 +194,18 @@ toAvoidRun <- function(){
   covs <- array(dim = dim(covs1)[3:1])
   for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
   
-  cat("\n\non simulated ordinary mixture, the minimum distance index:",
-      "\nOriginal SOBI:",  MD(SOBI(X, lag.max)$W, omega),
-      "\nSOBI with nonJD:",   MD(nonJD(covs)$W, omega))
+  cat("\n\non simulated ORDINARY mixture, MDIs:",
+      "\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega),
+      "\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega),
+      "\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega),
+      "\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega),
+      "\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega),
+      "\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega),
+      "\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega),
+      "\n")
 }
 
 
 
 
-
-
-# NOTinUSE: diagnose covariance -------------------------------------------
-
-myCOV <- function(X, k = 12){
-  
-  # accept two types of k
-  if(length(k) == 1) k <- 1:k
-  nk <- length(k)
-  
-  # centering
-  MEAN <- colMeans(X)
-  Y <- sweep(X, 2, MEAN, "-")
-  
-  # autocovariance matrix
-  p <- ncol(X)
-  n <- nrow(X)
-  R <- array(0, dim = c(p, p, nk + 1))
-  R[, , 1] <- cov(X)
-  for (i in 1:nk) {
-    Yt <- Y[1:(n - k[i]), ]
-    Yti <- Y[(1 + k[i]):n, ]
-    Ri <- crossprod(Yt, Yti)/nrow(Yt)
-    R[, , i+1] <- (Ri + t(Ri))/2
-  }
-  
-  R
-}
-
-JDfromCOV <- function(R){
-  # dim(R) = p,p,lag.max | no covariance
-  
-  # the "whitener" S^{-1/2}
-  COV <- R[,,1]
-  EVD <- eigen(COV, symmetric = TRUE)
-  COV.sqrt.i <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
-  
-  # whitening covs
-  covs.white <- array(dim = c(dim(COV.sqrt.i),lag.max))
-  for (i in 1:lag.max) covs.white[,,i] <- COV.sqrt.i %*% tcrossprod(covs[,,i+1] %*% COV.sqrt.i)
-  
-  # call frjd
-  JD <- frjd(covs.white)$V
-  W <- crossprod(JD, COV.sqrt.i)
-  W <- sweep(W, 1, sign(rowMeans(W)), "*")
-  
-  list(W = W)
-  
-}
-
-
-
-
-
+# J

@@ -63,13 +63,13 @@ In the case of linear time-varying mixture, the time-index $t$ should not be cen
 
 `Solution` it is not an issue with index.
 
-### Whitening in TV-SOBI May not be Possible
+### Whitening in TV-SOBI May not be Possible (SPD matrix)
 
 The constrains (for Lagrange): $\boldsymbol{W R}_0 \boldsymbol W' = \boldsymbol I_p$. Since almost all JD-algorithms can only find orthogonal matrix, the autocovariances have to be whiten by $\boldsymbol R_0^{-1/2} \boldsymbol R_k \boldsymbol R_0^{-1/2}$. This is not a challenge for ordinary (non-time-varying) second-ordered methodologies, as covariance matrix are always postie semi-definite. However, there is no guarantee for $ \boldsymbol{Ra}$ having the same property.
 
-`Topic` How to ensure $\boldsymbol {Ra}_0$ positive semi-definite | How to perform whitening if not.
+`Topic` How to ensure $\boldsymbol {Ra}_0$ positive semi-definite.
 
-`Solution` Currently, a rather naive and inaccurate way is implemented, where the negative eigenvalues are replaced by 0.
+`Solution` Nearest symmetric postive definite matrix (see [Matlab](https://se.mathworks.com/matlabcentral/fileexchange/42885-nearestspd)) and [Paper](http://www.sciencedirect.com/science/article/pii/0024379588902236)
 
 ### Measuring the Accuracy of Time-Varying Factor
 
