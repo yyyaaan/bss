@@ -149,7 +149,11 @@ tvsobi <- function(X, lag.max = 12,
   return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
 }
 
-# simulation test ---------------------------------------------------------
+
+
+# printing detailed simulation --------------------------------------------
+
+
 
 toAvoidRun <- function(){
   require(JADE)
@@ -208,4 +212,83 @@ toAvoidRun <- function(){
 
 
 
-# J
+
+
+# batch simulation recording ----------------------------------------------
+
+
+yeredorSim <- function(N){
+  
+  require(JADE)
+
+  # param
+  omega <- matrix(c(3, -2, 1, 4), ncol = 2)
+  epsilon <- matrix(c(-1, -2, 0.5, 1), ncol = 2) * 1e-4
+  z <- rnorm(N)
+  z1 <- 1 + 2*z^(-1) - 0.5*z^(-2) - z^(-3) + z^(-4)
+  z <- rnorm(N)
+  z2 <- 1 - z^(-1) + 3*z^(-2) + 2*z^(-3)
+  z <- cbind(z1,z2)
+#  z <- apply(cbind(z1,z2), 2, scale)
+  X <- matrix(nrow = nrow(z), ncol = ncol(z))
+  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
+
+  start_time <- Sys.time()
+  md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
+  time_tvsobi <- as.numeric(Sys.time() - start_time)
+  
+  start_time <- Sys.time() 
+  md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
+  time_sobi <- as.numeric(Sys.time() - start_time)
+  
+  
+  c(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
+    time_tvsobi = time_tvsobi, time_sobi = time_sobi)
+}
+
+
+mySim <- function(N){
+  require(JADE)
+  lag.max = 6
+  
+  omega <- matrix(rnorm(9) , ncol = 3)
+  epsilon <- matrix(rnorm(9) * 1e-5, ncol = 3)
+  z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
+  z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
+  z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
+  z <- apply(cbind(z1,z2,z3), 2, scale)
+  X <- matrix(nrow = nrow(z), ncol = ncol(z))
+  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
+
+  start_time <- Sys.time()
+  md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
+  time_tvsobi <- as.numeric(Sys.time() - start_time)
+  
+  start_time <- Sys.time() 
+  md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
+  time_sobi <- as.numeric(Sys.time() - start_time)
+  
+  
+  c(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
+    time_tvsobi = time_tvsobi, time_sobi = time_sobi)
+}
+
+
+simNplot <- function(){
+  simResult1 <- data.frame(n = (1:100) * 100,
+                           md_tvsobi = NA, md_sobi = NA,
+                           time_tvsobi = NA, time_sobi = NA)
+  simResult2 <- data.frame(n = (1:100) * 100,
+                           md_tvsobi = NA, md_sobi = NA,
+                           time_tvsobi = NA, time_sobi = NA)
+  
+  for(i in 1:nrow(simResult1)) {
+    simResult1[i, 2:5] <- yeredorSim(simResult1$n[i])
+    simResult2[i, 2:5] <- mySim(simResult2$n[i])
+  }
+  
+  library(ggplot2)
+  ggplot(simResult2) +
+    geom_line(aes(n, md_tvsobi), color = "blue") + 
+    geom_line(aes(n, md_sobi), color = "red")
+}
