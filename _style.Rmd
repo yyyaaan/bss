@@ -11,18 +11,3 @@ blockquote {
     border-radius: 3px
 }
 </style>
-
-<div class="btn-group btn-group-justified" style="margin-top: 66px">
-  <a href="https://r.boring.fi/files/bss/ref.jade.pkg.pdf" class="btn btn-default">JADE-BSS</a>
-  <a href="https://r.boring.fi/files/bss/ref.stationary.bss.pdf" class="btn btn-default">Stationary-TS</a>
-  <a href="https://r.boring.fi/files/bss/ref.tvsobi.intro.pdf" class="btn btn-default">TV-SOBI</a>
-  <a href="https://r.boring.fi/files/bss/ref.robust.pdf" class="btn btn-default">Robust</a>
-  <a href="https://r.boring.fi/files/bss/ref.tensor.pdf" class="btn btn-default">Tensor</a>
-</div>
-
-<div class="btn-group btn-group-justified" style="margin-top: 22px">
-  <a href="https://cran.r-project.org/web/packages/JADE/JADE.pdf" class="btn btn-default">JADE-CRAN</a>
-  <a href="https://r.boring.fi/files/bss/ref.ica.pdf" class="btn btn-default">ICA Tutorial</a>
-  <a href="https://r.boring.fi/files/bss/ref.icabook.pdf" class="btn btn-default">ICA Book</a>
-  <a href="https://r.boring.fi/files/bss/ref.recentICA.pdf" class="btn btn-default">ICA Recent</a>
-</div>
