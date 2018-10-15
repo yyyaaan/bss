@@ -8,7 +8,7 @@ nearestSPD <- function(X){
     stop("only works for square matrix")
   }
   
-  RES <- Matrix::nearPD(X, ensureSymmetry = T)
+  RES <- Matrix::nearPD(X, doSym = TRUE)
   
   list(mat = RES$mat, normF = RES$normF)
 }
@@ -153,16 +153,14 @@ tvsobi <- function(X, lag.max = 12,
 
 # printing detailed simulation --------------------------------------------
 
-
-
-toAvoidRun <- function(){
+printSimulation <- function(){
   require(JADE)
   lag.max = 6
 
-  # sim data ----------------------------------------------------------------
+# sim data
   N <- 1e5
   omega <- matrix(rnorm(9) , ncol = 3)
-  epsilon <- matrix(rnorm(9) * 1e-7, ncol = 3)
+  epsilon <- matrix(rnorm(9) * 1e-5, ncol = 3)
   z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
   z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
   z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
@@ -171,26 +169,22 @@ toAvoidRun <- function(){
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
 
 
-  # tv-SOBI -----------------------------------------------------------------
-  
+# tv-sobi sim and run
   covs1 <- acf(X, lag.max = lag.max, type = "covariance", plot = F)$acf
   covs <- array(dim = dim(covs1)[3:1])
   for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
   
-  cat("\n\non simulated TIME-VARING mixture, MDIs:",
-      "\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega),
-      "\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega),
-      "\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega),
-      "\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega),
-      "\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega),
-      "\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega),
-      "\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega),
-      "\n")
+  print("Simulated TIME-VARING mixture, MDIs:")
+  cat("\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega))
+  cat("\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega))
+  cat("\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega))
+  cat("\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega))
+  cat("\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega))
+  cat("\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega))
+  cat("\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega))
+  cat("\n\n")
 
-  
-  # original SOBI -----------------------------------------------------------
-  
-  # a normal mixture; to understand how approxJD works
+# a normal mixture, see how each works
   X <- z %*% t(omega)
   
   # autocovariance from acf, correct dimension to JADE
@@ -198,15 +192,15 @@ toAvoidRun <- function(){
   covs <- array(dim = dim(covs1)[3:1])
   for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
   
-  cat("\n\non simulated ORDINARY mixture, MDIs:",
-      "\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega),
-      "\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega),
-      "\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega),
-      "\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega),
-      "\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega),
-      "\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega),
-      "\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega),
-      "\n")
+  print("Simulated ORDINARY mixture, MDIs:")
+  cat("\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega))
+  cat("\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega))
+  cat("\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega))
+  cat("\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega))
+  cat("\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega))
+  cat("\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega))
+  cat("\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega))
+  cat("\n\n")
 }
 
 
