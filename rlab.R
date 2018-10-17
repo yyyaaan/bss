@@ -211,19 +211,18 @@ printSimulation <- function(){
 # batch simulation recording ----------------------------------------------
 
 
-yeredorSim <- function(N){
+sim.yeredor <- function(N){
   
   require(JADE)
 
   # param
   omega <- matrix(c(3, -2, 1, 4), ncol = 2)
   epsilon <- matrix(c(-1, -2, 0.5, 1), ncol = 2) * 1e-4
-  z <- rnorm(N)
-  z1 <- 1 + 2*z^(-1) - 0.5*z^(-2) - z^(-3) + z^(-4)
-  z <- rnorm(N)
-  z2 <- 1 - z^(-1) + 3*z^(-2) + 2*z^(-3)
+  z <- rnorm(N+4)
+  z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]
+  z <- rnorm(N+3)
+  z2 <- 1 - z[1:N + 2] + 3*z[1:N + 1] + 2*z[1:N]
   z <- cbind(z1,z2)
-#  z <- apply(cbind(z1,z2), 2, scale)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
 
@@ -236,12 +235,12 @@ yeredorSim <- function(N){
   time_sobi <- as.numeric(Sys.time() - start_time)
   
   
-  c(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
+  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
     time_tvsobi = time_tvsobi, time_sobi = time_sobi)
 }
 
 
-mySim <- function(N){
+sim.my <- function(N){
   require(JADE)
   lag.max = 6
   
@@ -263,26 +262,67 @@ mySim <- function(N){
   time_sobi <- as.numeric(Sys.time() - start_time)
   
   
-  c(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
+  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
     time_tvsobi = time_tvsobi, time_sobi = time_sobi)
 }
 
 
-simNplot <- function(){
-  simResult1 <- data.frame(n = (1:100) * 100,
-                           md_tvsobi = NA, md_sobi = NA,
-                           time_tvsobi = NA, time_sobi = NA)
-  simResult2 <- data.frame(n = (1:100) * 100,
-                           md_tvsobi = NA, md_sobi = NA,
-                           time_tvsobi = NA, time_sobi = NA)
+simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Yeredor"){
   
-  for(i in 1:nrow(simResult1)) {
-    simResult1[i, 2:5] <- yeredorSim(simResult1$n[i])
-    simResult2[i, 2:5] <- mySim(simResult2$n[i])
+  options(stringsAsFactors = FALSE)
+  
+  interval <- (n_end / n_start) ^ ( 1 / n_times)
+  n_vector <- n_start * interval ^ {0 : n_times}
+  n_vector <- ceiling(n_vector)
+  SimRes <- data.frame(n = numeric(),
+                       simtype = character(),
+                       method = character(),
+                       md = numeric(),
+                       time = numeric()) 
+
+  plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,1), 
+       xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n")
+  axis(1, at=1:(ceiling(log10(n_end))), labels = 10^(1:(ceiling(log10(n_end)))))
+  legend(log10(n_start)+1, 1, legend=c("SOBI", "TV-SOBI"),col=c("red", "blue"), lty = 1, cex=0.8)
+  
+  for(i in 1:length(n_vector)){
+    n_sim <- n_vector[i]
+    n_row <- nrow(SimRes)
+    
+    sim1 <- sim.yeredor(n_sim)
+    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "TV-SOBI", 
+                                    sim1$md_tvsobi, sim1$time_tvsobi)
+    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "SOBI", 
+                                    sim1$md_sobi, sim1$time_sobi)
+    
+    sim2 <- sim.my(n_sim)
+    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "TV-SOBI", 
+                                    sim2$md_tvsobi, sim2$time_tvsobi)
+    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "SOBI", 
+                                    sim2$md_sobi, sim2$time_sobi)
+    
+    # plot only one series during process
+    plot_index <- max(n_row - 3, 1):nrow(SimRes)
+    
+    points(md ~ log10(as.numeric(n)), col = "red", pch = 16,
+          data = SimRes[plot_index, ] %>% subset(simtype == plot_series) %>% subset(method == "SOBI") ,
+          type = "o")
+    points(md ~ log10(as.numeric(n)), col = "blue", pch = 16,
+           data = SimRes[plot_index, ] %>% subset(simtype == plot_series) %>% subset(method == "TV-SOBI") ,
+           type = "o")
   }
   
-  library(ggplot2)
-  ggplot(simResult2) +
-    geom_line(aes(n, md_tvsobi), color = "blue") + 
-    geom_line(aes(n, md_sobi), color = "red")
+  require(ggplot2)
+  gg <- ggplot(SimRes, aes(x = as.numeric(n), y = as.numeric(md), group = method,color = method)) +
+    geom_point() + geom_line() +
+    scale_x_log10(limits = c(n_start, n_end)) +
+    scale_y_continuous(limits = c(0,1)) +
+    facet_grid(simtype ~ .) +
+    theme_light()
+  
+  print(gg)
+  return(SimRes)
 }
+
+
+SimRes <- simNplot()
