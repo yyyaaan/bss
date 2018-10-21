@@ -228,11 +228,11 @@ sim.yeredor <- function(N){
 
   start_time <- Sys.time()
   md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
-  time_tvsobi <- as.numeric(Sys.time() - start_time)
+  time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   start_time <- Sys.time() 
   md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
-  time_sobi <- as.numeric(Sys.time() - start_time)
+  time_sobi <-as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   
   list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
@@ -245,7 +245,7 @@ sim.my <- function(N){
   lag.max = 6
   
   omega <- matrix(rnorm(9) , ncol = 3)
-  epsilon <- matrix(rnorm(9) * 1e-5, ncol = 3)
+  epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
   z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
   z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
   z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
@@ -255,11 +255,11 @@ sim.my <- function(N){
 
   start_time <- Sys.time()
   md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
-  time_tvsobi <- as.numeric(Sys.time() - start_time)
+  time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   start_time <- Sys.time() 
   md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
-  time_sobi <- as.numeric(Sys.time() - start_time)
+  time_sobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   
   list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
@@ -270,7 +270,7 @@ sim.my <- function(N){
 simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Yeredor"){
   
   options(stringsAsFactors = FALSE)
-  
+
   interval <- (n_end / n_start) ^ ( 1 / n_times)
   n_vector <- n_start * interval ^ {0 : n_times}
   n_vector <- ceiling(n_vector)
@@ -280,10 +280,14 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Ye
                        md = numeric(),
                        time = numeric()) 
 
-  plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,1), 
-       xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n")
+  par(mar=c(3,3,1,1))
+  plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,6), 
+       xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n", yaxt = "n")
   axis(1, at=1:(ceiling(log10(n_end))), labels = 10^(1:(ceiling(log10(n_end)))))
-  legend(log10(n_start)+1, 1, legend=c("SOBI", "TV-SOBI"),col=c("red", "blue"), lty = 1, cex=0.8)
+  axis(2, at=0:6, labels = c(0, 0.5, 1, "", 0, 0.5, 1))
+  abline(h = c(2.2, 3.8))
+  legend(log10(n_start), 3.5, legend=c("SOBI (Yeredor)", "TV-SOBI (Yeredor)"),col=c("red", "blue"), lty = 1, cex=0.8)
+  legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("purple", "darkgreen"), lty = 1, cex=0.8)
   
   for(i in 1:length(n_vector)){
     n_sim <- n_vector[i]
@@ -304,11 +308,19 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Ye
     # plot only one series during process
     plot_index <- max(n_row - 3, 1):nrow(SimRes)
     
-    points(md ~ log10(as.numeric(n)), col = "red", pch = 16,
-          data = SimRes[plot_index, ] %>% subset(simtype == plot_series) %>% subset(method == "SOBI") ,
+    SimRes$md <- as.numeric(SimRes$md)
+    
+    points((md * 2) ~ log10(as.numeric(n)), col = "red", pch = 16,
+          data =  subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "SOBI") ,
           type = "o")
-    points(md ~ log10(as.numeric(n)), col = "blue", pch = 16,
-           data = SimRes[plot_index, ] %>% subset(simtype == plot_series) %>% subset(method == "TV-SOBI") ,
+    points((md * 2) ~ log10(as.numeric(n)), col = "blue", pch = 16,
+           data = subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "TV-SOBI") ,
+           type = "o")
+    points((md * 2 + 4) ~ log10(as.numeric(n)), col = "purple", pch = 16,
+           data =  subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "SOBI") ,
+           type = "o")
+    points((md * 2 + 4) ~ log10(as.numeric(n)), col = "darkgreen", pch = 16,
+           data = subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "TV-SOBI") ,
            type = "o")
   }
   
@@ -325,4 +337,4 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Ye
 }
 
 
-SimRes <- simNplot()
+SimRes <- simNplot(n_end = 1e5, n_times = 50)

@@ -278,8 +278,8 @@
   \def\termlistname{Glossary}%
   \def\appendicesname{Appendices}%
   \def\gradu@default@university{University of Jyv\"askyl\"a}%
-  \def\gradu@default@department{Faculty of Information Technology}%
-  \def\gradu@default@subject{in Information Technology}%
+  \def\gradu@default@department{Department of Mathematics and Statistics}%
+  \def\gradu@default@subject{in Statistics}%
   \def\gradu@default@type{Master's Thesis}%
   \def\gradu@bachelortype{Bachelor's Thesis}%
 }
