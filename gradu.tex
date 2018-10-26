@@ -36,20 +36,106 @@ Blind Source Separation is set of unsupervised machine learning algorithms in te
 
 \chapter{Second Order Blind Source Separation}
 
-Blind Source Separation (BSS) assumes that the observed information $p$-vector $\boldsymbol{x}$ is a static mixture of $p$-variate latent source vector $\boldsymbol{z}$, and the basic blind source model can be written as $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{\Omega z}'$, where $\boldsymbol{\Omega}$ denotes $p\times p$ mixing matrix, and $\boldsymbol{\mu}$ stands for the location (usually mean) of $\boldsymbol{x}$. This model can be easily expanded to multidimensional observations such that the $n\times p$ matrices $\boldsymbol{x}=(\boldsymbol{x}_1, \boldsymbol{x}_2,\dots,\boldsymbol{x}_n)'$ and $\boldsymbol{z}=(\boldsymbol{z}_1, \boldsymbol{z}_2,\dots,\boldsymbol{z}_n)'$. Without loss of generality, it can be assumed that the source signals are zero mean (in the sense that each column-vector is zero mean), and the model can be further simplified if the observations are assumed to be zero mean, which can be achieved by subtracting the location parameter, i.e. $(\boldsymbol{x} - \boldsymbol{\mu}) = \boldsymbol{\Omega z}$. This paper specifies the observations and signals matrices to be $n\times p$ organized in the way that each $p$-vector observation or signal is recorded as a row-vector, which is consistent with common data science programming R and Python Pandas. Finally, the basic form is \footnote{For notations in this paper, vectors and matrices are always using bold symbols. The operator $\cdot'$ means matrix transpose},
-\begin{equation}
+Blind Source Separation (BSS) assumes that the observed information $p$-vector $\boldsymbol{x}$ is a static mixture of $p$-variate latent source vector $\boldsymbol{z}$, and the basic blind source model can be written as $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{\Omega z}'$, where $\boldsymbol{\Omega}$ denotes $p\times p$ mixing matrix, and $\boldsymbol{\mu}$ stands for the location (usually mean) of $\boldsymbol{x}$. This model can be easily expanded to multidimensional observations such that the $n\times p$ matrices $\boldsymbol{x}=(\boldsymbol{x}_1, \boldsymbol{x}_2,\dots,\boldsymbol{x}_n)'$ and $\boldsymbol{z}=(\boldsymbol{z}_1, \boldsymbol{z}_2,\dots,\boldsymbol{z}_n)'$. Without loss of generality, it can be assumed that the source signals are zero mean (in the sense that each column-vector is zero mean), and the model can be further simplified if the observations are assumed to be zero mean, which can be achieved by subtracting the location parameter, i.e. $(\boldsymbol{x} - \boldsymbol{\mu}) = \boldsymbol{\Omega z}$. This paper specifies the observations and signals matrices to be $n\times p$ organized in the way that each $p$-vector observation or signal is recorded as a row-vector, which is consistent with common data science programming R and Python Pandas. Finally, the basic form is \footnote{On notations in this paper: vectors and matrices are always in bold symbols; the operator $\boldsymbol{A}'$ stands for matrix transpose; matrix index $\boldsymbol{A}[i,j]$ gives the number in the $i$-th row $j$-th column of matrix $\boldsymbol{A}$, while matrix subscript $\boldsymbol{A}_t$ returns the $t$-th row vector of $\boldsymbol{A}$},
+\begin{equation*}
 \label{eq:SOM}
-    \underset{(n\times p)}{\boldsymbol x} = \underset{(p\times p)}{\boldsymbol{\Omega}} \ \underset{(n\times p)}{\boldsymbol{z}}'
+    \underset{(n\times p)}{\boldsymbol x} = \underset{(p\times p)}{\boldsymbol{\Omega}} \ \underset{(n\times p)}{\boldsymbol{z}}', \ \ \text{ where } \boldsymbol{x} \text{ has column means of }0
+\end{equation*}
+Although not mathematically required, it is assumed that $\boldsymbol{\Omega}$ is a full-ranked $p\times p$ matrix. In fact, an decrease in dimension of $\boldsymbol{\Omega}$ will allow fewer signal components (number of columns in $\boldsymbol z$) generated from the same observation $\boldsymbol{x}$. However, it is not necessary due to fact that the output carries real-world information, and the usefulness of signal components (columns) can be better determined using scientific evidence of the signal itself. Consequently, it is a justified choice to force the mixing matrix to be full-rank.
+
+The goal of BSS is always to restore the independent source signals, and the above model assures that finding mixing matrix $\boldsymbol{\Omega}$ or unmixing matrix $\boldsymbol{W}= \boldsymbol{\Omega}^{-1}$ suffices\footnote{Mathematically, there is no difference to estimate either mixing matrix providing that the inverse exists, and the full rank assumptions from the model further guarantees the existence}. For notation simplification and clarity, the following paragraphs shall only use $\boldsymbol\Omega$. The Second order BSS solves the BSS problem using second order statistics, notably measures of scale including variances, median absolute deviation and other 2nd moment estimators. The major second order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by \citeauthor{tong1990amuse} (\citeyear{tong1990amuse}) and Second Order Blind Identification, commonly know as SOBI, was originally proposed by \citeauthor{belouchrani1997blind} (\citeyear{belouchrani1997blind}).
+
+\section{Ambiguities of SOBI}
+
+Discuss about permutation matrix $\mathcal C$, and the reasons why further assumption on scale are mandatory. [Section to be furnished later]
+
+\section{Stationary Time-Series Source Separation using Autocovariance Matrices}
+
+In information processing, the signals are usually recorded by highly precise measurement instruments at a given time interval, and thus arose the natural time-series data structure. Assuming pre-centered data, the time series observations can be easily adapted to the basic form (\ref{eq:SOM}) by introducing the subscript of $t=1,2,\dots, T$ as $\boldsymbol{x}_t = \boldsymbol{\Omega z}_t$. Focusing on the autocovariance matrices, a second order statistics, the second order source separation (SOS) model seeks to extract the original source signals based mainly on the independence. Furthermore, the source signals are assumed to be weekly stationary, implying that the autocovariance matrices vary only on the lag $\tau$ but not on the time $t$, and mathematically given $\tau:\ \ E(\boldsymbol z_t \boldsymbol z_{t+\tau}')$ are constant for all $t=1,2,\dots,T$. The SOS model (adapted \cite{miettinen2016separation}) is,
+\begin{equation}
+\label{eq: sos model}
+\begin{aligned} 
+    \boldsymbol x_t = \boldsymbol{\Omega}\boldsymbol z'_t,\ \ \ t=1,2,\dots,T &\text{ and satisfies} 
+\\ (1)\ & E( \boldsymbol z_t) = \boldsymbol 0 
+\\ (2)\ & E( \boldsymbol z_t \boldsymbol z_t') = \text{Cov}( \boldsymbol z_t) = \boldsymbol I_p
+\\ (3)\ & E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
+\end{aligned}    
 \end{equation}
-Although not mathematically required, it is assumed that $\boldsymbol{\Omega}$ is a full-ranked $p\times p$ matrix. In fact, an decrease in dimension of $\boldsymbol{\Omega}$ will allow fewer signal components (number of columns in $\boldsymbol z$) generated from the same observation $\boldsymbol{x}$. However, it is not necessary due to fact that the output carries real-world information, and the usefulness of signal components (columns) can be better determined using scientific evidence of the signal itself. Consequently, it is not 
-
-The major second order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by \citeauthor{tong1990amuse} (\citeyear{tong1990amuse}) and SOBI (Second Order Blind Identification) originally proposed by \citeauthor{belouchrani1997blind} (\citeyear{belouchrani1997blind}).
-
-\section{Time-Series Source Separation using Autocovariance Matrices}
-
-
+This semi-parametric model can be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption (2) in the SOS model (\cite{miettinen2016separation}). [DETAILS MAY NEED FURNISH].
 
 \citeauthor{nordhausen2014robustifying} (\citeyear{nordhausen2014robustifying}) expanded the algorithm to non-stationary time series using locally stationary intervals and further robustifying with average spatial-sign autocovariances on such intervals.
+
+\section{Introducing Time Varying Factor into SOBI}
+
+Time varying SOBI is originally presented by \citeauthor{yeredor2003tv} (\citeyear{yeredor2003tv}), where the slow and linear change exists in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model, the time-dependent change can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol\epsilon)\boldsymbol\Omega_0$, and it is clearly no longer constant despite $\boldsymbol\epsilon$ and $\boldsymbol\Omega_0$ are. Figure \ref{fig: mixing} illustrates the difference between ordinary, or constant, mixture and time-varying one. It can be discovered that the time-varying mixture has a certain trend and they do not demonstrate the stationary property. In fact, introcution of time varying factor invalids the stationary property in the observation $\boldsymbol{x}$ for sure even though the source signals are stationary. This is because $\boldsymbol{\epsilon}$ changes the scale (second order statistics) over time $t$. Nevertheless, SOBI and the upcoming TV-SOBI do not require such property in observation.
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{zzzMixing.png}
+  \caption{Two types of 3-dimensional signal mixture: ordinary mixing (left) and time-varying mixing (right). The source signals are the same. $t=1,2,\dots, 1000,\ \ \boldsymbol \epsilon\approx 10^{-4}\boldsymbol{I} $}
+  \label{fig: mixing}
+\end{figure}
+
+The TV-SOBI model can be extend from the SOS model (\ref{eq: sos model}), and similar to SOS, the first assumption is non-restrictive and can be achieved through simple data transformation; the second is required to solve the ambiguity of BSS, while the third assumption states both stationary and independent characteristics. The final assumption ensures that the change of mixing is rather slow, and otherwise, the mixture is not a meaningful as a BSS problem.
+\begin{equation}
+    \label{eq: tvsobi model}
+    \begin{aligned} 
+\boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\epsilon})\boldsymbol \Omega_0 \boldsymbol  z_t
+\\ (1)\ & E( \boldsymbol z_t) = \boldsymbol 0 
+\\ (2)\ & E( \boldsymbol z_t \boldsymbol z_t') = \text{Cov}( \boldsymbol z_t) = \boldsymbol I
+\\ (3)\ & E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all }
+\tau = 1,2,\dots
+\\ (4)\ & \boldsymbol{\epsilon} << \boldsymbol I
+\end{aligned}
+\end{equation}
+
+\chapter{JD-TV-SOBI Algorithm based on Autocovariances}
+
+Compared with SOBI, TV-SOBI usually demands one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\epsilon}$ in addition to the initial mixing matrix $\boldsymbol{\Omega}_0$.
+
+Joint Diagnolization approach to Time Varying Second Order Blind Identification (JD-TV-SOBI) covers thhe solution that mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable linear estimation. Simple matrix operation is further needed to retrieve the source signals.
+
+Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example acf-function), and let the selected lags\footnote{Here the continuous lags are selected for simplicity, but it is sometimes better idea to choose a set of lags, for example $\tau\in\{1,2,11,12,21,22,\dots\}$. Such set of lags is still compatible with the JD-TV-SOBI algorithm} to be $\tau=1,2,\dots,L$.
+
+\section{Linear Decomposition of Autocovariance Structure}
+
+As a second order approach, the JD-TV-SOBI algorithm starts with the autocovariances. From model (\ref{eq: tvsobi model}), the (empirical and ordinary) autocovariances can be derived as,
+\begin{equation*}
+    \begin{aligned}
+\text{Cov}( \boldsymbol x_t , \boldsymbol x_{t+\tau}) &= E(\boldsymbol x_t \boldsymbol x_{t+\tau}')
+\\ & = E[( \boldsymbol I + t \boldsymbol{\epsilon})\boldsymbol \Omega_0 \boldsymbol  z_t\ \boldsymbol  z_{t+\tau} ' \boldsymbol \Omega_0 '( \boldsymbol I + t \boldsymbol{\epsilon}')]
+\\ &= \underbrace{\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'}_{\textcircled{a}}
+ + t (\underbrace{ \boldsymbol{\epsilon } \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\epsilon}'} _{\textcircled{b}} )
+ + t^2 (\underbrace{\boldsymbol{\epsilon} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\epsilon}'}_{\textcircled{c}})
+  \\ &\ \ \  + \underbrace {\tau (\boldsymbol{\epsilon} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')
+ + t \tau (\boldsymbol{\epsilon} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\epsilon}')}_{\textcircled{d}}
+\end{aligned}
+\end{equation*}
+Item $\textcircled{d}$ is usually negligible since $\tau$ and $\boldsymbol{\epsilon}$ are small enough compared with $T$. Let $\boldsymbol{Ra}_\tau = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0',\ \ \boldsymbol{Rb}_\tau = \boldsymbol{\epsilon} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\epsilon}',\ \ \ \boldsymbol{Rc}_\tau = \boldsymbol{\epsilon} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\epsilon}'$ and an approximate linear equation can be achieved
+\begin{equation}
+\label{eq: covariance structure}
+    E(\boldsymbol x_t \boldsymbol x_{t+\tau}') \approx  \boldsymbol{Ra}_\tau + t\, \boldsymbol{Rb}_\tau + t^2\, \boldsymbol{Rc}_\tau
+\end{equation}
+The 3 short-handed notations are statistically meaningful as $\boldsymbol{Ra}$ is "mixed autocovariances"; $\boldsymbol{Rb}$ and $\boldsymbol{Rc}$ are first-order and second-order time dependent "mixed autocovariances". In addition, all 3 are theoretically symmetric matrices and $\boldsymbol{Ra} >> \boldsymbol{Rb} >> \boldsymbol{Rc}$.
+
+Now that $\boldsymbol{x}_{(T\times p)}$ is the only available information, it seems that element-wise linear regression is a simple solution to decompose the (empirical autocovariances) into the linear structure as in Equation \ref{eq: covariance structure}. For desired lags $\tau \in \{1,2,\dots, L\}$ and column \& row $i,j = 1,2,\dots,p$, rewriting matrix Equation \ref{eq: covariance structure} into linear form, the following linear equation holds for each element in the corresponding matrices,
+\begin{equation}
+\label{eq; element equal}
+    \underbrace {\begin{bmatrix} E(\boldsymbol x_{1} \boldsymbol x'_{1+\tau})[i,j] \\ E(\boldsymbol x_{2} \boldsymbol x'_{2+\tau})[i,j] \\ E(\boldsymbol x_{3} \boldsymbol x'_{3+\tau})[i,j]  \\ \vdots \\ E(\boldsymbol x_{n-\tau} \boldsymbol x'_{n})[i,j] \end{bmatrix}}_{ \boldsymbol y_\tau [i,j]}
+    & = \underbrace{ \begin{bmatrix}  1 & 1 & 1^2 \\ 1 & 2 & 2^2\\  1 & 3 & 3^2\\ \vdots & \vdots & \vdots \\  1 & (n-\tau) & (n-\tau)^2 \end{bmatrix}  }_{ \boldsymbol H} \ 
+    \underbrace{ \begin{bmatrix} \boldsymbol {Ra}[i,j] \\ \boldsymbol{Rb}[i,j] \\ \boldsymbol {Rc} [i,j] \end{bmatrix}  }_{ \boldsymbol \theta_\tau [i,j]} 
+\end{equation}
+There are in total $\tau\times i \times j$ equations to be evaluated in the form of $\boldsymbol{y}_\tau[i,j] = \boldsymbol{H\theta}_\tau[i,j]$, which is a simple linear regression problem, and the maximal likelihood estimators (coincides with least square ones) of the only unknown $\boldsymbol{\theta}_\tau[i,j]$ are
+\begin{equation}
+    \boldsymbol{\theta}_\tau[i,j]:= \begin{bmatrix} \boldsymbol {Ra}[i,j] \\ \boldsymbol {Rb}[i,j] \\ \boldsymbol {Rc}[i,j] \end{bmatrix} &= ( \boldsymbol H ' \boldsymbol H)^{-1} \boldsymbol H' \boldsymbol y_\tau[i,j]
+\end{equation}
+The above succeeds decomposing the autocovariances into 3 parts $\boldsymbol{Ra}, \boldsymbol{Rb}$ and $\boldsymbol{Rc}$ in the structure of \ref{eq: covariance structure}. To ensure the symmetry, it is practically advisable to apply $\boldsymbol{Ra} \leftarrow(\boldsymbol{Ra} + \boldsymbol{Ra}')/2$
+
+\section{Joint Diagonalization of Decomposed Autocovariance Matrices}
+
+\section{Optimization for Time-Varying Mixing Factor}
+
+\section{Restoring the Source Signals}
+
 
 \printbibliography
 
