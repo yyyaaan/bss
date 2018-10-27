@@ -27,12 +27,14 @@ approxJD <- function(covs, method = "frjd"){
   lag.max <- dim(covs)[3] - 1
   
   # whitening using R_0^{-1/2}, through eigen calculation
+  nearestDist <- 0
   EVD <- eigen(covs[ , , 1], symmetric = T)
   if (min(EVD$values) < 0) {
     spd <- nearestSPD(covs[ , , 1])
     EVD <- eigen(spd$mat, symmetric = T)
     warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
                   "Frobenius norm:", spd$normF))
+    nearestDist <- spd$normF
   }
   white <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
   
@@ -50,7 +52,7 @@ approxJD <- function(covs, method = "frjd"){
   D <- JD$D
 
   # D is the estimated diagnals
-  list(W = W, D = D)
+  list(W = W, D = D, nearestDist = nearestDist)
 }
 
 
@@ -95,6 +97,7 @@ tvsobi <- function(X, lag.max = 12,
   # step 2. JD for omega using Ra -------------------------------------------
   
   jd <- approxJD(Ra, method = jd.method)
+  nearestDist <- jd$nearestDist
   W.est <- jd$W
   omega.est <- solve(W.est)
 
@@ -146,7 +149,8 @@ tvsobi <- function(X, lag.max = 12,
   epsilon.est <- matrix(est, nrow = p, byrow = T)
   # remove(Q, Qi, H1, H2, y.design, h.design, i, lag, est, pos, jd)
   
-  return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
+  return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist,
+              Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
 }
 
 
@@ -227,7 +231,9 @@ sim.yeredor <- function(N){
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
 
   start_time <- Sys.time()
-  md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
+  res <- tryCatch(tvsobi(X), error = function(e) NA)
+  md_tvsobi <- tryCatch(MD(res$W, omega), error = function(e) NA)
+  nearestDist <- tryCatch(res$nearestDist, error = function(e) NA)
   time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   start_time <- Sys.time() 
@@ -235,7 +241,7 @@ sim.yeredor <- function(N){
   time_sobi <-as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   
-  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
+  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi, nearestDist = nearestDist,
     time_tvsobi = time_tvsobi, time_sobi = time_sobi)
 }
 
@@ -246,15 +252,17 @@ sim.my <- function(N){
   
   omega <- matrix(rnorm(9) , ncol = 3)
   epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
-  z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
-  z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
-  z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
+  z1 <- arima.sim(list(ar=c(0.3)),N)
+  z2 <- arima.sim(list(ar=c(-0.6)),N)
+  z3 <- arima.sim(list(ar=c(0.9)),N)
   z <- apply(cbind(z1,z2,z3), 2, scale)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
 
   start_time <- Sys.time()
-  md_tvsobi <- tryCatch(MD(tvsobi(X)$W, omega), error = function(e) NA)
+  res <- tryCatch(tvsobi(X), error = function(e) NA)
+  md_tvsobi <- tryCatch(MD(res$W, omega), error = function(e) NA)
+  nearestDist <- tryCatch(res$nearestDist, error = function(e) NA)
   time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   start_time <- Sys.time() 
@@ -262,12 +270,12 @@ sim.my <- function(N){
   time_sobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
   
   
-  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi,
-    time_tvsobi = time_tvsobi, time_sobi = time_sobi)
+  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi, nearestDist = nearestDist, 
+       time_tvsobi = time_tvsobi, time_sobi = time_sobi)
 }
 
 
-simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Yeredor"){
+simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plotProcess = T){
   
   options(stringsAsFactors = FALSE)
 
@@ -278,16 +286,18 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Ye
                        simtype = character(),
                        method = character(),
                        md = numeric(),
-                       time = numeric()) 
-
-  par(mar=c(3,3,1,1))
-  plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,6), 
-       xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n", yaxt = "n")
-  axis(1, at=1:(ceiling(log10(n_end))), labels = 10^(1:(ceiling(log10(n_end)))))
-  axis(2, at=0:6, labels = c(0, 0.5, 1, "", 0, 0.5, 1))
-  abline(h = c(2.2, 3.8))
-  legend(log10(n_start), 3.5, legend=c("SOBI (Yeredor)", "TV-SOBI (Yeredor)"),col=c("red", "blue"), lty = 1, cex=0.8)
-  legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("purple", "darkgreen"), lty = 1, cex=0.8)
+                       time = numeric(),
+                       flag = numeric()) 
+  if(plotProcess){
+    par(mar=c(3,3,1,1))
+    plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,6),
+         xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n", yaxt = "n")
+    axis(1, at=1:(ceiling(log10(n_end))), labels = 10^(1:(ceiling(log10(n_end)))))
+    axis(2, at=0:6, labels = c(0, 0.5, 1, "", 0, 0.5, 1))
+    abline(h = c(2.2, 3.8))
+    legend(log10(n_start), 3.5, legend=c("SOBI (Yeredor)", "TV-SOBI (Yeredor)"),col=c("red", "blue"), lty = 1, cex=0.8)
+    legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("purple", "darkgreen"), lty = 1, cex=0.8)
+  }
   
   for(i in 1:length(n_vector)){
     n_sim <- n_vector[i]
@@ -295,80 +305,46 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plot_series = "Ye
     
     sim1 <- sim.yeredor(n_sim)
     SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "TV-SOBI", 
-                                    sim1$md_tvsobi, sim1$time_tvsobi)
+                                    sim1$md_tvsobi, sim1$time_tvsobi, sim1$nearestDist)
     SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "SOBI", 
-                                    sim1$md_sobi, sim1$time_sobi)
+                                    sim1$md_sobi, sim1$time_sobi, 0)
     
     sim2 <- sim.my(n_sim)
     SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "TV-SOBI", 
-                                    sim2$md_tvsobi, sim2$time_tvsobi)
+                                    sim2$md_tvsobi, sim2$time_tvsobi, sim2$nearestDist)
     SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "SOBI", 
-                                    sim2$md_sobi, sim2$time_sobi)
+                                    sim2$md_sobi, sim2$time_sobi, 0)
     
-    # plot only one series during process
     plot_index <- max(n_row - 3, 1):nrow(SimRes)
     
     SimRes$md <- as.numeric(SimRes$md)
     
-    points((md * 2) ~ log10(as.numeric(n)), col = "red", pch = 16,
-          data =  subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "SOBI") ,
-          type = "o")
-    points((md * 2) ~ log10(as.numeric(n)), col = "blue", pch = 16,
-           data = subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "TV-SOBI") ,
-           type = "o")
-    points((md * 2 + 4) ~ log10(as.numeric(n)), col = "purple", pch = 16,
-           data =  subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "SOBI") ,
-           type = "o")
-    points((md * 2 + 4) ~ log10(as.numeric(n)), col = "darkgreen", pch = 16,
-           data = subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "TV-SOBI") ,
-           type = "o")
+    if(plotProcess){
+      points((md * 2) ~ log10(as.numeric(n)), col = "red", pch = 16,
+             data =  subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "SOBI") ,
+             type = "o")
+      points((md * 2) ~ log10(as.numeric(n)), col = "blue", pch = 16,
+             data = subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "TV-SOBI") ,
+             type = "o")
+      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "purple", pch = 16,
+             data =  subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "SOBI") ,
+             type = "o")
+      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "darkgreen", pch = 16,
+             data = subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "TV-SOBI") ,
+             type = "o")
+    }
   }
-  
-  require(ggplot2)
-  gg <- ggplot(SimRes, aes(x = as.numeric(n), y = as.numeric(md), group = method,color = method)) +
-    geom_point() + geom_line() +
-    scale_x_log10(limits = c(n_start, n_end)) +
-    scale_y_continuous(limits = c(0,1)) +
-    facet_grid(simtype ~ .) +
-    theme_light()
-  
-  print(gg)
+
   return(SimRes)
 }
 
 
-SimRes <- simNplot(n_end = 1e5, n_times = 50)
+# SimRes <- simNplot(n_end = 1e5, n_times = 50)
+
+# for (i in 1:1e3) {
+#   cat("runing series", i, "\r")
+#   SimRes <- rbind(simNplot(n_end = 1e5, n_times = 50), SimRes)
+#   saveRDS(SimRes, file = "zzz_sim_batch.rds")
+# }
 
 
-
-# plotting only -----------------------------------------------------------
-library(reshape2); library(ggplot2)
-
-N <- 1e4
-omega <- matrix(rnorm(9) , ncol = 3)
-epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
-z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
-z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
-z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
-z <- apply(cbind(z1,z2,z3), 2, scale)
-X <- matrix(nrow = nrow(z), ncol = ncol(z))
-for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-  # z is normal mix, X is tv-mix
-temp1 <- as.data.frame(X)
-temp1$t <- 1:nrow(temp1)
-temp1 <- melt(temp1, id.vars = "t")
-temp1$type <- "time-varing mix"
-
-temp2 <- as.data.frame(z)
-colnames(temp2) <- c("V1", "V2", "V3")
-temp2$t <- 1:nrow(temp2)
-temp2 <- melt(temp2, id.vars = "t")
-temp2$type <- "ordinary mix"
-
-mix <- rbind(temp1, temp2)
-
-ggplot(mix, aes(t, value, color = variable)) + 
-  geom_line() +
-  facet_grid(variable~type) +
-  theme_light()
