@@ -49,3 +49,22 @@ SimRes %>%
   labs(x = "Sample Size n", y = "Mean MD-value") +
   facet_grid(simtype ~ .) +
   theme_light()
+
+
+
+# references --------------------------------------------------------------
+
+
+### References
+# 
+# References:
+#   
+#   Hyvärinen, Aapo. 2013. “Independent Component Analysis: Recent Advances.” _Phil. Trans. R. Soc. A 371_ (1984). The Royal Society: 20110534.  
+# 
+# Hyvärinen, Aapo, and Erkki Oja. 2000. “Independent Component Analysis: Algorithms and Applications.” _Neural Networks 13 (4-5)_. Elsevier: 411–30.
+# 
+# Miettinen, Jari, Katrin Illner, Klaus Nordhausen, Hannu Oja, Sara Taskinen, and Fabian J Theis. 2016. “Separation of Uncorrelated Stationary Time Series Using Autocovariance Matrices.” _Journal of Time Series Analysis 37 (3)_. Wiley Online Library: 337–54.
+# 
+# Miettinen, Jari, Klaus Nordhausen, and Sara Taskinen. 2017. “Blind Source Separation Based on Joint Diagonalization in R: The Packages Jade and Bssasymp.” _Journal of Statistical Software 76_. Foundation for Open Access Statistics.
+# 
+# Yeredor, Arie. 2003. “TV-Sobi: An Expansion of Sobi for Linearly Time-Varying Mixtures.” In _Proc. 4th International Symposium on Independent Component Analysis and Blind Source Separation (Ica’03)_, Nara, Japan.

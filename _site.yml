@@ -8,6 +8,8 @@ navbar:
       href: lab.Rmd
     - text: "BSS Basics"
       href: intro.Rmd
+    - text: "Report"
+      href: "http://boring.fi/report"
   right:
     - text: "Researches"
       href: research.Rmd

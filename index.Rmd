@@ -15,7 +15,7 @@ Time-varying second order blind source separation.
 
 <i>The R implementation code here is to step by step in mathematical description, and the `tvSOBI` function (see the later sections in "R-Lab") is more optimize as a resuable function. The example illustrated below is cached, and further simulation suggests that the performance of TV-SOBI varies greatly. R-Lab provides a framework to evaluate.</i>
 
-## Concept from BSS
+## Concept of BSS
 
 $$\begin{aligned} 
 \boldsymbol x_t =  \boldsymbol \Omega_t \boldsymbol  z_t
@@ -271,7 +271,7 @@ Furthermore, observe that it can be solve analytically (in theory) by the formul
 $$ \sum\limits_{\tau=1}^L \boldsymbol {Rb}_\tau = \boldsymbol{\mathcal E} \bigg( \sum\limits_{\tau=1}^L \boldsymbol{Ra}_\tau \bigg) + \bigg( \sum\limits_{\tau=1}^L \boldsymbol{Ra} _\tau'\bigg) \boldsymbol{\mathcal E'}$$
 
 
-## Important R-Notes
+##R-Notes
 
 The structure of data matrix is in fact transposed ($n\times p$ in `R`). 
 <br />

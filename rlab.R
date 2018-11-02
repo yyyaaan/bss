@@ -215,13 +215,13 @@ printSimulation <- function(){
 # batch simulation recording ----------------------------------------------
 
 
-sim.yeredor <- function(N){
+sim.yeredor <- function(N, omega.eN = 1, epsilon.eN = 1e-4){
   
   require(JADE)
 
   # param
-  omega <- matrix(c(3, -2, 1, 4), ncol = 2)
-  epsilon <- matrix(c(-1, -2, 0.5, 1), ncol = 2) * 1e-4
+  omega <- matrix(c(3, -2, 1, 4), ncol = 2) * omega.eN
+  epsilon <- matrix(c(-1, -2, 0.5, 1), ncol = 2) * epsilon.eN
   z <- rnorm(N+4)
   z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]
   z <- rnorm(N+3)
@@ -246,12 +246,12 @@ sim.yeredor <- function(N){
 }
 
 
-sim.my <- function(N){
+sim.my <- function(N, omega.eN = 1, epsilon.eN = 1e-4){
   require(JADE)
   lag.max = 6
   
-  omega <- matrix(rnorm(9) , ncol = 3)
-  epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
+  omega <- matrix(rnorm(9) , ncol = 3) * omega.eN
+  epsilon <- matrix(rnorm(9), ncol = 3) * epsilon.eN
   z1 <- arima.sim(list(ar=c(0.3)),N)
   z2 <- arima.sim(list(ar=c(-0.6)),N)
   z3 <- arima.sim(list(ar=c(0.9)),N)
@@ -296,7 +296,7 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plotProcess = T){
     axis(2, at=0:6, labels = c(0, 0.5, 1, "", 0, 0.5, 1))
     abline(h = c(2.2, 3.8))
     legend(log10(n_start), 3.5, legend=c("SOBI (Yeredor)", "TV-SOBI (Yeredor)"),col=c("red", "blue"), lty = 1, cex=0.8)
-    legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("purple", "darkgreen"), lty = 1, cex=0.8)
+    legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("tomato", "dodgerblue"), lty = 1, cex=0.8)
   }
   
   for(i in 1:length(n_vector)){
@@ -326,10 +326,10 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plotProcess = T){
       points((md * 2) ~ log10(as.numeric(n)), col = "blue", pch = 16,
              data = subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "TV-SOBI") ,
              type = "o")
-      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "purple", pch = 16,
+      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "tomato", pch = 16,
              data =  subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "SOBI") ,
              type = "o")
-      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "darkgreen", pch = 16,
+      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "dodgerblue", pch = 16,
              data = subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "TV-SOBI") ,
              type = "o")
     }
@@ -348,3 +348,4 @@ simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plotProcess = T){
 # }
 
 
+simNplot()
