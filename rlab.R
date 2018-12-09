@@ -1,5 +1,7 @@
 
-# Nearest SPD -------------------------------------------------------------
+
+# TV-SOBI support ---------------------------------------------------------
+
 
 nearestSPD <- function(X){
   if(length(dim(X)) != 2 ){
@@ -13,7 +15,6 @@ nearestSPD <- function(X){
   list(mat = RES$mat, normF = RES$normF)
 }
 
-# Approximate Joint Diagnolization ----------------------------------------
 # follow the name in Miettinen, Nordhausen & Taskinen (2017)
 
 approxJD <- function(covs, method = "frjd"){
@@ -147,205 +148,40 @@ tvsobi <- function(X, lag.max = 12,
   
   est <- lm(y.design ~ h.design - 1)$coefficients
   epsilon.est <- matrix(est, nrow = p, byrow = T)
-  # remove(Q, Qi, H1, H2, y.design, h.design, i, lag, est, pos, jd)
-  
-  return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist,
-              Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
+
+  return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
+  #             Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
 }
 
 
 
-# printing detailed simulation --------------------------------------------
+# TV-SOBI Utilities -------------------------------------------------------
 
-printSimulation <- function(){
-  require(JADE)
-  lag.max = 6
-
-# sim data
-  N <- 1e5
-  omega <- matrix(rnorm(9) , ncol = 3)
-  epsilon <- matrix(rnorm(9) * 1e-5, ncol = 3)
-  z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
-  z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
-  z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
-  z <- apply(cbind(z1,z2,z3), 2, scale)
-  X <- matrix(nrow = nrow(z), ncol = ncol(z))
-  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-
-# tv-sobi sim and run
-  covs1 <- acf(X, lag.max = lag.max, type = "covariance", plot = F)$acf
-  covs <- array(dim = dim(covs1)[3:1])
-  for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
-  
-  print("Simulated TIME-VARING mixture, MDIs:")
-  cat("\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega))
-  cat("\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega))
-  cat("\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega))
-  cat("\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega))
-  cat("\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega))
-  cat("\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega))
-  cat("\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega))
-  cat("\n\n")
-
-# a normal mixture, see how each works
-  X <- z %*% t(omega)
-  
-  # autocovariance from acf, correct dimension to JADE
-  covs1 <- acf(X - colMeans(X), lag.max = lag.max, type = "covariance", plot = F)$acf
-  covs <- array(dim = dim(covs1)[3:1])
-  for (i in 0:lag.max) covs[,,i + 1] <- covs1[i + 1, ,]
-  
-  print("Simulated ORDINARY mixture, MDIs:")
-  cat("\nOriginal JADE::SOBI:\t",  MD(SOBI(X, lag.max)$W, omega))
-  cat("\nSOBI with approxJD:\t",   MD(approxJD(covs)$W, omega))
-  cat("\nNew TV-SOBI Quad-1:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 1)$W, omega))
-  cat("\nNew TV-SOBI Quad-2:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 2)$W, omega))
-  cat("\nNew TV-SOBI Quad-3:\t", MD(tvsobi(X, lag.max, useQuadratic = T, epsilon.method = 3)$W, omega))
-  cat("\nNew TV-SOBI Line-1:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 1)$W, omega))
-  cat("\nNew TV-SOBI Line-2:\t", MD(tvsobi(X, lag.max, useQuadratic = F, epsilon.method = 2)$W, omega))
-  cat("\n\n")
+getW_t <- function(tvsobi_result, t){
+  omega <- solve(tvsobi_result$W)
+  p <- dim(omega)[1]
+  epsilon <- ifelse(is.null(tvsobi_result$Epsilon), diag(0, nrow = p), tvsobi_result$Epsilon)
+  omega_t <- (diag(p) + t * epsilon) %*% omega
+  return(solve(omega_t))
 }
 
-
-
-
-
-
-# batch simulation recording ----------------------------------------------
-
-
-sim.yeredor <- function(N, omega.eN = 1, epsilon.eN = 1e-4){
-  
-  require(JADE)
-
-  # param
-  omega <- matrix(c(3, -2, 1, 4), ncol = 2) * omega.eN
-  epsilon <- matrix(c(-1, -2, 0.5, 1), ncol = 2) * epsilon.eN
-  z <- rnorm(N+4)
-  z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]
-  z <- rnorm(N+3)
-  z2 <- 1 - z[1:N + 2] + 3*z[1:N + 1] + 2*z[1:N]
-  z <- cbind(z1,z2)
-  X <- matrix(nrow = nrow(z), ncol = ncol(z))
-  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
-
-  start_time <- Sys.time()
-  res <- tryCatch(tvsobi(X), error = function(e) NA)
-  md_tvsobi <- tryCatch(MD(res$W, omega), error = function(e) NA)
-  nearestDist <- tryCatch(res$nearestDist, error = function(e) NA)
-  time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
-  
-  start_time <- Sys.time() 
-  md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
-  time_sobi <-as.numeric(difftime(Sys.time(), start_time, units = "secs"))
-  
-  
-  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi, nearestDist = nearestDist,
-    time_tvsobi = time_tvsobi, time_sobi = time_sobi)
+getMD_t <- function(tvsobi_result, omega, epsilon, t){
+  MD(getW_t(tvsobi_result, t), ((diag(dim(omega)[1]) + t * epsilon) %*% omega))
 }
 
-
-sim.my <- function(N, omega.eN = 1, epsilon.eN = 1e-4){
-  require(JADE)
-  lag.max = 6
-  
-  omega <- matrix(rnorm(9) , ncol = 3) * omega.eN
-  epsilon <- matrix(rnorm(9), ncol = 3) * epsilon.eN
-  z1 <- arima.sim(list(ar=c(0.3)),N)
-  z2 <- arima.sim(list(ar=c(-0.6)),N)
-  z3 <- arima.sim(list(ar=c(0.9)),N)
-  z <- apply(cbind(z1,z2,z3), 2, scale)
-  X <- matrix(nrow = nrow(z), ncol = ncol(z))
-  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-  start_time <- Sys.time()
-  res <- tryCatch(tvsobi(X), error = function(e) NA)
-  md_tvsobi <- tryCatch(MD(res$W, omega), error = function(e) NA)
-  nearestDist <- tryCatch(res$nearestDist, error = function(e) NA)
-  time_tvsobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
-  
-  start_time <- Sys.time() 
-  md_sobi <- tryCatch(MD(SOBI(X)$W, omega), error = function(e) NA)
-  time_sobi <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
-  
-  
-  list(md_tvsobi = md_tvsobi, md_sobi = md_sobi, nearestDist = nearestDist, 
-       time_tvsobi = time_tvsobi, time_sobi = time_sobi)
+getMD_ave <- function(tvsobi_result, omega, epsilon, N){
+  mds <- numeric(N)
+  for (i in 1:N) mds[i] <- getMD_t(tvsobi_result, omega, epsilon, i)
+  mean(mds)
 }
 
-
-simNplot <- function(n_start = 1e2, n_end = 1e5, n_times = 25, plotProcess = T){
-  
-  options(stringsAsFactors = FALSE)
-
-  interval <- (n_end / n_start) ^ ( 1 / n_times)
-  n_vector <- n_start * interval ^ {0 : n_times}
-  n_vector <- ceiling(n_vector)
-  SimRes <- data.frame(n = numeric(),
-                       simtype = character(),
-                       method = character(),
-                       md = numeric(),
-                       time = numeric(),
-                       flag = numeric()) 
-  if(plotProcess){
-    par(mar=c(3,3,1,1))
-    plot(md ~ n, data = SimRes, type = "b", xlim = log10(c(n_start, n_end)), ylim = c(0,6),
-         xlab ="sample size - n", ylab = "minimum distance - MD", xaxt = "n", yaxt = "n")
-    axis(1, at=1:(ceiling(log10(n_end))), labels = 10^(1:(ceiling(log10(n_end)))))
-    axis(2, at=0:6, labels = c(0, 0.5, 1, "", 0, 0.5, 1))
-    abline(h = c(2.2, 3.8))
-    legend(log10(n_start), 3.5, legend=c("SOBI (Yeredor)", "TV-SOBI (Yeredor)"),col=c("red", "blue"), lty = 1, cex=0.8)
-    legend(log10(n_start) + 1, 3.5, legend=c("SOBI (My Sim)", "TV-SOBI (My Sim)"),col=c("tomato", "dodgerblue"), lty = 1, cex=0.8)
-  }
-  
-  for(i in 1:length(n_vector)){
-    n_sim <- n_vector[i]
-    n_row <- nrow(SimRes)
-    
-    sim1 <- sim.yeredor(n_sim)
-    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "TV-SOBI", 
-                                    sim1$md_tvsobi, sim1$time_tvsobi, sim1$nearestDist)
-    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Yeredor", "SOBI", 
-                                    sim1$md_sobi, sim1$time_sobi, 0)
-    
-    sim2 <- sim.my(n_sim)
-    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "TV-SOBI", 
-                                    sim2$md_tvsobi, sim2$time_tvsobi, sim2$nearestDist)
-    SimRes[nrow(SimRes) + 1, ] <- c(n_sim, "Mine", "SOBI", 
-                                    sim2$md_sobi, sim2$time_sobi, 0)
-    
-    plot_index <- max(n_row - 3, 1):nrow(SimRes)
-    
-    SimRes$md <- as.numeric(SimRes$md)
-    
-    if(plotProcess){
-      points((md * 2) ~ log10(as.numeric(n)), col = "red", pch = 16,
-             data =  subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "SOBI") ,
-             type = "o")
-      points((md * 2) ~ log10(as.numeric(n)), col = "blue", pch = 16,
-             data = subset(subset(SimRes[plot_index, ], simtype == "Yeredor"), method == "TV-SOBI") ,
-             type = "o")
-      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "tomato", pch = 16,
-             data =  subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "SOBI") ,
-             type = "o")
-      points((md * 2 + 4) ~ log10(as.numeric(n)), col = "dodgerblue", pch = 16,
-             data = subset(subset(SimRes[plot_index, ], simtype == "Mine"), method == "TV-SOBI") ,
-             type = "o")
-    }
-  }
-
-  return(SimRes)
+restore_source <- function(tvsobi_result, X){
+  n <- nrow(X)
+  z <- matrix(nrow = nrow(X), ncol = ncol(X))
+  for (i in 1:n) z[i, ] <- X[i, ] %*% t(getW_t(tvsobi_result, i))
 }
 
-
-# SimRes <- simNplot(n_end = 1e5, n_times = 50)
-
-# for (i in 1:1e3) {
-#   cat("runing series", i, "\r")
-#   SimRes <- rbind(simNplot(n_end = 1e5, n_times = 50), SimRes)
-#   saveRDS(SimRes, file = "zzz_sim_batch.rds")
-# }
+# z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
 
 
-simNplot()
+

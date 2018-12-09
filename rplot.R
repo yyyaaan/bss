@@ -35,6 +35,35 @@ ggplot(mix, aes(t, value, color = variable)) +
 
 require(tidyverse)
 
+sim <- readRDS("res_sim_boot.rds")
+
+sim_summary <- sim %>%
+  group_by(N, p, method) %>%
+  summarise_at(c("md_initial", "md_middle", "md_end"), function(x) mean(x, na.rm = TRUE)) %>% 
+  gather(md_initial, md_middle, md_end, key = "measured_time", value = "MD") 
+
+sim_summary%>%
+  filter(p == 2) %>%
+  ggplot(aes(x = N, y = MD, color = measured_time)) +
+  geom_line() +
+  scale_x_log10(limits = c(min(sim$N), max(sim$N))) +
+  facet_wrap(~method) +
+  ggtitle("MD measure at different time (bootstrap result)", subtitle = "Yeredor's simulation (2-dimensional)")
+  
+sim_summary%>%
+  filter(p == 3) %>%
+  ggplot(aes(x = N, y = MD, color = measured_time)) +
+  geom_line() +
+  scale_x_log10(limits = c(min(sim$N), max(sim$N))) +
+  facet_wrap(~method) +
+  ggtitle("MD measure at different time (bootstrap result)", subtitle = "ARIMA simulation (3-dimensional)")
+
+
+# legacy - performance ----------------------------------------------------
+
+
+require(tidyverse)
+
 SimRes <- readRDS("zzz_sim_batch.rds")
 SimRes$n <- as.numeric(SimRes$n)
 
@@ -49,6 +78,7 @@ SimRes %>%
   labs(x = "Sample Size n", y = "Mean MD-value") +
   facet_grid(simtype ~ .) +
   theme_light()
+
 
 
 
