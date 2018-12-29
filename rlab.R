@@ -15,9 +15,9 @@ nearestSPD <- function(X){
   list(mat = RES$mat, normF = RES$normF)
 }
 
-# follow the name in Miettinen, Nordhausen & Taskinen (2017)
 
 approxJD <- function(covs, method = "frjd"){
+  # follow the name in Miettinen, Nordhausen & Taskinen (2017)
   # param covs as in JADE | in the form of dim = p,p,lag.max+1 | lag 0 at index 1
   # NOTE for acf(.)$acf | dim = lag.max+1,p,p 
   
@@ -25,12 +25,15 @@ approxJD <- function(covs, method = "frjd"){
   
   if(dim(covs)[1] != dim(covs)[2]) 
     stop('Autocovariance matrices should be in dim(p,p,k+1)')
+  
   lag.max <- dim(covs)[3] - 1
   
-  # whitening using R_0^{-1/2}, through eigen calculation
+
+  # whitening using var^{-1/2}, through eigen calculation -------------------
   nearestDist <- 0
   EVD <- eigen(covs[ , , 1], symmetric = T)
   if (min(EVD$values) < 0) {
+    # not semi-definite?
     spd <- nearestSPD(covs[ , , 1])
     EVD <- eigen(spd$mat, symmetric = T)
     warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
@@ -39,7 +42,8 @@ approxJD <- function(covs, method = "frjd"){
   }
   white <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
   
-  # whiten autocovariance, format to rjd with symmetry fix
+
+  # whiten autocovariance, format to rjd with symmetry fix ------------------
   covs.white <- array(dim = c(dim(white),lag.max))
   for (i in 1:lag.max) {
     covs.white[ , , i] <- white %*% tcrossprod(covs[ , , i+1], white)
@@ -150,7 +154,6 @@ tvsobi <- function(X, lag.max = 12,
   epsilon.est <- matrix(est, nrow = p, byrow = T)
 
   return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
-  #             Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
 }
 
 

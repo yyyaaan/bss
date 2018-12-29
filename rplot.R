@@ -1,6 +1,6 @@
-# plotting only -----------------------------------------------------------
-library(reshape2); library(ggplot2)
+require(tidyverse)
 
+# illustration of mixture -------------------------------------------------
 N <- 1e4
 omega <- matrix(rnorm(9) , ncol = 3)
 epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
@@ -35,14 +35,17 @@ ggplot(mix, aes(t, value, color = variable)) +
 
 require(tidyverse)
 
-sim <- readRDS("res_sim_boot.rds")
+sim <- readRDS("res_sim_boot.rds") %>% 
+  filter(method != "TVSOBI, Quadratic FALSE , Epsilon Mehtod 3")
 
 sim_summary <- sim %>%
   group_by(N, p, method) %>%
   summarise_at(c("md_initial", "md_middle", "md_end"), function(x) mean(x, na.rm = TRUE)) %>% 
-  gather(md_initial, md_middle, md_end, key = "measured_time", value = "MD") 
+  gather(md_initial, md_middle, md_end, key = "measured_time", value = "MD")
 
-sim_summary%>%
+  # plot for mean values ----------------------------------------------------
+
+sim_summary %>%
   filter(p == 2) %>%
   ggplot(aes(x = N, y = MD, color = measured_time)) +
   geom_line() +
@@ -50,7 +53,7 @@ sim_summary%>%
   facet_wrap(~method) +
   ggtitle("MD measure at different time (bootstrap result)", subtitle = "Yeredor's simulation (2-dimensional)")
   
-sim_summary%>%
+sim_summary %>%
   filter(p == 3) %>%
   ggplot(aes(x = N, y = MD, color = measured_time)) +
   geom_line() +
@@ -59,42 +62,9 @@ sim_summary%>%
   ggtitle("MD measure at different time (bootstrap result)", subtitle = "ARIMA simulation (3-dimensional)")
 
 
-# legacy - performance ----------------------------------------------------
+  # boxplots ----------------------------------------------------------------
 
+sim$N <- as.factor(sim$N) 
 
-require(tidyverse)
-
-SimRes <- readRDS("zzz_sim_batch.rds")
-SimRes$n <- as.numeric(SimRes$n)
-
-SimRes %>% 
-#  filter(flag == 0) %>%
-  group_by(method, n, simtype) %>%
-  summarise_at("md", mean) %>%
-  ggplot(aes(x = n, y = md, group = method,color = method)) +
-  geom_point() + geom_line() +
-  scale_x_log10(limits = c(min(SimRes$n), max(SimRes$n))) +
-  scale_y_continuous(limits = c(0,1)) +
-  labs(x = "Sample Size n", y = "Mean MD-value") +
-  facet_grid(simtype ~ .) +
-  theme_light()
-
-
-
-
-# references --------------------------------------------------------------
-
-
-### References
-# 
-# References:
-#   
-#   Hyvärinen, Aapo. 2013. “Independent Component Analysis: Recent Advances.” _Phil. Trans. R. Soc. A 371_ (1984). The Royal Society: 20110534.  
-# 
-# Hyvärinen, Aapo, and Erkki Oja. 2000. “Independent Component Analysis: Algorithms and Applications.” _Neural Networks 13 (4-5)_. Elsevier: 411–30.
-# 
-# Miettinen, Jari, Katrin Illner, Klaus Nordhausen, Hannu Oja, Sara Taskinen, and Fabian J Theis. 2016. “Separation of Uncorrelated Stationary Time Series Using Autocovariance Matrices.” _Journal of Time Series Analysis 37 (3)_. Wiley Online Library: 337–54.
-# 
-# Miettinen, Jari, Klaus Nordhausen, and Sara Taskinen. 2017. “Blind Source Separation Based on Joint Diagonalization in R: The Packages Jade and Bssasymp.” _Journal of Statistical Software 76_. Foundation for Open Access Statistics.
-# 
-# Yeredor, Arie. 2003. “TV-Sobi: An Expansion of Sobi for Linearly Time-Varying Mixtures.” In _Proc. 4th International Symposium on Independent Component Analysis and Blind Source Separation (Ica’03)_, Nara, Japan.
+9
+9

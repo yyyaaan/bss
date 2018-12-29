@@ -1,12 +1,16 @@
 ==========================
 
+rlab = core function
+rplot = plot used in paper
+rsim = simulation only, plot in rplot
+
 12px 1.5 line
 bibtex, use {A}bc to force upper cases
-plan by october
-page submit by 26.10.
-
 
 ==========================
+
+crossprod(x,y) = t(x) %*% y
+
 
 motivation, make the world a little bit better (citation)
 
@@ -17,8 +21,6 @@ mention the notation clear!
 why restoration sources, and what can be expected loss
 
 simulation details, explain why
-
-
 
 
 * independece vs. uncorrelation
@@ -34,7 +36,6 @@ simulation details, explain why
 * avoid footnote, separate notation or in-text
 
 captial letters and similar. 
-
 
 
 

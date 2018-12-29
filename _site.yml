@@ -2,10 +2,10 @@ name: "Blind Source Separation"
 navbar:
   title: "Blind Source Separation"
   left:
-    - text: "TV-SOBI"
+    - text: "Discussion"
       href: index.Rmd
-    - text: "R-lab"
-      href: lab.Rmd
+    - text: "TV-SOBI"
+      href: brief.Rmd
     - text: "BSS Basics"
       href: intro.Rmd
     - text: "Report"

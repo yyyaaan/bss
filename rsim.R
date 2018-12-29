@@ -100,19 +100,5 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 3}, boot_n = 10, filename) {
   }
 }
 
-# current lab -------------------------------------------------------------
-
-# sim_single <- sim_All(n_vector = 100 * 2 ^ {0 : 9})
-# myColor <- RColorBrewer::brewer.pal(3, "Set2")
-# ggplot(sim_single) +
-#   geom_line(aes(N, md_initial), color = myColor[1]) +
-#   geom_line(aes(N, md_middle), color = myColor[2]) +
-#   geom_line(aes(N, md_end), color = myColor[3]) +
-#   facet_wrap(~method)
-
-temp <- readRDS("res_sim_boot.rds"); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
-sim_bootstrap(100*2^{0:10}, 99, "res_sim_boot.rds")
-
-# call_method = function(x) tvsobi(x); msg = "test";
-# X = sim_Generate_2d_Data(1e2);  omega = matrix(c(3, -2, 1, 4), ncol = 2); epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4;
-# X = sim_Generate_3d_Data(1e2); omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3);  epsilon = matrix(c(1, 4, 2, -0.8, 3, 0.2, 5, -3, -4), ncol = 3) * 1e-4
+# temp <- readRDS("res_sim_boot.rds"); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
+sim_bootstrap(100*2^{0:10}, 1000, "res_sim_boot.rds")
