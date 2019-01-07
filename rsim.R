@@ -1,6 +1,6 @@
 source("rlab.R")
 library(magrittr)
-library(ggplot2)
+options(stringsAsFactors = F)
 
 # new simulation ----------------------------------------------------------
 
@@ -34,17 +34,21 @@ sim_Measure_Performance <- function(X, omega, epsilon,
   N <- nrow(X)
   start_time <- Sys.time()
   res <- tryCatch(call_method(X), error = function(e) NA)
+  time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+  
   md_initial <- tryCatch(MD(res$W, omega), error = function(e) NA)
   md_middle <- tryCatch(getMD_t(res, omega, epsilon, floor(N/2)), error = function(e) NA)
   md_end <- tryCatch(getMD_t(res, omega, epsilon, N), error = function(e) NA)
+  md_AVE <- tryCatch(getMD_ave(res, omega, epsilon, N), error = function(e) NA)
   nearestDist <- tryCatch(ifelse(is.null(res$nearestDist), 0, res$nearestDist), error = function(e) NA)
-  time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+  res_W <- tryCatch(ifelse(is.null(res$W), NA, paste(res$W, collapse = ", ")), error = function(e) NA)
+  res_Epsilon <- tryCatch(ifelse(is.null(res$Epsilon), NA, paste(res$Epsilon, collapse = ", ")), error = function(e) NA)
   
   data.frame(N = N, p = ncol(X), method = msg, 
-             md_initial = md_initial, md_middle = md_middle, md_end = md_end,
+             md_initial = md_initial, md_middle = md_middle,md_end = md_end, md_AVE = md_AVE,
              time = time, nearestFixDist = nearestDist,
-             omega = paste(omega, collapse = ", "),
-             epsilon = paste(epsilon, collapse = ", "))
+             omega = paste(omega, collapse = ", "),  epsilon = paste(epsilon, collapse = ", "),
+             res_w = res_W, res_Epsilon = res_Epsilon)
 }
 
 sim_All <- function(n_vector = 100 * 2 ^ {0 : 3} ) {
@@ -77,7 +81,8 @@ sim_All <- function(n_vector = 100 * 2 ^ {0 : 3} ) {
                               msg = "SOBI") %>%
         rbind(sim_df) -> sim_df
       for (i_quad in c(TRUE, FALSE)) {
-        for(i_opt in c(1,2,3)){
+  ### no longer simulate for method 3
+        for(i_opt in c(1,2)){
           sim_Measure_Performance(X, omega_cur, epsilon_cur, 
                                   call_method = function(X) tvsobi(X, useQuadratic = i_quad, epsilon.method = i_opt),
                                   msg = paste("TVSOBI, Quadratic", i_quad, ", Epsilon Mehtod", i_opt)) %>%
@@ -100,5 +105,6 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 3}, boot_n = 10, filename) {
   }
 }
 
-# temp <- readRDS("res_sim_boot.rds"); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
+# temp <- sim_All(); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
 sim_bootstrap(100*2^{0:10}, 1000, "res_sim_boot.rds")
+

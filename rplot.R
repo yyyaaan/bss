@@ -38,10 +38,12 @@ require(tidyverse)
 sim <- readRDS("res_sim_boot.rds") %>% 
   filter(method != "TVSOBI, Quadratic FALSE , Epsilon Mehtod 3")
 
+
+
 sim_summary <- sim %>%
   group_by(N, p, method) %>%
-  summarise_at(c("md_initial", "md_middle", "md_end"), function(x) mean(x, na.rm = TRUE)) %>% 
-  gather(md_initial, md_middle, md_end, key = "measured_time", value = "MD")
+  summarise_at(c(4:which(colnames(sim) == "md_AVE")), function(x) mean(x, na.rm = TRUE)) %>% 
+  gather(4:which(colnames(sim) == "md_AVE"), key = "measured_time", value = "MD")
 
   # plot for mean values ----------------------------------------------------
 
@@ -64,7 +66,15 @@ sim_summary %>%
 
   # boxplots ----------------------------------------------------------------
 
-sim$N <- as.factor(sim$N) 
+sim$N <- as.factor(sim$N)
 
-9
-9
+sim %>%
+  ggplot(aes(x = N, y = md_AVE)) +
+  geom_boxplot(aes(color = as.factor(p))) +
+  facet_grid(p~method) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("Average MD over all time")
+
+
+
+sim$epsilon[999] %>% str_split(",", simplify = T) %>% as.numeric() %>% matrix(ncol = sqrt(length(.)))
