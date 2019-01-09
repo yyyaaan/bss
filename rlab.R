@@ -61,11 +61,40 @@ approxJD <- function(covs, method = "frjd"){
 }
 
 
+# TV-SOBI Utilities -------------------------------------------------------
+
+getW_t <- function(t, W, Epsilon){
+  omega <- solve(W)
+  p <- dim(omega)[1]
+  if(is.null(Epsilon)) Epsilon <- diag(0, nrow = p) # compatible with SOBI
+  if(is.na(Epsilon)) Epsilon <- diag(0, nrow = p) # compatible with SOBI
+  omega_t <- (diag(p) + t * Epsilon) %*% omega
+  return(solve(omega_t))
+}
+
+getMD_t <- function(omega_true, epsilon_true, t, W, Epsilon = NA){
+  MD(getW_t(t, W, Epsilon), ((diag(dim(omega_true)[1]) + t * epsilon_true) %*% omega))
+}
+
+getMD_ave <- function(omega_true, epsilon_true, N, W, Epsilon = NA, ave_fun = function(x) mean(x)){
+  mds <- numeric(N)
+  for (i in 1:N) mds[i] <- getMD_t(omega_true, epsilon_true, i, W, Epsilon)
+  return(ave_fun(mds))
+}
+
+restore_source <- function(X, W, Epsilon = NA){
+  n <- nrow(X)
+  z <- matrix(nrow = nrow(X), ncol = ncol(X))
+  for (i in 1:n) z[i, ] <- X[i, ] %*% t(getW_t(i, W, Epsilon))
+  return(z)
+}
+
 # TV-SOBI -----------------------------------------------------------------
 
 tvsobi <- function(X, lag.max = 12, 
                    useQuadratic = TRUE,
                    epsilon.method = 1,
+                   getSource = TRUE,
                    jd.method = "frjd"){
 
   if((!useQuadratic) & (epsilon.method == 3)) 
@@ -109,82 +138,58 @@ tvsobi <- function(X, lag.max = 12,
   
   # step 3. solve for epsilon using Rb --------------------------------------
 
-  if(epsilon.method == 3) { # = jd(Rc) and exit
+  if(epsilon.method %in% c(1,2)){
+    if(epsilon.method == 2) { # = Omega Lambda Omega from JD in step 2
+      Q <- array(dim = c(p, p, lag.max + 1))
+      Q[,,1] <- omega.est %*% t(omega.est) 
+      for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
+    }
+    
+    if(epsilon.method == 1) Q <- Ra
+    
+    # design matricies
+    H1 <- H2 <- array(0, dim = c(p^2, p^2, lag.max + 1))
+    for(lag in 0:lag.max){
+      for(i in 1:p^2){
+        # the column to use  
+        Qi <- Q[ , ceiling(i/p), lag+1]
+        # H1 similar to diagnal
+        pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
+        H1[i, pos, lag+1] <- Qi
+        # H2 similar to vec
+        pos <- (ceiling(i/p) - 1) * p + (1:p)
+        H2[i, pos, lag+1] <- Qi
+      }
+    }
+    
+    y.design <-matrix(as.vector(Rb[ , , 1]), nrow = p^2)
+    h.design <- H1[ , , 1] + H2[ , , 1]
+    for (i in 2:(lag.max + 1)) {
+      y.design <- y.design + matrix(as.vector(Rb[ , , i]), nrow = p^2)
+      h.design <- h.design + H1[ , , i] + H2[ , , i]
+    }
+    
+    est <- lm(y.design ~ h.design - 1)$coefficients
+    epsilon.est <- matrix(est, nrow = p, byrow = T)
+  } # end for method 1 and 2
+
+  
+  if(epsilon.method == 3) { # = jd(Rc)
     # this method directly return the results
     jd <- approxJD(Rc)
     epsilon.est <- NA
     epsilon.est <- try(solve(jd$W) %*% W.est, silent = T)
-    return(list(W = W.est, Epsilon = epsilon.est, Ra = Ra, Rb = Rb, Rc = ifelse(is.na(Rc), NA, Rc)))
   }
   
-  # for method 1 and 2, code continues after if{}
-  if(epsilon.method == 2) { # = Omega Lambda Omega from JD in step 2
-    Q <- array(dim = c(p, p, lag.max + 1))
-    Q[,,1] <- omega.est %*% t(omega.est) 
-    for (lag in 1:lag.max) Q[,,lag + 1] <- omega.est %*% jd$D[,,lag] %*%  t(omega.est)
-  }
-
-  if(epsilon.method == 1) { # = Ra
-    Q <- Ra
-  }
   
-  # design matricies
-  H1 <- H2 <- array(0, dim = c(p^2, p^2, lag.max + 1))
-  for(lag in 0:lag.max){
-    for(i in 1:p^2){
-      # the column to use  
-      Qi <- Q[ , ceiling(i/p), lag+1]
-      # H1 similar to diagnal
-      pos <- (ifelse(i%%p == 0, p, i%%p ) - 1) * p  + (1:p)
-      H1[i, pos, lag+1] <- Qi
-      # H2 similar to vec
-      pos <- (ceiling(i/p) - 1) * p + (1:p)
-      H2[i, pos, lag+1] <- Qi
-    }
-  }
+  if(!getSource)
+    return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
   
-  y.design <-matrix(as.vector(Rb[ , , 1]), nrow = p^2)
-  h.design <- H1[ , , 1] + H2[ , , 1]
-  for (i in 2:(lag.max + 1)) {
-    y.design <- y.design + matrix(as.vector(Rb[ , , i]), nrow = p^2)
-    h.design <- h.design + H1[ , , i] + H2[ , , i]
-  }
+  S <- restore_source(X, W.est, epsilon.est)
+  return(list(W = W.est, Epsilon = epsilon.est, S = S, nearestDist = nearestDist))
   
-  est <- lm(y.design ~ h.design - 1)$coefficients
-  epsilon.est <- matrix(est, nrow = p, byrow = T)
-
-  return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
 }
 
-
-
-# TV-SOBI Utilities -------------------------------------------------------
-
-getW_t <- function(tvsobi_result, t){
-  omega <- solve(tvsobi_result$W)
-  p <- dim(omega)[1]
-  epsilon <- ifelse(is.null(tvsobi_result$Epsilon), diag(0, nrow = p), tvsobi_result$Epsilon)
-  omega_t <- (diag(p) + t * epsilon) %*% omega
-  return(solve(omega_t))
-}
-
-getMD_t <- function(tvsobi_result, omega, epsilon, t){
-  MD(getW_t(tvsobi_result, t), ((diag(dim(omega)[1]) + t * epsilon) %*% omega))
-}
-
-getMD_ave <- function(tvsobi_result, omega, epsilon, N){
-  mds <- numeric(N)
-  for (i in 1:N) mds[i] <- getMD_t(tvsobi_result, omega, epsilon, i)
-  mean(mds)
-}
-
-restore_source <- function(tvsobi_result, X){
-  n <- nrow(X)
-  z <- matrix(nrow = nrow(X), ncol = ncol(X))
-  for (i in 1:n) z[i, ] <- X[i, ] %*% t(getW_t(tvsobi_result, i))
-}
-
-# z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-
+#  mixing :: z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
+#unmixing :: 
 

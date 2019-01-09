@@ -67,13 +67,22 @@ sim_summary %>%
   # boxplots ----------------------------------------------------------------
 
 sim$N <- as.factor(sim$N)
+sim$p <- as.factor(sim$p)
 
 sim %>%
   ggplot(aes(x = N, y = md_AVE)) +
-  geom_boxplot(aes(color = as.factor(p))) +
+  geom_boxplot(aes(color = p)) +
   facet_grid(p~method) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Average MD over all time")
+
+sim %>%
+  ggplot(aes(x = N, y = md_initial)) +
+  geom_boxplot(aes(color = p)) +
+  facet_grid(p~method) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("MD at t=0 (i.e. Omega only)")
+
 
 
 

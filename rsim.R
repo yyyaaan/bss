@@ -1,10 +1,10 @@
 source("rlab.R")
-library(magrittr)
+library(magrittr); library(JADE)
 options(stringsAsFactors = F)
 
 # new simulation ----------------------------------------------------------
 
-sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
+sim_Generate_Yeredor_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
                                  epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
   # yeredor's simulation
   z <- rnorm(N+4)
@@ -14,7 +14,17 @@ sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2),
   z <- cbind(z1,z2)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
-  return(X) 
+  return(list(X=X, S=z)) 
+}
+
+sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
+                                 epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
+  z1 <- arima.sim(list(ar=c(0.3)),N)
+  z2 <- arima.sim(list(ar=c(-0.6)),N)
+  z <- cbind(z1,z2)
+  X <- matrix(nrow = nrow(z), ncol = ncol(z))
+  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
+  return(list(X=X, S=z)) 
 }
 
 sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3),
@@ -25,8 +35,11 @@ sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 
   z <- apply(cbind(z1,z2,z3), 2, scale)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-  return(X)
+  return(list(X=X, S=z)) 
 }
+
+
+# sim all and measure -----------------------------------------------------
 
 sim_Measure_Performance <- function(X, omega, epsilon,
                                     msg = "TVSOBI, Quadratic TRUE, Epsilon Mehtod 1",
@@ -105,6 +118,45 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 3}, boot_n = 10, filename) {
   }
 }
 
+
+
+# CURRENT -----------------------------------------------------------------
+
+mat0 <- matrix(rep(0,4), ncol = 2)
+
+omega2d = matrix(c(3, -2, 1, 4), ncol = 2)
+epsilon2d = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4
+
+aaa <- sim_Generate_2d_Data(1e3, omega2d, epsilon2d)
+res_sobi <- SOBI(aaa$X)
+res_tvsobi <- tvsobi(aaa$X, epsilon.method = 3)
+SIR(aaa$S, res_sobi$S); MD(omega, res_sobi$W)
+
+SIR(aaa$S, res_tvsobi$S); MD(omega, res_tvsobi$W); 
+getMD_ave(omega2d, epsilon2d, ncol(aaa$X), res_tvsobi$W, res_tvsobi$Epsilon)
+
+
+S <- cbind(rt(1000, 4), rnorm(1000), runif(1000))
+A <- matrix(rnorm(9), ncol = 3)
+X <- S %*% t(A)
+SIR(S, JADE(X)$S)
+
+
+
+
+# parallel ----------------------------------------------------------------
+
+
 # temp <- sim_All(); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
+
+lapply(100*2^{0:10}, function(vec) sim_bootstrap(vec, 10, "res_sim_boot.rds"))
+
+# parallel::mclapply()
+# map() to boot_n, modify boot_n to vector
+
 sim_bootstrap(100*2^{0:10}, 1000, "res_sim_boot.rds")
+
+
+
+library(parallel)
 
