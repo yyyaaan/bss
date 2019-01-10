@@ -81,11 +81,11 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
                                              function(N) sim_Generate_Yeredor_Data(N)),
                             bss_funs = list(function(X) SOBI(X),
                                              function(X) JADE(X),
-                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
-                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
-                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3),
-                                             function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
-                                             function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2)),
+                                             # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
+                                             # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2),
+                                             # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
+                                             # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
+                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
                             printProgress = T) {
   
   # init a correct df
@@ -94,8 +94,7 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
   res_df <- res_df[-1,]; remove(init_sim);
 
   # loop through candidates
-  print(Sys.time())
-  
+
   for(N in n_vector){
     for(sim in sim_funs){
       signals <- sim(N)   # result comparable for same N and same sim
@@ -109,78 +108,94 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
     }
   }
   
+  cat(rep(" ", 80),"\r\n") #clean up print
   return(res_df)
 }
 
 
-sim_and_check <- function(){
-  sim_All_Mehtods(100 * 2^{0:3}) -> aaa
+quick_check <- function(){
+  sim_All_Mehtods(100 * 2^{0:8}) -> aaa
   require(tidyverse)
   aaa %>% 
     ggplot(aes(x = N, y = sir_db)) +
-    geom_boxplot(aes(color = as.factor(p))) +
-    facet_grid(p~method) +
+    geom_path()
+    facet_wrap(p) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
 
 
-sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 3}, boot_n = 10, filename) {
+sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 10}, boot_n = 10, 
+                          savefile = "res_PAR_",
+                          sqlconn = NA) {
   # init
-  sim_df <- readRDS(filename)
-  for (i in 1:boot_n) {
-    cat("runing bootstrap series", i, "/", boot_n, "\n")
-    sim_All(n_vector) %>% rbind(sim_df) -> sim_df
-    saveRDS(sim_df, filename)
+  res_df <- sim_All_Mehtods(n_vector)
+  # boot
+  for (i in 2:boot_n) {
+    paste(Sys.time(), " runing bootstrap series", i, "/", boot_n) %>% print()
+    res_df <- sim_All_Mehtods(n_vector) %>% rbind(res_df)
   }
+  
+  # save, auto detect the next file to save
+  if(!is.na(savefile)){
+    seq <- 1 + list.files() %>% 
+      str_extract(paste0(savefile, "[0-9][0-9].rds")) %>% 
+      str_remove(savefile) %>%
+      str_remove(".rds") %>% 
+      parse_integer() %>% 
+      max(na.rm = T)
+    saveRDS(res_df, file = paste0(savefile, seq, ".rds"))
+  }
+  
+  
+  
+  
 }
-
 
 
 # CURRENT -----------------------------------------------------------------
 
-mat0 <- matrix(rep(0,4), ncol = 2)
-
-omega2d = matrix(c(3, -2, 1, 4), ncol = 2)
-epsilon2d = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4
-
-aaa <- sim_Generate_2d_Data(1e3, omega2d, epsilon2d)
-res_sobi <- SOBI(aaa$X)
-res_tvsobi <- tvsobi(aaa$X, epsilon.method = 3)
-SIR(aaa$S, res_sobi$S); MD(omega, res_sobi$W)
-
-SIR(aaa$S, res_tvsobi$S); MD(omega, res_tvsobi$W); 
-getMD_ave(omega2d, epsilon2d, ncol(aaa$X), res_tvsobi$W, res_tvsobi$Epsilon)
-
-
-S <- cbind(rt(1000, 4), rnorm(1000), runif(1000))
-A <- matrix(rnorm(9), ncol = 3)
-X <- S %*% t(A)
-SIR(S, JADE(X)$S)
-
-
-  ### fun to chars
-  bss_funs[[1]] %>% capture.output()
-
+hi <- function(){
+  mat0 <- matrix(rep(0,4), ncol = 2)
+  
+  omega2d = matrix(c(3, -2, 1, 4), ncol = 2)
+  epsilon2d = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4
+  
+  aaa <- sim_Generate_2d_Data(1e3, omega2d, epsilon2d)
+  res_sobi <- SOBI(aaa$X)
+  res_tvsobi <- tvsobi(aaa$X, epsilon.method = 3)
+  SIR(aaa$S, res_sobi$S); MD(omega, res_sobi$W)
+  
+  SIR(aaa$S, res_tvsobi$S); MD(omega, res_tvsobi$W); 
+  getMD_ave(omega2d, epsilon2d, ncol(aaa$X), res_tvsobi$W, res_tvsobi$Epsilon)
   
   
+  S <- cbind(rt(1000, 4), rnorm(1000), runif(1000))
+  A <- matrix(rnorm(9), ncol = 3)
+  X <- S %*% t(A)
+  SIR(S, JADE(X)$S)
   
+}
+
+
 # parallel ----------------------------------------------------------------
 
+library(parallel)
+mclapply(10:50, 
+         function(vec) sim_bootstrap(100*2^{0:10}, vec, savefile = "res_PAR_"),
+         mc.cores = 15)
 
-# temp <- sim_All(); temp <- temp[-(1:nrow(temp)), ]; saveRDS(temp, "res_sim_boot.rds")
 
-lapply(100*2^{0:10}, function(vec) sim_bootstrap(vec, 10, "res_sim_boot.rds"))
+df <- readRDS("res_PAR_10.rds")
+for(i in 10:50){
+  fname <- paste0("res_PAR_", i, ".rds")
+  cur <- readRDS(fname)
+  df <- rbind(df, cur)
+}
+
+file.exists("res_PAR_10.rds")
+
+
+# lapply(100*2^{0:10}, function(vec) sim_bootstrap(vec, 10, "res_sim_boot.rds"))
 
 # parallel::mclapply()
 # map() to boot_n, modify boot_n to vector
-
-sim_bootstrap(100*2^{0:10}, 1000, "res_sim_boot.rds")
-
-
-
-library(parallel)
-
-
-for (sim in sim_funs) {
-  sim(100) %>% print()
-}

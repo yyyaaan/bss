@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
+res_PAR_*
 *.log
 gradu.bbl
 gradu.bcf
