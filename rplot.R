@@ -84,6 +84,4 @@ sim %>%
   ggtitle("MD at t=0 (i.e. Omega only)")
 
 
-
-
 sim$epsilon[999] %>% str_split(",", simplify = T) %>% as.numeric() %>% matrix(ncol = sqrt(length(.)))

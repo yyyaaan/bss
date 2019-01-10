@@ -67,13 +67,13 @@ getW_t <- function(t, W, Epsilon){
   omega <- solve(W)
   p <- dim(omega)[1]
   if(is.null(Epsilon)) Epsilon <- diag(0, nrow = p) # compatible with SOBI
-  if(is.na(Epsilon)) Epsilon <- diag(0, nrow = p) # compatible with SOBI
+  if(is.na(as.vector(Epsilon)[1])) Epsilon <- diag(0, nrow = p) # compatible with SOBI
   omega_t <- (diag(p) + t * Epsilon) %*% omega
   return(solve(omega_t))
 }
 
 getMD_t <- function(omega_true, epsilon_true, t, W, Epsilon = NA){
-  MD(getW_t(t, W, Epsilon), ((diag(dim(omega_true)[1]) + t * epsilon_true) %*% omega))
+  MD(getW_t(t, W, Epsilon), ((diag(dim(omega_true)[1]) + t * epsilon_true) %*% omega_true))
 }
 
 getMD_ave <- function(omega_true, epsilon_true, N, W, Epsilon = NA, ave_fun = function(x) mean(x)){

@@ -14,7 +14,7 @@ sim_Generate_Yeredor_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2
   z <- cbind(z1,z2)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
-  return(list(X=X, S=z)) 
+  return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
 sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
@@ -24,7 +24,7 @@ sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2),
   z <- cbind(z1,z2)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
-  return(list(X=X, S=z)) 
+  return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
 sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3),
@@ -35,78 +35,94 @@ sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 
   z <- apply(cbind(z1,z2,z3), 2, scale)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-  return(list(X=X, S=z)) 
+  return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
 
 # sim all and measure -----------------------------------------------------
 
-sim_Measure_Performance <- function(X, omega, epsilon,
-                                    msg = "TVSOBI, Quadratic TRUE, Epsilon Mehtod 1",
-                                    call_method = function(X) tvsobi(X)){
+sim_Measure_Performance <- function(X, S, omega, epsilon,
+                                    call_method = function(X) tvsobi(X),
+                                    sim_id = "manual"){
   N <- nrow(X)
-  start_time <- Sys.time()
   res <- tryCatch(call_method(X), error = function(e) NA)
-  time <- as.numeric(difftime(Sys.time(), start_time, units = "secs"))
+  if(!is.na(res)) if(is.null(res$Epsilon)) res$Epsilon <- NA
+
+  md_initial  <- tryCatch( MD(res$W, omega),
+                           error = function(e) NA)
+  md_middle   <- tryCatch( getMD_t(omega, epsilon, floor(N/2), res$W, res$Epsilon), 
+                           error = function(e) NA)
+  md_end      <- tryCatch( getMD_t(omega, epsilon, N, res$W, res$Epsilon), 
+                           error = function(e) NA)
+  md_AVE      <- tryCatch( getMD_ave(omega, epsilon, N, res$W, res$Epsilon), 
+                           error = function(e) NA)
+  sir_db      <- tryCatch( SIR(res$S, S), 
+                           error = function(e) NA) 
   
-  md_initial <- tryCatch(MD(res$W, omega), error = function(e) NA)
-  md_middle <- tryCatch(getMD_t(res, omega, epsilon, floor(N/2)), error = function(e) NA)
-  md_end <- tryCatch(getMD_t(res, omega, epsilon, N), error = function(e) NA)
-  md_AVE <- tryCatch(getMD_ave(res, omega, epsilon, N), error = function(e) NA)
+  
   nearestDist <- tryCatch(ifelse(is.null(res$nearestDist), 0, res$nearestDist), error = function(e) NA)
+  
+  
   res_W <- tryCatch(ifelse(is.null(res$W), NA, paste(res$W, collapse = ", ")), error = function(e) NA)
   res_Epsilon <- tryCatch(ifelse(is.null(res$Epsilon), NA, paste(res$Epsilon, collapse = ", ")), error = function(e) NA)
   
-  data.frame(N = N, p = ncol(X), method = msg, 
-             md_initial = md_initial, md_middle = md_middle,md_end = md_end, md_AVE = md_AVE,
-             time = time, nearestFixDist = nearestDist,
-             omega = paste(omega, collapse = ", "),  epsilon = paste(epsilon, collapse = ", "),
-             res_w = res_W, res_Epsilon = res_Epsilon)
+  data.frame(sim_id = sim_id, N = N, p = ncol(X), method = capture.output(call_method)[1], 
+             md_initial = md_initial, md_middle = md_middle, md_end = md_end, md_AVE = md_AVE, sir_db = sir_db,
+             nearestFixDist = nearestDist,
+             omega_true = paste(omega, collapse = ", "),  epsilon_true = paste(epsilon, collapse = ", "),
+             w_result = res_W, epsilon_result = res_Epsilon)
 }
 
-sim_All <- function(n_vector = 100 * 2 ^ {0 : 3} ) {
-  # init
-  sim_df <- sim_Measure_Performance(X = sim_Generate_2d_Data(1e2), 
-                                    omega = matrix(c(3, -2, 1, 4), ncol = 2), 
-                                    epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4)
-  sim_df <- sim_df[-1,]
-
-  # params i_x = 1,2
-  epsilon <- list(matrix(c(1, 4, 2, -0.8, 3, 0.2, 5, -3, -4), ncol = 3) * 1e-4,
-                  matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4)
-  omega <- list(matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3),
-                matrix(c(3, -2, 1, 4), ncol = 2))
 
 
+sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
+                            sim_funs = list(function(N) sim_Generate_2d_Data(N),
+                                             function(N) sim_Generate_3d_Data(N),
+                                             function(N) sim_Generate_Yeredor_Data(N)),
+                            bss_funs = list(function(X) SOBI(X),
+                                             function(X) JADE(X),
+                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
+                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
+                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3),
+                                             function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
+                                             function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2)),
+                            printProgress = T) {
   
-  # loop
-  for (n in n_vector) {
-    paste(Sys.time(), "runing with n =", n) %>% print()
-    for (i_x in 1:2) {
-      epsilon_cur <- epsilon[[i_x]]
-      omega_cur <- omega[[i_x]]
-      if(dim(epsilon_cur)[1] == 2) X <- sim_Generate_2d_Data(n, omega_cur, epsilon_cur)
-      if(dim(epsilon_cur)[1] == 3) X <- sim_Generate_3d_Data(n, omega_cur, epsilon_cur)
+  # init a correct df
+  init_sim <- sim_Generate_2d_Data(1e2)
+  res_df <- sim_Measure_Performance(init_sim$X, init_sim$S, init_sim$Omega_true, init_sim$Epsilon_true)
+  res_df <- res_df[-1,]; remove(init_sim);
 
-      # trying different methods
-      sim_Measure_Performance(X, omega_cur, epsilon_cur, 
-                              call_method = function(X) SOBI(X),
-                              msg = "SOBI") %>%
-        rbind(sim_df) -> sim_df
-      for (i_quad in c(TRUE, FALSE)) {
-  ### no longer simulate for method 3
-        for(i_opt in c(1,2)){
-          sim_Measure_Performance(X, omega_cur, epsilon_cur, 
-                                  call_method = function(X) tvsobi(X, useQuadratic = i_quad, epsilon.method = i_opt),
-                                  msg = paste("TVSOBI, Quadratic", i_quad, ", Epsilon Mehtod", i_opt)) %>%
-            rbind(sim_df) -> sim_df
-        }
+  # loop through candidates
+  print(Sys.time())
+  
+  for(N in n_vector){
+    for(sim in sim_funs){
+      signals <- sim(N)   # result comparable for same N and same sim
+      sim_id <- Sys.time() %>% as.double()
+      for(bss in bss_funs){
+        if(printProgress) cat(N, " |\t ", capture.output(sim)[1], " |\t ", capture.output(bss)[1], "\r")
+        res_current <- sim_Measure_Performance(signals$X, signals$S, signals$Omega_true, signals$Epsilon_true,
+                                               call_method = bss, as.character(sim_id))
+        res_df <- rbind(res_df, res_current)
       }
     }
   }
   
-  sim_df
+  return(res_df)
 }
+
+
+sim_and_check <- function(){
+  sim_All_Mehtods(100 * 2^{0:3}) -> aaa
+  require(tidyverse)
+  aaa %>% 
+    ggplot(aes(x = N, y = sir_db)) +
+    geom_boxplot(aes(color = as.factor(p))) +
+    facet_grid(p~method) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+}
+
 
 sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 3}, boot_n = 10, filename) {
   # init
@@ -142,8 +158,12 @@ X <- S %*% t(A)
 SIR(S, JADE(X)$S)
 
 
+  ### fun to chars
+  bss_funs[[1]] %>% capture.output()
 
-
+  
+  
+  
 # parallel ----------------------------------------------------------------
 
 
@@ -160,3 +180,7 @@ sim_bootstrap(100*2^{0:10}, 1000, "res_sim_boot.rds")
 
 library(parallel)
 
+
+for (sim in sim_funs) {
+  sim(100) %>% print()
+}
