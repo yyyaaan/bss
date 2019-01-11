@@ -33,55 +33,47 @@ ggplot(mix, aes(t, value, color = variable)) +
 
 # performance -------------------------------------------------------------
 
-require(tidyverse)
+require(tidyverse); require(odbc)
+sqlconn <- dbConnect(odbc::odbc(), "Explore")
 
-sim <- readRDS("res_sim_boot.rds") %>% 
-  filter(method != "TVSOBI, Quadratic FALSE , Epsilon Mehtod 3")
+sim <- dbGetQuery(sqlconn, "select * from boot_test_3vs4")
+
+sim_tr <- sim %>% 
+  mutate(sim_fun = str_remove(sim_fun, "function... "), 
+         bss_fun = str_remove(bss_fun, "function... ")) %>% 
+  gather("key", "value", md_initial:sir_db) %>%
+  filter(key %in% c("md_initial", "md_AVE", "sir_db"))
+
+sim_summary <- sim_tr %>%
+  group_by(N, sim_fun, bss_fun, key) %>%
+  summarise_at("value", mean, na.rm = TRUE)
 
 
 
-sim_summary <- sim %>%
-  group_by(N, p, method) %>%
-  summarise_at(c(4:which(colnames(sim) == "md_AVE")), function(x) mean(x, na.rm = TRUE)) %>% 
-  gather(4:which(colnames(sim) == "md_AVE"), key = "measured_time", value = "MD")
+# mean and boxplots -------------------------------------------------------
 
-  # plot for mean values ----------------------------------------------------
 
 sim_summary %>%
-  filter(p == 2) %>%
-  ggplot(aes(x = N, y = MD, color = measured_time)) +
-  geom_line() +
+  filter(bss_fun %in% unique(.$bss_fun)[1:3]) %>%
+  ggplot(aes(x = N, y = value, color = bss_fun)) +
+  geom_line() + geom_point() +
   scale_x_log10(limits = c(min(sim$N), max(sim$N))) +
-  facet_wrap(~method) +
-  ggtitle("MD measure at different time (bootstrap result)", subtitle = "Yeredor's simulation (2-dimensional)")
-  
-sim_summary %>%
-  filter(p == 3) %>%
-  ggplot(aes(x = N, y = MD, color = measured_time)) +
-  geom_line() +
-  scale_x_log10(limits = c(min(sim$N), max(sim$N))) +
-  facet_wrap(~method) +
-  ggtitle("MD measure at different time (bootstrap result)", subtitle = "ARIMA simulation (3-dimensional)")
+  facet_grid(key ~ sim_fun, scales = "free") +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Performance matrix (SignalType x Measurements)",
+       subtitle = "Bootstrap-500 result | color stands for different BSS method ")
 
-
-  # boxplots ----------------------------------------------------------------
-
-sim$N <- as.factor(sim$N)
-sim$p <- as.factor(sim$p)
 
 sim %>%
-  ggplot(aes(x = N, y = md_AVE)) +
-  geom_boxplot(aes(color = p)) +
-  facet_grid(p~method) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Average MD over all time")
-
-sim %>%
-  ggplot(aes(x = N, y = md_initial)) +
-  geom_boxplot(aes(color = p)) +
-  facet_grid(p~method) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("MD at t=0 (i.e. Omega only)")
-
+  filter(bss_fun %in% unique(.$bss_fun)[1]) %>%
+  ggplot(aes(x = as.factor(N), y = value, color = bss_fun)) +
+  geom_boxplot() +
+  facet_grid(key ~ sim_fun, scales = "free") +
+  theme(legend.position = "bottom",axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Performance matrix (SignalType x Measurements)",
+       subtitle = "Bootstrap-500 result | selected measurements ")
 
 sim$epsilon[999] %>% str_split(",", simplify = T) %>% as.numeric() %>% matrix(ncol = sqrt(length(.)))
+
+cor(sim$sir_db, sim$md_AVE, use = "pairwise.complete.obs")
+cor(sim$sir_db, sim$md_initial, use = "pairwise.complete.obs")

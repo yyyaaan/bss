@@ -63,6 +63,16 @@ approxJD <- function(covs, method = "frjd"){
 
 # TV-SOBI Utilities -------------------------------------------------------
 
+make_tvmix <- function(s, omega, epsilon){
+  N <- nrow(s); p <- ncol(s)
+  X <- matrix(nrow = N, ncol = p)
+  for (i in 1:N){
+    # X[i,] <- s[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon)) # actually equiv.
+    X[i,] <- t( (diag(p) + i * epsilon) %*% omega %*% as.matrix(s[i,]) )
+  } 
+  return(X)
+}
+
 getW_t <- function(t, W, Epsilon){
   omega <- solve(W)
   p <- dim(omega)[1]
@@ -181,6 +191,13 @@ tvsobi <- function(X, lag.max = 12,
     epsilon.est <- try(solve(jd$W) %*% W.est, silent = T)
   }
   
+  if(epsilon.method == 4) { # = jd(Rc)
+    # this method directly return the results
+    jd <- approxJD(Rc)
+    epsilon.est <- NA
+    epsilon.est <- try(W.est %*% solve(jd$W), silent = T)
+  }
+  
   
   if(!getSource)
     return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
@@ -189,7 +206,3 @@ tvsobi <- function(X, lag.max = 12,
   return(list(W = W.est, Epsilon = epsilon.est, S = S, nearestDist = nearestDist))
   
 }
-
-#  mixing :: z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-#unmixing :: 
-

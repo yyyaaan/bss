@@ -5,16 +5,14 @@ options(stringsAsFactors = F)
 # new simulation ----------------------------------------------------------
 
 sim_Generate_Yeredor_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
-                                 epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
+                                      epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
   # yeredor's simulation
   z <- rnorm(N+4)
   z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]
   z <- rnorm(N+3)
   z2 <- 1 - z[1:N + 2] + 3*z[1:N + 1] + 2*z[1:N]
   z <- cbind(z1,z2)
-  X <- matrix(nrow = nrow(z), ncol = ncol(z))
-  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
-  return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
+  return(list(X=make_tvmix(z, omega, epsilon), S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
 sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
@@ -43,11 +41,11 @@ sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 
 
 sim_Measure_Performance <- function(X, S, omega, epsilon,
                                     call_method = function(X) tvsobi(X),
-                                    sim_id = "manual"){
+                                    sim_id = "manual", sim_fun = "unknown"){
   N <- nrow(X)
   res <- tryCatch(call_method(X), error = function(e) NA)
   if(!is.na(res)) if(is.null(res$Epsilon)) res$Epsilon <- NA
-
+  
   md_initial  <- tryCatch( MD(res$W, omega),
                            error = function(e) NA)
   md_middle   <- tryCatch( getMD_t(omega, epsilon, floor(N/2), res$W, res$Epsilon), 
@@ -66,7 +64,8 @@ sim_Measure_Performance <- function(X, S, omega, epsilon,
   res_W <- tryCatch(ifelse(is.null(res$W), NA, paste(res$W, collapse = ", ")), error = function(e) NA)
   res_Epsilon <- tryCatch(ifelse(is.null(res$Epsilon), NA, paste(res$Epsilon, collapse = ", ")), error = function(e) NA)
   
-  data.frame(sim_id = sim_id, N = N, p = ncol(X), method = capture.output(call_method)[1], 
+  data.frame(sim_id = sim_id, N = N, p = ncol(X), 
+             sim_fun = sim_fun, bss_fun = capture.output(call_method)[1], 
              md_initial = md_initial, md_middle = md_middle, md_end = md_end, md_AVE = md_AVE, sir_db = sir_db,
              nearestFixDist = nearestDist,
              omega_true = paste(omega, collapse = ", "),  epsilon_true = paste(epsilon, collapse = ", "),
@@ -76,25 +75,26 @@ sim_Measure_Performance <- function(X, S, omega, epsilon,
 
 
 sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
-                            sim_funs = list(function(N) sim_Generate_2d_Data(N),
-                                             function(N) sim_Generate_3d_Data(N),
-                                             function(N) sim_Generate_Yeredor_Data(N)),
+                            sim_funs = list(function(N) sim_Generate_2d_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-5),
+                                            function(N) sim_Generate_3d_Data(N, matrix(runif(9,-10,10), ncol=3), matrix(runif(9,-10,10), ncol=3)*1e-5),
+                                            function(N) sim_Generate_Yeredor_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-5)),
                             bss_funs = list(function(X) SOBI(X),
-                                             function(X) JADE(X),
-                                             # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
-                                             # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2),
-                                             # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
-                                             # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
-                                             function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
+                                            function(X) JADE(X),
+                                            # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
+                                            # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2),
+                                            # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
+                                            # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
+                                            # function(X) tvsobi(X, useQuadratic = T, epsilon.method = 4),
+                                            function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
                             printProgress = T) {
   
   # init a correct df
   init_sim <- sim_Generate_2d_Data(1e2)
   res_df <- sim_Measure_Performance(init_sim$X, init_sim$S, init_sim$Omega_true, init_sim$Epsilon_true)
   res_df <- res_df[-1,]; remove(init_sim);
-
+  
   # loop through candidates
-
+  
   for(N in n_vector){
     for(sim in sim_funs){
       signals <- sim(N)   # result comparable for same N and same sim
@@ -102,7 +102,8 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
       for(bss in bss_funs){
         if(printProgress) cat(N, " |\t ", capture.output(sim)[1], " |\t ", capture.output(bss)[1], "\r")
         res_current <- sim_Measure_Performance(signals$X, signals$S, signals$Omega_true, signals$Epsilon_true,
-                                               call_method = bss, as.character(sim_id))
+                                               call_method = bss, 
+                                               as.character(sim_id), capture.output(sim)[1])
         res_df <- rbind(res_df, res_current)
       }
     }
@@ -114,88 +115,89 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
 
 
 quick_check <- function(){
-  sim_All_Mehtods(100 * 2^{0:8}) -> aaa
   require(tidyverse)
+  sim_All_Mehtods(100 * 2^{0:5}) -> aaa
   aaa %>% 
-    ggplot(aes(x = N, y = sir_db)) +
-    geom_path()
-    facet_wrap(p) +
+    gather("key", "value", md_AVE, sir_db) %>%
+    ggplot(aes(x = N, y = value, color = bss_fun)) +
+    geom_path() +
+    facet_grid(key~p, scales="free_y") +
+    scale_x_log10(limits = c(min(aaa$N), max(aaa$N))) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
 
 
 sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 10}, boot_n = 10, 
                           savefile = "res_PAR_",
-                          sqlconn = NA) {
-  # init
+                          sqlconn = NA, sqltable = NA) {
+  # init data frame
+  if(length(n_vector) * boot_n > 999) warning("large bootstrap, consider SQL or lapply to avoid crash")
   res_df <- sim_All_Mehtods(n_vector)
-  # boot
+  
+  #init sql table
+  if(!is.na(sqlconn)) sqlconn %>% dbWriteTable(sqltable, res_df, append = dbExistsTable(., sqltable)) 
+  
+  
+  # boot and save to sql
   for (i in 2:boot_n) {
-    paste(Sys.time(), " runing bootstrap series", i, "/", boot_n) %>% print()
-    res_df <- sim_All_Mehtods(n_vector) %>% rbind(res_df)
+    
+    res_cur <- sim_All_Mehtods(n_vector, printProgress = T)
+    
+    if(!is.na(savefile)){
+      # without SQL, all result will be kept in system RAM
+      res_df <- rbind(res_df, res_cur)
+    } 
+    
+    if(!is.na(sqlconn)){
+      # with SQL, append rows efficiently
+      sqlconn %>% dbWriteTable(sqltable, res_cur, append = T) #init sql table 
+      print(paste("append to SQL ok", i, boot_n))
+    }
   }
   
   # save, auto detect the next file to save
   if(!is.na(savefile)){
+    require(tidyverse)
     seq <- 1 + list.files() %>% 
       str_extract(paste0(savefile, "[0-9][0-9].rds")) %>% 
       str_remove(savefile) %>%
       str_remove(".rds") %>% 
       parse_integer() %>% 
       max(na.rm = T)
+    if(seq < 0) seq <- 10
     saveRDS(res_df, file = paste0(savefile, seq, ".rds"))
+    paste(Sys.time(), " current bootstrap of", boot_n, "compelted successfully | file saved:", seq) %>% print()
   }
   
-  
-  
-  
+  # save to sql, append, increase performance
 }
 
 
-# CURRENT -----------------------------------------------------------------
 
-hi <- function(){
-  mat0 <- matrix(rep(0,4), ncol = 2)
-  
-  omega2d = matrix(c(3, -2, 1, 4), ncol = 2)
-  epsilon2d = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4
-  
-  aaa <- sim_Generate_2d_Data(1e3, omega2d, epsilon2d)
-  res_sobi <- SOBI(aaa$X)
-  res_tvsobi <- tvsobi(aaa$X, epsilon.method = 3)
-  SIR(aaa$S, res_sobi$S); MD(omega, res_sobi$W)
-  
-  SIR(aaa$S, res_tvsobi$S); MD(omega, res_tvsobi$W); 
-  getMD_ave(omega2d, epsilon2d, ncol(aaa$X), res_tvsobi$W, res_tvsobi$Epsilon)
-  
-  
-  S <- cbind(rt(1000, 4), rnorm(1000), runif(1000))
-  A <- matrix(rnorm(9), ncol = 3)
-  X <- S %*% t(A)
-  SIR(S, JADE(X)$S)
-  
+# parallel and save file --------------------------------------------------
+
+
+parallel_save <- function(){
+  library(parallel)
+  mclapply(10:50,
+           function(vec) sim_bootstrap(100*2^{0:10}, vec, savefile = "res_PAR_"),
+           mc.cores = detectCores() - 1)
+}
+
+combine_PARs <- function(){
+  res <- readRDS("res_PAR_10.rds")
+  for (ii in 11:50) res <- rbind(res, readRDS(paste0("res_PAR_", ii, ".rds")))
+  saveRDS(res, file = "res_boot_sir_1000.rds")
 }
 
 
-# parallel ----------------------------------------------------------------
 
-library(parallel)
-mclapply(10:50, 
-         function(vec) sim_bootstrap(100*2^{0:10}, vec, savefile = "res_PAR_"),
-         mc.cores = 15)
+# SQL parallel ------------------------------------------------------------
 
-
-df <- readRDS("res_PAR_10.rds")
-for(i in 10:50){
-  fname <- paste0("res_PAR_", i, ".rds")
-  cur <- readRDS(fname)
-  df <- rbind(df, cur)
-}
-
-file.exists("res_PAR_10.rds")
+require(odbc); require(parallel)
+sqlconn <- dbConnect(odbc::odbc(), "Explore")
+mclapply(rep(10,100),
+         function(x) sim_bootstrap(100*2^{0:10}, x, savefile = "boot_test", sqlconn = sqlconn, sqltable = "boot_rnd-4_190111"),
+         mc.cores = detectCores() - 1)
 
 
-# lapply(100*2^{0:10}, function(vec) sim_bootstrap(vec, 10, "res_sim_boot.rds"))
-
-# parallel::mclapply()
-# map() to boot_n, modify boot_n to vector
