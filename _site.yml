@@ -2,17 +2,20 @@ name: "Blind Source Separation"
 navbar:
   title: "Blind Source Separation"
   left:
-    - text: "Discussion"
+    - text: "Current"
       href: index.Rmd
     - text: "TV-SOBI"
       href: brief.Rmd
     - text: "BSS Basics"
       href: intro.Rmd
-    - text: "Report"
-      href: "http://boring.fi/report"
-  right:
-    - text: "Researches"
-      href: research.Rmd
+    - text: "Reports"
+      menu: 
+        - text: "Discussion: Methods"
+          href: discussion-1.Rmd
+        - text: "Phase 1 Presentation"
+          href: "http://boring.fi/report"
+        - text: "Phase 1 Research"
+          href: research.Rmd
 output:
   html_document:
     toc: true

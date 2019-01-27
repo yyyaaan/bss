@@ -1,0 +1,52 @@
+---
+title: Discussion on Performance
+---
+
+This topic discusses the performance measurement of tv-SOBI algorithm. Bootstrap results are presented in graph. 
+
+# Background: $\boldsymbol \Omega_t$ is time-dependent
+
+$$
+\boldsymbol x_t =  \underbrace{(\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0}_{\boldsymbol \Omega _t = \boldsymbol W_t ^ {-1}} \boldsymbol  z_t
+$$
+
+Due to the time-varying property, it is not sufficient to measure the performance only $\boldsymbol\Omega_0$ (initial mixing) or $\boldsymbol{ \mathcal E}$. 
+
+Here, 3 MD values at $t=0, \ t=T/2, \ t=T$ (initial, middle and end point) are considered for simplicity. Nevertheless, the following two proposed approaches seem to be more robust,
+
+- measuring the noise of restored sources
+- average MD for all $t$, i.e. $MD_{ave} = \frac 1 T \sum\limits_{t=1}^T MD_t$ or its robust counterparts
+
+# TV-SOBI methods: 5 types
+
+Quadratic or Linear:
+
+In the first step of tv-SOBI algorithm, the empirical autocovariances are "decomposed" to either two items (linear on $t$) or three times (quadratic on $t$) with minor losses.
+
+Options in $\boldsymbol{\mathcal E}$ estimation:
+
+Option 1 is to estimate it using first item in "decomposed autocovariance matrices"; Option 2 uses $\hat{\boldsymbol \Omega}$ to construct the "semi-empirical decomposed autocovariances", which is very similar to the first option.
+
+The third option only available when Quadratic method is selected, as it requires the third item from step one. This option applies another joint diagnolization.
+
+# Results
+
+Given signal dimension of 2 (or 3), $\boldsymbol \Omega_0$ (at the level of $\boldsymbol I$) and $\boldsymbol{\mathcal E}$ (at the level of $10^{-4} \boldsymbol I$) are fixed for all simulation. The simulated mixture are the same for testing different methods, but naturally, the mixture varies between different bootstrap series.
+
+The simulation measures the performance provided different scale of number of observations. As time-varying factor is fixed, the number indicates how much the initial and end mixing matrices differ.
+
+Yeredor's simulation is reproduced using new performance measurement (MD).
+
+Please note that the x-axis are exponential. 
+
+![](zzz-sim-2d.png)
+
+<hr />
+
+![](zzz-sim-3d.png)
+
+# Impression
+
+- Estimation of $\boldsymbol \Omega_0$ is much more accurate compared with $\boldsymbol{\mathcal E}$, as the MD for initial are much smaller in all cases.
+
+- Yeredor's simulation works much better than our 3-dimensional, and the behavior is actually very different.

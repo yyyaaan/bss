@@ -1,52 +1,51 @@
 ---
-title: Discussion on Performance
+title: "Selected Proof with Details"
 ---
 
-This topic discusses the performance measurement of tv-SOBI algorithm. Bootstrap results are presented in graph. 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-# Background: $\boldsymbol \Omega_t$ is time-dependent
+## Model and Notations
+
+$$\begin{aligned} 
+(n\times p) & &(n\times p) & (p\times p)
+\\ \boldsymbol x_t &= &\boldsymbol z_t & \boldsymbol\Omega'_t
+\\ &= & \boldsymbol z_t & \boldsymbol\Omega'(1+t \boldsymbol{\mathcal E})'
+\end{aligned}$$
+
+Key assumputions: uncorrelated, zero-mean, independence of parameters, stationary.
+
+Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. Time-index $t=1,2,\dots, T$.
+
+- $\boldsymbol \Omega$ is the initial mixing matrix, a shorthand for $\boldsymbol \Omega_0$; 
+- $\boldsymbol{\mathcal E}$ a time-varying factor; 
+- $t=1,2,\dots, T$ time-index;
+- $l=1,2,3,\dots$ selected lag for time;
+- Let $\boldsymbol \Lambda_{t,l} = \mathbb E( \boldsymbol z'_t \boldsymbol z'_{t+l})$ is the covariance matrix of the source signals (due to and zero-mean). Further, because of stationarity, $\boldsymbol\Lambda_l = \boldsymbol\Lambda_{t,l}$ for all $t$.
+- Let $\boldsymbol R_l = \boldsymbol\Omega\ \boldsymbol\Lambda_l  \ \boldsymbol\Omega'$ a shorthand notation;
+
+
+## Covariance matrix
+
+$$\begin{aligned} 
+\mathbb E( \boldsymbol x'_t \boldsymbol x_{t+l} )
+&= \mathbb E \bigg( (1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \boldsymbol z'_t\ \boldsymbol z_{t+l}\ \boldsymbol\Omega'\ (1+ (t+l) \boldsymbol{\mathcal E})'  \bigg) (p\times p)
+\\ &= (1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \mathbb E(\boldsymbol z'_t\ \boldsymbol z_{t+l})\ \boldsymbol\Omega'\ (1+ (t+l) \boldsymbol{\mathcal E})' &(1)
+\\ &=(1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \boldsymbol\Lambda_l  \ \boldsymbol\Omega'\ (1+ (t +l) \boldsymbol{\mathcal E})' &(2)
+\\ &=(1+t \boldsymbol{\mathcal E})\ \boldsymbol R_l  \ (1+ (t +l) \boldsymbol{\mathcal E})' &(3)
+\\ &= \boldsymbol R_l + t( \underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + t^2(\underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + tl ( \underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + l(\underline{ \boldsymbol R_l \, \boldsymbol{\mathcal E}'})
+\end{aligned}$$
+
+Above (1) is because of parameter-independence; (2) and (3) are defined notations. Furhter, observe that $\boldsymbol\Lambda_l$ and $\boldsymbol R_l$ are symmetric positive semi-definite matrices (followed by autocovariance and $A=U'U \Leftrightarrow A \succeq 0$).
+
+Given a pre-defined lag $l$, $\begin{cases} \boldsymbol x_1' \boldsymbol x_{1+l} = \boldsymbol R_l + 1  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (1^2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \boldsymbol x_2' \boldsymbol x_{2+l} = \boldsymbol R_l + 2  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (2^2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T} = \boldsymbol R_l + T  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (T^2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \end{cases}$
+
+Consider element-wise equivalence, for $i,j=1,2,\dots, p$, the above equivalent to
 
 $$
-\boldsymbol x_t =  \underbrace{(\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0}_{\boldsymbol \Omega _t = \boldsymbol W_t ^ {-1}} \boldsymbol  z_t
+\underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf y}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1^2+l & l \\  1 & 2 & 2^2+l & l \\ \vdots &\vdots &\vdots &\vdots \\  1 & T-l & (T-l)^2+l & l \end{bmatrix}} _ {:= \mathbf H}  
+\underbrace {\begin{bmatrix} \boldsymbol R_l \ [i,j] \\ ({\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) \ [i,j] \\ ({\boldsymbol R_l \, \boldsymbol{\mathcal E}'}) \ [i,j] \end{bmatrix}} _ {:= \boldsymbol \beta}
 $$
-
-Due to the time-varying property, it is not sufficient to measure the performance only $\boldsymbol\Omega_0$ (initial mixing) or $\boldsymbol{ \mathcal E}$. 
-
-Here, 3 MD values at $t=0, \ t=T/2, \ t=T$ (initial, middle and end point) are considered for simplicity. Nevertheless, the following two proposed approaches seem to be more robust,
-
-- measuring the noise of restored sources
-- average MD for all $t$, i.e. $MD_{ave} = \frac 1 T \sum\limits_{t=1}^T MD_t$ or its robust counterparts
-
-# TV-SOBI methods: 5 types
-
-Quadratic or Linear:
-
-In the first step of tv-SOBI algorithm, the empirical autocovariances are "decomposed" to either two items (linear on $t$) or three times (quadratic on $t$) with minor losses.
-
-Options in $\boldsymbol{\mathcal E}$ estimation:
-
-Option 1 is to estimate it using first item in "decomposed autocovariance matrices"; Option 2 uses $\hat{\boldsymbol \Omega}$ to construct the "semi-empirical decomposed autocovariances", which is very similar to the first option.
-
-The third option only available when Quadratic method is selected, as it requires the third item from step one. This option applies another joint diagnolization.
-
-# Results
-
-Given signal dimension of 2 (or 3), $\boldsymbol \Omega_0$ (at the level of $\boldsymbol I$) and $\boldsymbol{\mathcal E}$ (at the level of $10^{-4} \boldsymbol I$) are fixed for all simulation. The simulated mixture are the same for testing different methods, but naturally, the mixture varies between different bootstrap series.
-
-The simulation measures the performance provided different scale of number of observations. As time-varying factor is fixed, the number indicates how much the initial and end mixing matrices differ.
-
-Yeredor's simulation is reproduced using new performance measurement (MD).
-
-Please note that the x-axis are exponential. 
-
-![](zzz-sim-2d.png)
-
-<hr />
-
-![](zzz-sim-3d.png)
-
-# Impression
-
-- Estimation of $\boldsymbol \Omega_0$ is much more accurate compared with $\boldsymbol{\mathcal E}$, as the MD for initial are much smaller in all cases.
-
-- Yeredor's simulation works much better than our 3-dimensional, and the behavior is actually very different.
+Therefore, for each $i,j = 1,2,\dots, p$ and $l\in L$, the linear model $\mathbf y = \mathbf H \boldsymbol \beta$ composed of $T-l$ observations are constructed

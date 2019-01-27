@@ -2,10 +2,18 @@ source("rlab.R")
 library(magrittr); library(JADE)
 options(stringsAsFactors = F)
 
+# orignal parameters
+# omega_2d <- matrix(c(3, -2, 1, 4), ncol = 2)
+# epsilon_2d <- matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4
+# omega_3d <- matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3)
+# epsilon_3d <- matrix(c(1, 4, 2, -0.8, 3, 0.2, 5, -3, -4), ncol = 3) * 1e-4
+
+
 # new simulation ----------------------------------------------------------
 
-sim_Generate_Yeredor_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
-                                      epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
+sim_Generate_Yeredor_Data <- function(N, omega = matrix(runif(4,-10,10), ncol=2), 
+                                      epsilon = matrix(runif(4,-10,10), ncol=2)*1e-4,
+                                      info = "rnd ar-rnd"){
   # yeredor's simulation
   z <- rnorm(N+4)
   z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]
@@ -15,24 +23,36 @@ sim_Generate_Yeredor_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2
   return(list(X=make_tvmix(z, omega, epsilon), S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
-sim_Generate_2d_Data <- function(N, omega = matrix(c(3, -2, 1, 4), ncol = 2), 
-                                 epsilon = matrix(c(-1, -2, 0.5, 1), ncol = 2) *1e-4){
-  z1 <- arima.sim(list(ar=c(0.3)),N)
-  z2 <- arima.sim(list(ar=c(-0.6)),N)
+sim_Generate_2d_Data <- function(N, omega = matrix(runif(4,-10,10), ncol=2), 
+                                 epsilon = matrix(runif(4,-10,10), ncol=2)*1e-4){
+  z1 <- arima.sim(list(ar=runif(1,-1,1)),N)
+  z2 <- arima.sim(list(ar=runif(1,-1,1)),N)
   z <- cbind(z1,z2)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(2) + i * t(epsilon))
   return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
-sim_Generate_3d_Data <- function(N, omega = matrix(c(6, -2, 1, -3, -1, 2, 5, 4, 1), ncol = 3),
-                                 epsilon = matrix(c(1, 4, 2, -0.8, 3, 0.2, 5, -3, -4), ncol = 3) * 1e-4){
-  z1 <- arima.sim(list(ar=c(0.3)),N)
-  z2 <- arima.sim(list(ar=c(-0.6)),N)
-  z3 <- arima.sim(list(ar=c(0.9)),N)
+sim_Generate_3d_Data <- function(N, omega = matrix(runif(9,-10,10), ncol=3), 
+                                 epsilon = matrix(runif(9,-10,10), ncol=3)*1e-4){
+  z1 <- arima.sim(list(ar=runif(1,-1,1)),N)
+  z2 <- arima.sim(list(ar=runif(1,-1,1)),N)
+  z3 <- arima.sim(list(ar=runif(1,-1,1)),N)
   z <- apply(cbind(z1,z2,z3), 2, scale)
   X <- matrix(nrow = nrow(z), ncol = ncol(z))
   for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
+  return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
+}
+
+sim_Generate_Random_Data <- function(N, dim = 4, level = 1e-4){
+  p <- dim
+  omega   <- matrix(runif(p^2,-10,10), ncol=p)
+  epsilon <- matrix(runif(p^2,-10,10), ncol=p)*level
+  z <- matrix(nrow = N, ncol = p)
+  for (i in 1:p) z[,i] <- arima.sim(list(ar = runif(1, -1, 1)), N)
+  z <- apply(z, 2, scale)
+  X <- matrix(nrow = nrow(z), ncol = ncol(z))
+  for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(p) + i * t(epsilon))
   return(list(X=X, S=z, Omega_true = omega, Epsilon_true = epsilon)) 
 }
 
@@ -57,12 +77,13 @@ sim_Measure_Performance <- function(X, S, omega, epsilon,
   sir_db      <- tryCatch( SIR(res$S, S), 
                            error = function(e) NA) 
   
+  nearestDist <- tryCatch(ifelse(is.null(res$nearestDist), 0, res$nearestDist), 
+                          error = function(e) NA)
   
-  nearestDist <- tryCatch(ifelse(is.null(res$nearestDist), 0, res$nearestDist), error = function(e) NA)
-  
-  
-  res_W <- tryCatch(ifelse(is.null(res$W), NA, paste(res$W, collapse = ", ")), error = function(e) NA)
-  res_Epsilon <- tryCatch(ifelse(is.null(res$Epsilon), NA, paste(res$Epsilon, collapse = ", ")), error = function(e) NA)
+  res_W       <- tryCatch(ifelse(is.null(res$W), NA, paste(res$W, collapse = ", ")), 
+                          error = function(e) NA)
+  res_Epsilon <- tryCatch(ifelse(is.null(res$Epsilon), NA, paste(res$Epsilon, collapse = ", ")), 
+                          error = function(e) NA)
   
   data.frame(sim_id = sim_id, N = N, p = ncol(X), 
              sim_fun = sim_fun, bss_fun = capture.output(call_method)[1], 
@@ -75,9 +96,12 @@ sim_Measure_Performance <- function(X, S, omega, epsilon,
 
 
 sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
-                            sim_funs = list(function(N) sim_Generate_2d_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-5),
-                                            function(N) sim_Generate_3d_Data(N, matrix(runif(9,-10,10), ncol=3), matrix(runif(9,-10,10), ncol=3)*1e-5),
-                                            function(N) sim_Generate_Yeredor_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-5)),
+                            sim_funs = list(function(N) sim_Generate_Random_Data(N, dim=4, level=1e-5),
+                                            function(N) sim_Generate_Random_Data(N, dim=5, level=1e-5),
+                                            function(N) sim_Generate_Random_Data(N, dim=6, level=1e-5),
+                                            function(N) sim_Generate_Random_Data(N, dim=7, level=1e-5),
+                                            function(N) sim_Generate_Random_Data(N, dim=8, level=1e-5),
+                                            function(N) sim_Generate_Random_Data(N, dim=9, level=1e-5)),
                             bss_funs = list(function(X) SOBI(X),
                                             function(X) JADE(X),
                                             # function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
@@ -109,21 +133,8 @@ sim_All_Mehtods <- function(n_vector = 100 * 2 ^ {0 : 3},
     }
   }
   
-  cat(rep(" ", 80),"\r\n") #clean up print
+  if(printProgress) cat(rep(" ", 200),"\r\n") #clean up print
   return(res_df)
-}
-
-
-quick_check <- function(){
-  require(tidyverse)
-  sim_All_Mehtods(100 * 2^{0:5}) -> aaa
-  aaa %>% 
-    gather("key", "value", md_AVE, sir_db) %>%
-    ggplot(aes(x = N, y = value, color = bss_fun)) +
-    geom_path() +
-    facet_grid(key~p, scales="free_y") +
-    scale_x_log10(limits = c(min(aaa$N), max(aaa$N))) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
 }
 
 
@@ -141,7 +152,7 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 10}, boot_n = 10,
   # boot and save to sql
   for (i in 2:boot_n) {
     
-    res_cur <- sim_All_Mehtods(n_vector, printProgress = T)
+    res_cur <- sim_All_Mehtods(n_vector, printProgress = F)
     
     if(!is.na(savefile)){
       # without SQL, all result will be kept in system RAM
@@ -151,7 +162,7 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 10}, boot_n = 10,
     if(!is.na(sqlconn)){
       # with SQL, append rows efficiently
       sqlconn %>% dbWriteTable(sqltable, res_cur, append = T) #init sql table 
-      print(paste("append to SQL ok", i, boot_n))
+      print(paste("append to SQL ok", i, "of", boot_n))
     }
   }
   
@@ -172,6 +183,37 @@ sim_bootstrap <- function(n_vector = 100 * 2 ^ {0 : 10}, boot_n = 10,
   # save to sql, append, increase performance
 }
 
+
+# quick check -------------------------------------------------------------
+
+quick_check <- function(){
+  require(tidyverse)
+  
+  aaa <- sim_All_Mehtods(
+    n_vector = 100 * 2 ^ {0 : 5},
+    sim_funs = list(function(N) sim_Generate_2d_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-3),
+                    function(N) sim_Generate_3d_Data(N, matrix(runif(9,-10,10), ncol=3), matrix(runif(9,-10,10), ncol=3)*1e-3),
+                    function(N) sim_Generate_Yeredor_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-3)),
+    bss_funs = list(function(X) SOBI(X),
+                    function(X) JADE(X),
+                    function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
+                    function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2),
+                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
+                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
+                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 4),
+                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
+    printProgress = T)
+  
+  
+  aaa %>% 
+    gather("key", "value", md_AVE, md_initial, sir_db) %>%
+    ggplot(aes(x = N, y = value, color = bss_fun)) +
+    geom_path() +
+    facet_grid(key~sim_fun, scales="free_y") +
+    scale_x_log10(limits = c(min(aaa$N), max(aaa$N))) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position = "bottom")
+}
 
 
 # parallel and save file --------------------------------------------------
@@ -195,9 +237,9 @@ combine_PARs <- function(){
 # SQL parallel ------------------------------------------------------------
 
 require(odbc); require(parallel)
-sqlconn <- dbConnect(odbc::odbc(), "Explore")
-mclapply(rep(10,100),
-         function(x) sim_bootstrap(100*2^{0:10}, x, savefile = "boot_test", sqlconn = sqlconn, sqltable = "boot_rnd-4_190111"),
+
+sqlconn <- dbConnect(odbc::odbc(), "Study Database")
+mclapply(rep(8,120),
+         function(x) sim_bootstrap(100*2^{0:10}, x, savefile = NA,
+                                   sqlconn = sqlconn, sqltable = "boot_rnd-5_rndAR_190115"),
          mc.cores = detectCores() - 1)
-
-

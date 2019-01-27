@@ -1,5 +1,5 @@
 <style>
-p{margin-bottom:33px}    
+p{margin-bottom:19px}    
 h2{color:grey; border-bottom: 3px solid lightgrey; text-align: right; margin:50px}
 h3{color:grey; margin-top:13px}
 pre#runcode_expr {font-size: 10px !important}
