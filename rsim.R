@@ -190,18 +190,11 @@ quick_check <- function(){
   require(tidyverse)
   
   aaa <- sim_All_Mehtods(
-    n_vector = 100 * 2 ^ {0 : 5},
+    n_vector = 100 * 2 ^ {0 : 2},
     sim_funs = list(function(N) sim_Generate_2d_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-3),
                     function(N) sim_Generate_3d_Data(N, matrix(runif(9,-10,10), ncol=3), matrix(runif(9,-10,10), ncol=3)*1e-3),
                     function(N) sim_Generate_Yeredor_Data(N, matrix(runif(4,-10,10), ncol=2), matrix(runif(4,-10,10), ncol=2)*1e-3)),
-    bss_funs = list(function(X) SOBI(X),
-                    function(X) JADE(X),
-                    function(X) tvsobi(X, useQuadratic = F, epsilon.method = 1),
-                    function(X) tvsobi(X, useQuadratic = F, epsilon.method = 2),
-                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 1),
-                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 2),
-                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 4),
-                    function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
+    bss_funs = list(function(X) tvsobi(X, useQuadratic = T, epsilon.method = 3)),
     printProgress = T)
   
   

@@ -121,7 +121,9 @@ tvsobi <- function(X, lag.max = 12,
         y.design <- X[(1 + lag):n, i] * X[1:(n - lag), j] # empirical autocovariance
         if( useQuadratic) h.design <- cbind(1:(n - lag), (1:(n - lag))^2)
         if(!useQuadratic) h.design <- 1:(n - lag)
-        est <- lm(y.design ~ h.design)$coefficients # using lm
+        lm_res <- lm(y.design ~ h.design)
+        est <- lm_res$coefficients # using lm
+        # print(summary(lm_res)$r.squared)
         Ra[i, j, lag + 1] <- est[1]
         Rb[i, j, lag + 1] <- est[2]
         if(useQuadratic) Rc[i, j, lag + 1] <- est[3]
