@@ -26,7 +26,7 @@ Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. 
 - Let $\boldsymbol R_l = \boldsymbol\Omega\ \boldsymbol\Lambda_l  \ \boldsymbol\Omega'$ a shorthand notation;
 
 
-## Covariance matrix
+## Autocovariance matrix
 
 $$\begin{aligned} 
 \mathbb E( \boldsymbol x'_t \boldsymbol x_{t+l} )
@@ -41,15 +41,9 @@ Above (1) is because of parameter-independence; (2) and (3) are defined notation
 
 Given a pre-defined lag $l$, $\begin{cases} \boldsymbol x_1' \boldsymbol x_{1+l} = \boldsymbol R_l + 1  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (1^2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \boldsymbol x_2' \boldsymbol x_{2+l} = \boldsymbol R_l + 2  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (2^2 + 2l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T} = \boldsymbol R_l + (T-l)  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + ((T-l)^2 + (T-l)l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \end{cases}$
 
+## Algorithm S1: Separation of Autocovariance Structure
+
 Consider element-wise equivalence, for $i,j=1,2,\dots, p$, the above equivalent to
-
-$$
-\underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf y}
-= \underbrace {\begin{bmatrix} 1 & 1 & 1^2+l  \\  1 & 2 & 2^2+2l  \\ \vdots &\vdots &\vdots  \\  1 & T-l & (T-l)^2+(T-l)l \end{bmatrix}} _ {:= \mathbf H}  
-\underbrace {\begin{bmatrix} \boldsymbol R_l \ [i,j] \\ ({\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) \ [i,j] \end{bmatrix}} _ {:= \boldsymbol \beta}
-$$
-
-$l$ is comparably small so that the last item would be ignorable; Alternatively, the following form would be more accurate.
 
 $$
 \underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf y}
@@ -58,3 +52,46 @@ $$
 $$
 
 Therefore, for each $i,j = 1,2,\dots, p$ and $l\in L$, the linear model $\mathbf y = \mathbf H \boldsymbol \beta$ composed of $T-l$ observations are constructed.
+
+The linear estimation leads to the matrix equations,
+
+$$
+\begin{cases} 
+\widehat {\boldsymbol\beta_1} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
+\widehat {\boldsymbol\beta_2} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
+\widehat {\boldsymbol\beta_3} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
+\end{cases}
+$$
+
+Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric.
+
+## Algorithm S2: Approxmated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
+
+Observing that $\boldsymbol\beta_3 = \boldsymbol{\mathcal E \Omega \Lambda}_l \boldsymbol{\Omega' \mathcal E'}$, it follow the joint diagnolization algorithm, and the approximated solutions are available for
+
+$$
+\begin{cases} \widehat{\boldsymbol{ \mathcal E \Omega}} \\ \widehat{\boldsymbol\Lambda_l} \end{cases}
+$$
+
+## Algorithm S3: Identify $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega$
+
+Using the estimation from above and update the equations for $\boldsymbol \beta_2$,
+
+$$\begin{aligned} \widehat {\boldsymbol\beta_2} &= {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
+\\ &\approx \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l} \ \boldsymbol\Omega' + \boldsymbol\Omega\ \widehat{\boldsymbol\Lambda_l} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega})' \\
+\\ &= \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}\, \boldsymbol\Omega '+ \boldsymbol\Omega (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})' & \text{because } \boldsymbol\Lambda_l \text{ are diagonal}
+\end{aligned}$$
+
+This equation can be analyzed through [vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)) ($\text{vec}$), [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product) ($\otimes$) and $p^2 \times p^2$ [commutation matrix](https://en.wikipedia.org/wiki/Commutation_matrix) ($\boldsymbol K^{(p,p)}$).  
+
+
+$$\begin{aligned} \text{Let } \boldsymbol A = \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l} \text{ for convenience}
+\\ \text{vec}(\widehat{\boldsymbol\beta_2}) &= \text{vec}( \boldsymbol{A\Omega}') + \text{vec}( \boldsymbol{\Omega A}')
+\\ &= \text{vec}( \boldsymbol{A\Omega' I'}) + \text{vec}( \boldsymbol{I \Omega A}')
+\\ &= (\boldsymbol I \otimes \boldsymbol A) \text{vec}( \boldsymbol \Omega') + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
+\\ &= (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol \Omega) + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
+\\ &= \bigg( (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)} + (\boldsymbol A \otimes \boldsymbol I) \bigg) \text{vec}( \boldsymbol \Omega)
+\\ \text{Therefore, } \text{vec}(\widehat{\boldsymbol\beta}_2)&= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)
+\end{aligned}$$
+
+In case the inverse exists, $\boldsymbol \Omega$ can be exactly solved, otherwise, a linear structure can be estimated through regress
