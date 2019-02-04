@@ -9,22 +9,22 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Model and Notations
 
 $$\begin{aligned} 
-(n\times p) & &(n\times p) & (p\times p)
+(T\times p) & &(T\times p) & (p\times p)
 \\ \boldsymbol x_t &= &\boldsymbol z_t & \boldsymbol\Omega'_t
 \\ &= & \boldsymbol z_t & \boldsymbol\Omega'( \boldsymbol I+t \boldsymbol{\mathcal E})'
 \end{aligned}$$
 
-Key assumputions: uncorrelated, zero-mean, independence of parameters, stationary. $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$
+Key assumptions: uncorrelated, zero-mean, independence of parameters, stationary. Linearly varying mixture $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$
 
-Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. Time-index $t=1,2,\dots, T$.
+Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. Time-index $t=1,2,\dots, T$. All bold symbols stands for matrices (incl. vectors) and non-bold ones are real numbers, except for the set of real numbers $L$.
 
 - $\boldsymbol \Omega$ is the initial mixing matrix, a shorthand for $\boldsymbol \Omega_0$; 
 - $\boldsymbol{\mathcal E}$ a time-varying factor; 
 - $t=1,2,\dots, T$ time-index;
-- $l=1,2,3,\dots$ selected lag for time;
+- $l\in L \subseteq \mathbb Z^+$ selected lag for time. It is common to choose $L=\{1,2,3,...\}$
 - Let $\boldsymbol \Lambda_{t,l} = \mathbb E( \boldsymbol z'_t \boldsymbol z'_{t+l})$ is the covariance matrix of the source signals (due to and zero-mean). Further, because of stationarity, $\boldsymbol\Lambda_l = \boldsymbol\Lambda_{t,l}$ for all $t$.
-- Let $\boldsymbol R_l = \boldsymbol\Omega\ \boldsymbol\Lambda_l  \ \boldsymbol\Omega'$ a shorthand notation;
 
+The underline is used to illustrate that the elements are considered as a whole and does not have mathematical influence.
 
 ## Autocovariance matrix
 
@@ -33,39 +33,64 @@ $$\begin{aligned}
 &= \mathbb E \bigg( (1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \boldsymbol z'_t\ \boldsymbol z_{t+l}\ \boldsymbol\Omega'\ (1+ (t+l) \boldsymbol{\mathcal E})'  \bigg) (p\times p)
 \\ &= (1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \mathbb E(\boldsymbol z'_t\ \boldsymbol z_{t+l})\ \boldsymbol\Omega'\ (1+ (t+l) \boldsymbol{\mathcal E})' &(1)
 \\ &=(1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\ \boldsymbol\Lambda_l  \ \boldsymbol\Omega'\ (1+ (t +l) \boldsymbol{\mathcal E})' &(2)
-\\ &=(1+t \boldsymbol{\mathcal E})\ \boldsymbol R_l  \ (1+ (t +l) \boldsymbol{\mathcal E})' &(3)
-\\ &= \boldsymbol R_l + t( \underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + t^2(\underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + tl ( \underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + l(\underline{ \boldsymbol R_l \, \boldsymbol{\mathcal E}'})
+\\ &=(1+t \boldsymbol{\mathcal E})\ \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega'  \ (1+ (t +l) \boldsymbol{\mathcal E})' &(3)
+\\ &= \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + t( \underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + t^2(\underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + tl ( \underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + l(\underline{ \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})
 \end{aligned}$$
 
-Above (1) is because of parameter-independence; (2) and (3) are defined notations. Furhter, observe that $\boldsymbol\Lambda_l$ and $\boldsymbol R_l$ are symmetric positive semi-definite matrices (followed by autocovariance and $A=U'U \Leftrightarrow A \succeq 0$).
+Above (1) is because of parameter-independence; (2) and (3) are defined notations. Further, observe that $\boldsymbol\Lambda_l$ and $\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega'$ are symmetric positive semi-definite matrices (followed by autocovariance and $A=U'U \Leftrightarrow A \succeq 0$).
 
-Given a pre-defined lag $l$, $\begin{cases} \boldsymbol x_1' \boldsymbol x_{1+l} = \boldsymbol R_l + 1  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (1^2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \boldsymbol x_2' \boldsymbol x_{2+l} = \boldsymbol R_l + 2  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + (2^2 + 2l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T} = \boldsymbol R_l + (T-l)  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) + ((T-l)^2 + (T-l)l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol R_l \, \boldsymbol{\mathcal E}'} \end{cases}$
+For all $l\in L$, 
+
+$$\begin{cases} \boldsymbol x_1' \boldsymbol x_{1+l} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + 1  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + 1(1 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \\ \boldsymbol x_2' \boldsymbol x_{2+l} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + 2  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + 2(2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + (T-l)  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + (T-l)T\, \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \end{cases}$$
 
 ## Algorithm S1: Separation of Autocovariance Structure
 
-Consider element-wise equivalence, for $i,j=1,2,\dots, p$, the above equivalent to
+Consider element-wise equivalence, for $i,j=1,2,\dots, p$, the above equivalent to 
 
 $$
-\underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf y}
-= \underbrace {\begin{bmatrix} 1 & 1 & 1^2+l \\  1 & 2 & 2^2+2l \\ \vdots &\vdots &\vdots &\\  1 & T-l & (T-l)^2+(T-l)l \end{bmatrix}} _ {:= \mathbf H}  
-\underbrace {\begin{bmatrix} (\boldsymbol R_l  +l \, {\boldsymbol R_l \, \boldsymbol{\mathcal E}'}) \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol R_l + \boldsymbol R_l \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol R_l \, \boldsymbol{\mathcal E}'}) \ [i,j] \end{bmatrix}} _ {:= \boldsymbol \beta}
+\underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf S_l}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1^2+l &l\\  1 & 2 & 2^2+2l &l \\ \vdots &\vdots &\vdots &\vdots\\  1 & T-l & (T-l)^2+(T-l)l &l \end{bmatrix}} _ {:= \mathbf H_l}  
+\underbrace {\begin{bmatrix} (\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega') \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j]  \\ ( {\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j]\end{bmatrix}} _ {:= \boldsymbol \beta_l}
 $$
 
-Therefore, for each $i,j = 1,2,\dots, p$ and $l\in L$, the linear model $\mathbf y = \mathbf H \boldsymbol \beta$ composed of $T-l$ observations are constructed.
+
+If $l$ _is fixed_, note that when $l$ is constant the coefficients of $\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'$ are a constant. 
+
+$$
+\underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf S_l}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+l) \\  1 & 2 & 2(2+l) \\ \vdots &\vdots &\vdots &\\  1 & T-l & (T-l)T \end{bmatrix}} _ {:= \mathbf H_l}  
+\underbrace {\begin{bmatrix} (\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j] \end{bmatrix}} _ {:= \boldsymbol \beta_l}
+$$
+
+Therefore, for each $i,j = 1,2,\dots, p$ and $l\in L$, the linear model $\mathbf S_l = \mathbf H_l \boldsymbol \beta_l$ composed of $T-l$ observations are constructed.
+
+Nevertheless, vectorization and stacking of all $l\in L$ can greatly improve efficiency and accuracy. After stacking, $l$ is surely not constant any more. Therefore, the following form combined all equations
+
+$$
+\text{(vectorization) } \underbrace{\begin{bmatrix} \text{vec}(\boldsymbol x_1' \boldsymbol x_{1+l}) \\ \text{vec}(\boldsymbol x_2' \boldsymbol x_{2+l}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-l}' \boldsymbol x_{T})\end{bmatrix}}_{:= \mathbf S_l}
+= \underbrace {\boldsymbol I_p \otimes \begin{bmatrix} 1 & 1 & 1^2+l & l\\  1 & 2 & 2^2+2l  & l \\ \vdots &\vdots &\vdots & \vdots\\  1 & T-l & (T-l)T  & l \end{bmatrix}} _ {:= \boldsymbol I_p \otimes\mathbf H_l}  
+\underbrace {\begin{bmatrix} \text{vec}(\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega')\\ 
+\text{vec}({\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\\ 
+\text{vec}({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\\ \text{vec}({\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \end{bmatrix}} _ {:= \boldsymbol \beta_l}
+$$
+
+$$
+\text{(stacking) }\begin{bmatrix} \boldsymbol S_{l_1} \\ \boldsymbol S_{l_2} \\ \vdots \\ \boldsymbol S_{l_n} \end{bmatrix} = \begin{bmatrix} \boldsymbol I_p \otimes \boldsymbol H_{l_1} \\ \boldsymbol I_p \otimes \boldsymbol H_{l_2} \\ \vdots\\ \boldsymbol I_p \otimes \boldsymbol H_{l_n}\end{bmatrix} \begin{bmatrix} \boldsymbol\beta_{l_1} \\ \boldsymbol\beta_{l_2} \\ \vdots \\ \boldsymbol\beta_{l_n} \end{bmatrix}
+$$
 
 The linear estimation leads to the matrix equations,
 
 $$
 \begin{cases} 
-\widehat {\boldsymbol\beta_1} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
-\widehat {\boldsymbol\beta_2} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
-\widehat {\boldsymbol\beta_3} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
+\widehat {\boldsymbol\beta_{1,l}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
+\widehat {\boldsymbol\beta_{2,l}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
+\widehat {\boldsymbol\beta_{3,l}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
 \end{cases}
 $$
 
 Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric.
 
-## Algorithm S2: Approxmated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
+## Algorithm S2: Approximated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
 
 Observing that $\boldsymbol\beta_3 = \boldsymbol{\mathcal E \Omega \Lambda}_l \boldsymbol{\Omega' \mathcal E'}$, it follow the joint diagnolization algorithm, and the approximated solutions are available for
 
@@ -73,7 +98,7 @@ $$
 \begin{cases} \widehat{\boldsymbol{ \mathcal E \Omega}} \\ \widehat{\boldsymbol\Lambda_l} \end{cases}
 $$
 
-## Algorithm S3: Identify $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega$
+## Algorithm S3: Solve $\boldsymbol \Omega$
 
 Using the estimation from above and update the equations for $\boldsymbol \beta_2$,
 
@@ -91,7 +116,7 @@ $$\begin{aligned} \text{Let } \boldsymbol A = \widehat{\boldsymbol{\mathcal E}\,
 \\ &= (\boldsymbol I \otimes \boldsymbol A) \text{vec}( \boldsymbol \Omega') + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
 \\ &= (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol \Omega) + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
 \\ &= \bigg( (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)} + (\boldsymbol A \otimes \boldsymbol I) \bigg) \text{vec}( \boldsymbol \Omega)
-\\ \text{Therefore, } \text{vec}(\widehat{\boldsymbol\beta}_2)&= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)
+\\ \text{Therefore, for all }l\in L:\  \text{vec}(\widehat{\boldsymbol\beta}_2)&= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)
 \end{aligned}$$
 
-In case the inverse exists, $\boldsymbol \Omega$ can be exactly solved, otherwise, a linear structure can be estimated through regress
+Similar to Step 1, element-wise equality is programmed for all $i,j,l$, which leads to a linear system.
