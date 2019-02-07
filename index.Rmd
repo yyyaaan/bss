@@ -86,44 +86,7 @@ $$
 
 Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric, and symmetry-fix is applied.
 
-## Alternative 1: Using $\boldsymbol \beta_1$ and $\boldsymbol \beta_2$
-
-This approaches focus on the numerically large items, i.e. ignoring the small valued $\boldsymbol \beta_3$.
-
-### Solving for $\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'$
-
-From the expression of $\boldsymbol \beta_{l,2}$, letting $\boldsymbol M_l = \boldsymbol \beta_2$ and $\boldsymbol \beta_3$,
-
-$$\begin{aligned} 
-\text{vec}(\widehat{ \boldsymbol \beta_{l,2}})
-&= \text{vec}( \boldsymbol M_l') + \text{vec}( \boldsymbol M_l)
-\\ &= \boldsymbol K^{(p,p)} \text{vec}(\boldsymbol M_l) + \text{vec}( \boldsymbol M_l)
-\\ &= ( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2}) \text{vec}(\boldsymbol M_l)
-\\ &=
-\end{aligned}$$
-
-
-
-
-```{r test}
-K3 <- matrixcalc::K.matrix(3) 
-I3 <- diag(rep(1,9))
-X <- K3 + I3
-
-Beta_2 <- Beta_2x + t(Beta_2x)
-
-lm(as.vector(Beta_2) ~ X - 1) -> temp
-summary(temp)
-as.vector(Beta_2x)
-```
-
-
-
-
-
-
-
-## Alternative 2: Using $\boldsymbol \beta_2$ and $\boldsymbol \beta_3$
+## Alternative Approach: Using $\boldsymbol \beta_2$ and $\boldsymbol \beta_3$
 
 This alternative starts from the "smallest" element. Only $\boldsymbol \beta_3$ and $\boldsymbol \beta_2$ are used.
 
@@ -149,10 +112,35 @@ $$\begin{aligned} \text{vec}(\widehat{\boldsymbol\beta_{l,2}}) &= \text{vec}( \b
 
 Therefore,for all $l\in L:\  \text{vec}(\widehat{\boldsymbol\beta}_{l,2})= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)$. Due to the simple and fixed structure (a $p^2$ vector) of $\boldsymbol\Omega$, it is easy to stack (row-binding) both side of the equation over $l\in L$
 
-A simple linear model solves $\boldsymbol\Omega$ and $\boldsymbol{\mathcal E}$ also follows.
+A simple linear model solves $\widehat{\boldsymbol\Omega}$ and $\widehat{\boldsymbol{\mathcal E}} = \widehat{\boldsymbol{\mathcal E \Omega}} (\widehat{\boldsymbol\Omega})^{-1}$.
 
 
+## Another Approach: Using $\boldsymbol \beta_1$ and $\boldsymbol \beta_2$
 
+This approaches focus on the numerically large items, i.e. ignoring the small valued $\boldsymbol \beta_3$.
+
+### Solving for $\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'$
+
+From the expression of $\boldsymbol \beta_{l,2}$, letting $\boldsymbol M_l = \boldsymbol \beta_2$ and $\boldsymbol \beta_3$,
+
+$$\begin{aligned} 
+\text{vec}(\widehat{ \boldsymbol \beta_{l,2}})
+&= \text{vec}( \boldsymbol M_l') + \text{vec}( \boldsymbol M_l)
+\\ &= \boldsymbol K^{(p,p)} \text{vec}(\boldsymbol M_l) + \text{vec}( \boldsymbol M_l)
+\\ &= ( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2}) \text{vec}(\boldsymbol M_l)
+\end{aligned}$$
+
+`Problem:` $( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2})$ `is surely not invertable, and it also seems impossible to solve by linear model/regression?`
+
+### Approximated Joint Diagonalization for $\boldsymbol\Omega$
+
+The equations of $\widehat {\boldsymbol\beta_{l,1}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}$ ensures that for each $l \in L$.
+
+$$\begin{aligned} 
+\boldsymbol\Omega\ \boldsymbol\Lambda_l \boldsymbol\Omega' &=  \widehat {\boldsymbol\beta_{l,1}}  -l \, \widehat{\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}
+\end{aligned}$$
+
+This provides a series of matrices for Joint Diagonalization, which optimizes for $\boldsymbol\Omega$ and all $\boldsymbol\Lambda_l$.
 
 
 
