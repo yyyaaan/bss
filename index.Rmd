@@ -16,7 +16,6 @@ $$\begin{aligned}
 
 Key assumptions: uncorrelated, zero-mean, independence of parameters, stationary. Linearly varying mixture $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$
 
-Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. Time-index $t=1,2,\dots, T$. All bold symbols stands for matrices (incl. vectors) and non-bold ones are real numbers, except for the set of real numbers $L$.
 
 - $\boldsymbol \Omega$ is the initial mixing matrix, a shorthand for $\boldsymbol \Omega_0$; 
 - $\boldsymbol{\mathcal E}$ a time-varying factor; 
@@ -25,6 +24,8 @@ Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. 
 - Let $\boldsymbol \Lambda_{t,l} = \mathbb E( \boldsymbol z'_t \boldsymbol z'_{t+l})$ is the covariance matrix of the source signals (due to and zero-mean). Further, because of stationarity, $\boldsymbol\Lambda_l = \boldsymbol\Lambda_{t,l}$ for all $t$.
 
 The underline is used to illustrate that the elements are considered as a whole and does not have mathematical influence.
+
+Notations: $\boldsymbol x'$ stands for the matrix transpose of $\boldsymbol x$. Time-index $t=1,2,\dots, T$. All bold symbols stands for matrices (incl. vectors) and non-bold ones are real numbers, except for the set of real numbers $L$. Necessary matrix calculation includes [vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)) ($\text{vec}$), [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product) ($\otimes$) and $p^2 \times p^2$ [commutation matrix](https://en.wikipedia.org/wiki/Commutation_matrix) ($\boldsymbol K^{(p,p)}$).
 
 ## Autocovariance matrix
 
@@ -43,7 +44,7 @@ For all $l\in L$,
 
 $$\begin{cases} \boldsymbol x_1' \boldsymbol x_{1+l} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + 1  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + 1(1 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \\ \boldsymbol x_2' \boldsymbol x_{2+l} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + 2  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + 2(2 + l) \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T} = \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + (T-l)  (\underline{\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) + (T-l)T\, \underline{ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} + l \underline{\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'} \end{cases}$$
 
-## Algorithm S1: Separation of Autocovariance Structure
+## Step 1: Separation of Autocovariance Structure
 
 Consider element-wise equivalence, for $i,j=1,2,\dots, p$, the above equivalent to 
 
@@ -54,7 +55,7 @@ $$
 $$
 
 
-If $l$ _is fixed_, note that when $l$ is constant the coefficients of $\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'$ are a constant. 
+If $l$ is __fixed__, note that the coefficients of $\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'$ are a constant. Therefore, the linear system is better written as,
 
 $$
 \underbrace{\begin{bmatrix} \boldsymbol x_1' \boldsymbol x_{1+l}\ [i,j] \\ \boldsymbol x_2' \boldsymbol x_{2+l}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-l}' \boldsymbol x_{T}\  [i,j]\end{bmatrix}}_{:= \mathbf S_l}
@@ -62,35 +63,72 @@ $$
 \underbrace {\begin{bmatrix} (\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \ [i,j] \end{bmatrix}} _ {:= \boldsymbol \beta_l}
 $$
 
-Therefore, for each $i,j = 1,2,\dots, p$ and $l\in L$, the linear model $\mathbf S_l = \mathbf H_l \boldsymbol \beta_l$ composed of $T-l$ observations are constructed.
-
-Nevertheless, vectorization and stacking of all $l\in L$ can greatly improve efficiency and accuracy. After stacking, $l$ is surely not constant any more. Therefore, the following form combined all equations
+Vectorization and stacking of all $l\in L$ can greatly improve efficiency and accuracy.
 
 $$
 \text{(vectorization) } \underbrace{\begin{bmatrix} \text{vec}(\boldsymbol x_1' \boldsymbol x_{1+l}) \\ \text{vec}(\boldsymbol x_2' \boldsymbol x_{2+l}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-l}' \boldsymbol x_{T})\end{bmatrix}}_{:= \mathbf S_l}
-= \underbrace {\boldsymbol I_p \otimes \begin{bmatrix} 1 & 1 & 1^2+l & l\\  1 & 2 & 2^2+2l  & l \\ \vdots &\vdots &\vdots & \vdots\\  1 & T-l & (T-l)T  & l \end{bmatrix}} _ {:= \boldsymbol I_p \otimes\mathbf H_l}  
-\underbrace {\begin{bmatrix} \text{vec}(\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega')\\ 
+= \underbrace {\begin{bmatrix} 1 & 1 & 1^2+l \\  1 & 2 & 2^2+2l \\ \vdots &\vdots &\vdots \\  1 & T-l & (T-l)T \end{bmatrix} \otimes \boldsymbol I_{p^2}\ \ } _ {:= \mathbf H_l \otimes \boldsymbol I_{p^2}}  
+\underbrace {\begin{bmatrix} \text{vec}(\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega') + l\ \text{vec}({\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\\ 
 \text{vec}({\boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' + \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\\ 
-\text{vec}({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'})\\ \text{vec}({\boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \end{bmatrix}} _ {:= \boldsymbol \beta_l}
+\text{vec}({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\boldsymbol\Lambda_l  \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}) \end{bmatrix}} _ {:= \boldsymbol \beta_l}
 $$
 
-$$
-\text{(stacking) }\begin{bmatrix} \boldsymbol S_{l_1} \\ \boldsymbol S_{l_2} \\ \vdots \\ \boldsymbol S_{l_n} \end{bmatrix} = \begin{bmatrix} \boldsymbol I_p \otimes \boldsymbol H_{l_1} \\ \boldsymbol I_p \otimes \boldsymbol H_{l_2} \\ \vdots\\ \boldsymbol I_p \otimes \boldsymbol H_{l_n}\end{bmatrix} \begin{bmatrix} \boldsymbol\beta_{l_1} \\ \boldsymbol\beta_{l_2} \\ \vdots \\ \boldsymbol\beta_{l_n} \end{bmatrix}
-$$
 
 The linear estimation leads to the matrix equations,
 
-$$
+$$ \text{for all } l \in L:\ 
 \begin{cases} 
-\widehat {\boldsymbol\beta_{1,l}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
-\widehat {\boldsymbol\beta_{2,l}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
-\widehat {\boldsymbol\beta_{3,l}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
+\widehat {\boldsymbol\beta_{l,1}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
+\widehat {\boldsymbol\beta_{l,2}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
+\widehat {\boldsymbol\beta_{l,3}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
 \end{cases}
 $$
 
-Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric.
+Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric, and symmetry-fix is applied.
 
-## Algorithm S2: Approximated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
+## Alternative 1: Using $\boldsymbol \beta_1$ and $\boldsymbol \beta_2$
+
+This approaches focus on the numerically large items, i.e. ignoring the small valued $\boldsymbol \beta_3$.
+
+### Solving for $\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'$
+
+From the expression of $\boldsymbol \beta_{l,2}$, letting $\boldsymbol M_l = \boldsymbol \beta_2$ and $\boldsymbol \beta_3$,
+
+$$\begin{aligned} 
+\text{vec}(\widehat{ \boldsymbol \beta_{l,2}})
+&= \text{vec}( \boldsymbol M_l') + \text{vec}( \boldsymbol M_l)
+\\ &= \boldsymbol K^{(p,p)} \text{vec}(\boldsymbol M_l) + \text{vec}( \boldsymbol M_l)
+\\ &= ( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2}) \text{vec}(\boldsymbol M_l)
+\\ &=
+\end{aligned}$$
+
+
+
+
+```{r test}
+K3 <- matrixcalc::K.matrix(3) 
+I3 <- diag(rep(1,9))
+X <- K3 + I3
+
+Beta_2 <- Beta_2x + t(Beta_2x)
+
+lm(as.vector(Beta_2) ~ X - 1) -> temp
+summary(temp)
+as.vector(Beta_2x)
+```
+
+
+
+
+
+
+
+## Alternative 2: Using $\boldsymbol \beta_2$ and $\boldsymbol \beta_3$
+
+This alternative starts from the "smallest" element. Only $\boldsymbol \beta_3$ and $\boldsymbol \beta_2$ are used.
+
+
+### Approximated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
 
 Observing that $\boldsymbol\beta_3 = \boldsymbol{\mathcal E \Omega \Lambda}_l \boldsymbol{\Omega' \mathcal E'}$, it follow the joint diagnolization algorithm, and the approximated solutions are available for
 
@@ -98,25 +136,29 @@ $$
 \begin{cases} \widehat{\boldsymbol{ \mathcal E \Omega}} \\ \widehat{\boldsymbol\Lambda_l} \end{cases}
 $$
 
-## Algorithm S3: Solve $\boldsymbol \Omega$
+### Solving for $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega$
 
-Using the estimation from above and update the equations for $\boldsymbol \beta_2$,
+Using the estimation from step 1, $\widehat {\boldsymbol\beta_{l,2}} \approx \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l} \ \boldsymbol\Omega' + \boldsymbol\Omega\ \widehat{\boldsymbol\Lambda_l} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega})'= \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}\, \boldsymbol\Omega '+ \boldsymbol\Omega (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})'$. Denote $\boldsymbol A = \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}$ for convenience, it folows by vectorization,
 
-$$\begin{aligned} \widehat {\boldsymbol\beta_2} &= {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
-\\ &\approx \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l} \ \boldsymbol\Omega' + \boldsymbol\Omega\ \widehat{\boldsymbol\Lambda_l} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega})' \\
-\\ &= \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}\, \boldsymbol\Omega '+ \boldsymbol\Omega (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})' & \text{because } \boldsymbol\Lambda_l \text{ are diagonal}
-\end{aligned}$$
-
-This equation can be analyzed through [vectorization](https://en.wikipedia.org/wiki/Vectorization_(mathematics)) ($\text{vec}$), [Kronecker product](https://en.wikipedia.org/wiki/Kronecker_product) ($\otimes$) and $p^2 \times p^2$ [commutation matrix](https://en.wikipedia.org/wiki/Commutation_matrix) ($\boldsymbol K^{(p,p)}$).  
-
-
-$$\begin{aligned} \text{Let } \boldsymbol A = \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l} \text{ for convenience}
-\\ \text{vec}(\widehat{\boldsymbol\beta_2}) &= \text{vec}( \boldsymbol{A\Omega}') + \text{vec}( \boldsymbol{\Omega A}')
+$$\begin{aligned} \text{vec}(\widehat{\boldsymbol\beta_{l,2}}) &= \text{vec}( \boldsymbol{A\Omega}') + \text{vec}( \boldsymbol{\Omega A}')
 \\ &= \text{vec}( \boldsymbol{A\Omega' I'}) + \text{vec}( \boldsymbol{I \Omega A}')
 \\ &= (\boldsymbol I \otimes \boldsymbol A) \text{vec}( \boldsymbol \Omega') + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
 \\ &= (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol \Omega) + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
 \\ &= \bigg( (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)} + (\boldsymbol A \otimes \boldsymbol I) \bigg) \text{vec}( \boldsymbol \Omega)
-\\ \text{Therefore, for all }l\in L:\  \text{vec}(\widehat{\boldsymbol\beta}_2)&= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)
 \end{aligned}$$
 
-Similar to Step 1, element-wise equality is programmed for all $i,j,l$, which leads to a linear system.
+Therefore,for all $l\in L:\  \text{vec}(\widehat{\boldsymbol\beta}_{l,2})= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)$. Due to the simple and fixed structure (a $p^2$ vector) of $\boldsymbol\Omega$, it is easy to stack (row-binding) both side of the equation over $l\in L$
+
+A simple linear model solves $\boldsymbol\Omega$ and $\boldsymbol{\mathcal E}$ also follows.
+
+
+
+
+
+
+
+```{r removed, eval=FALSE, echo=FALSE}
+
+\text{(stacking) }\begin{bmatrix} \boldsymbol S_{l_1} \\ \boldsymbol S_{l_2} \\ \vdots \\ \boldsymbol S_{l_n} \end{bmatrix} = \begin{bmatrix} \boldsymbol H_{l_1} \otimes \boldsymbol I_{p^2} & \boldsymbol 0 & \cdots & \boldsymbol 0\\ \boldsymbol 0 & \boldsymbol H_{l_2}  \otimes \boldsymbol I_{p^2} & \cdots & \boldsymbol 0 \\ & & \ddots\\ \boldsymbol 0 & \boldsymbol 0 & \cdots & \boldsymbol H_{l_n}  \otimes \boldsymbol I_{p^2}\end{bmatrix} \begin{bmatrix} \boldsymbol\beta_{l_1} \\ \boldsymbol\beta_{l_2} \\ \vdots \\ \boldsymbol\beta_{l_n} \end{bmatrix}
+
+```

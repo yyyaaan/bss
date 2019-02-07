@@ -7,10 +7,10 @@ library(magrittr)
 
 # utilities ---------------------------------------------------------------
 
-tvmix <- function(z, Omega, Epsilon, x_only = T){
+tvmix <- function(z, Omega, Epsilon, x_only = TRUE){
   N <- nrow(z);  p <- ncol(z)
   # mean correction
-  zz <- scale(z, center = T, scale = F)
+  zz <- scale(z, center = TRUE, scale = FALSE)
   # mixing with time index t
   x <- matrix(ncol = p, nrow = N)
   Omega_t <- array(dim = c(p,p,N))
@@ -68,61 +68,98 @@ run <- function(){
   lags <- 6
   
   x %>% cov_sep %>% use_series(beta_3) %>% 
-    approxJD() %>% use_series(W) %>% solve %>%
-    MD(Omega %*% Epsilon)
+    approxJD() %>% use_series(W) %>% 
+    MD(Omega %*% Epsilon) %>% print
   
   x %>% cov_sep_vec %>% use_series(beta_3) %>% 
-    approxJD() %>% use_series(W) %>% solve %>%
-    MD(Omega %*% Epsilon)
+    approxJD() %>% use_series(W) %>% 
+    MD(Omega %*% Epsilon) %>% print
   
-  ss <- tvsobi2(x,lags = 6)
-  MD(ss$Omega_hat, Omega) 
-  MD(ss$Epsilon_hat, Epsilon)
+  ss <- tvsobi(x, lag.max = 12); MD(ss$W, Omega); MD(ss$Epsilon, solve(Epsilon))
+  ss <- tvsobi2(x,lags = 12); MD(ss$Omega_hat %>% solve, Omega);  MD(ss$Epsilon_hat %>% solve, Epsilon)
+  ss <- tvsobi3(x,lags = 12); MD(ss$Omega_hat %>% solve, Omega);  MD(ss$Epsilon_hat %>% solve, Epsilon)
+
+  
 }
 
 
 
 # algorithm ---------------------------------------------------------------
 
+
 cov_sep_vec <- function(x, lags = 6){
-  N <- nrow(x); p <- ncol(x)
+  T <- nrow(x); p <- ncol(x)
   
   # lags accept two types | we need 0 for whitening
   if(length(lags) == 1) lags <- 0:lags 
   if(!(0 %in% lags)) lags <- c(0, lags)
   
-  # init results
+  # each lags
   Beta_1 <- Beta_2 <- Beta_3 <- array(dim = c(p, p, length(lags) ))
-  
-
-  for(k in 1:length(lags)) {
-    l <- lags[k]
+  H_vec <- S_vec <- lm_res <- list()
+  for(i in 1:length(lags)) {
+    l <- lags[i]
     
-    cov_t_l <- list(); list_index <- 0
-    hhh_t_l <- NULL
-    for (t in 1:(N-l)){
-      list_index <- list_index + 1
-      cov_t_l[[list_index]] <- matrix(x[t, ], ncol = 1) %*% matrix(x[t + l, ], nrow = 1)
-      h_t_l <- diag(rep(1, p^2)) %x% matrix(c(1, t, t^2 + t*l), nrow = 1)
-      hhh_t_l <- rbind(hhh_t_l, h_t_l)
-    }
-    cov_t_l_vec <- unlist(lapply(cov_t_l, as.vector))
-
-    lm1_res <- lm(cov_t_l_vec ~ hhh_t_l - 1)
-
-    ### info ###
-    cat("R_squared", l, summary(lm1_res)$r.squared, "|")
+    seq <- 1:(T-l)
+    H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
+    H_vec[[i]] <- H %x% diag(rep(1, p^2))
     
-    Beta_col_vecs  <- matrix(lm1_res$coefficients,  ncol = 3)
-    Beta_1[ , , k] <- matrix(Beta_col_vectors[ ,1], ncol = p)
-    Beta_2[ , , k] <- matrix(Beta_col_vectors[ ,2], ncol = p)
-    Beta_3[ , , k] <- matrix(Beta_col_vectors[ ,3], ncol = p)
+    S_t <- lapply(1:(T-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
+    S_vec[[i]] <- unlist(lapply(S_t, as.vector))
+    
+    lm_res[[i]] <- lm(S_vec[[i]] ~ H_vec[[i]] - 1)
+    
+    Beta_col_vecs  <- matrix(lm_res[[i]]$coefficients,  ncol = 3)
+    Beta_1[ , , i] <- matrix(Beta_col_vecs[ ,1], ncol = p)
+    Beta_2x <- matrix(Beta_col_vecs[ ,2], ncol = p)
+    Beta_3x <- matrix(Beta_col_vecs[ ,3], ncol = p)
+    Beta_2[ , , i] <- 0.5 * (Beta_2x + t(Beta_2x)) # apply symmetry fix
+    Beta_3[ , , i] <- 0.5 * (Beta_3x + t(Beta_3x)) # apply symmetry fix
   }
+  
+  
+  ### info ###
+  cat("R_squared in VEC Cov-Separation")
+  print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
   
   list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3)
 }
 
-cov_sep <- function(x, lags = 6, choice = 3, fix_symmetry = T){
+cov_sep_stack <- function(x, lags = 6){
+  T <- nrow(x); p <- ncol(x)
+  
+  # lags accept two types | we need 0 for whitening
+  if(length(lags) == 1) lags <- 0:lags 
+  if(!(0 %in% lags)) lags <- c(0, lags)
+  
+  # each lags
+  Beta_1 <- Beta_2 <- Beta_3 <- array(dim = c(p, p, length(lags) ))
+  H_vec <- S_vec <- lm_res <- list()
+  for(i in 1:length(lags)) {
+    l <- lags[i]
+    
+    seq <- 1:(T-l)
+    H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
+    H_vec[[i]] <- H %x% diag(rep(1, p^2))
+    
+    S_t <- lapply(1:(T-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
+    S_vec[[i]] <- unlist(lapply(S_t, as.vector))
+  }
+  
+  S_stack <- unlist(S_vec)
+  H_stack <- Matrix::bdiag(H_vec)
+  H <- as.matrix(H_stack)
+  res <- lm(S_stack ~ H - 1)
+  summary(res)
+  
+  ### info ###
+  cat("R_squared in VEC Cov-Separation")
+  print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
+  
+  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3)
+}
+
+cov_sep <- function(x, lags = 6, choice = 3, fix_symmetry = TRUE){
   N <- nrow(x); p <- ncol(x)
 
     # lags accept two types | we need 0 for whitening
@@ -193,11 +230,11 @@ approxJD <- function(covs, method = "frjd"){
   
     # whitening using var^{-1/2}, through eigen calculation
   nearestDist <- 0
-  EVD <- eigen(covs[ , , 1], symmetric = T)
+  EVD <- eigen(covs[ , , 1], symmetric = TRUE)
   if (min(EVD$values) < 0) {
     # not semi-definite?
     spd <- nearestSPD(covs[ , , 1])
-    EVD <- eigen(spd$mat, symmetric = T)
+    EVD <- eigen(spd$mat, symmetric = TRUE)
     warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
                   "Frobenius norm:", spd$normF))
     nearestDist <- spd$normF
@@ -243,7 +280,7 @@ solve_omega <- function(JD_res, beta_2){
   ### info ###
   cat("R_squared in Solving Omega: ", summary(lm2_res)$r.squared, "\n")
   
-  Omega_hat <- matrix(lm2_res$coefficients, nrow = p, byrow = F)
+  Omega_hat <- matrix(lm2_res$coefficients, nrow = p, byrow = FALSE)
   
   Epsilon_hat <- EpsilonOmega_hat %*% Omega_hat
   
@@ -252,6 +289,12 @@ solve_omega <- function(JD_res, beta_2){
 
 tvsobi2 <- function(x, lags){
   step1 <- cov_sep(x, lags)
+  step2 <- approxJD(step1$beta_3)
+  solve_omega(step2, step1$beta_2)
+}
+
+tvsobi3 <- function(x, lags){
+  step1 <- cov_sep_vec(x, lags)
   step2 <- approxJD(step1$beta_3)
   solve_omega(step2, step1$beta_2)
 }
@@ -279,7 +322,7 @@ pMatrix.min <- function (A)
   list(A = A[vec, ], pvec = vec)
 }
 
-solve_LSAP <- function (x, maximum = FALSE) {
+solve_LSAP <- function (x, maximum = FALSEALSE) {
   if (!is.matrix(x) || any(x < 0)) 
     stop("x must be a matrix with nonnegative entries.")
   nr <- nrow(x)
@@ -297,3 +340,5 @@ solve_LSAP <- function (x, maximum = FALSE) {
   class(out) <- "solve_LSAP"
   out
 }
+
+
