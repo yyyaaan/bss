@@ -64,8 +64,12 @@ run <- function(){
             var3 = arima.sim(list(ar=runif(1,-1,1)),N))
   Omega <- matrix(runif(9, 1, 10), ncol = 3)
   Epsilon <- 1e-4 * matrix(runif(9, 1, 10), ncol = 3)
+  Epsilon <- (Epsilon + t(Epsilon)) / 2
   x <- tvmix(z, Omega, Epsilon)
   lags <- 6
+  
+  tvsobi_sym(x, lags) %>% MD(Omega) %>% print
+  tvsobi(x, lag.max = lags) %>% use_series(W) %>% MD(Omega) %>% print
   
   x %>% cov_sep %>% use_series(beta_3) %>% 
     approxJD() %>% use_series(W) %>% 
@@ -79,6 +83,7 @@ run <- function(){
   ss <- tvsobi2(x,lags = 12); MD(ss$Omega_hat %>% solve, Omega);  MD(ss$Epsilon_hat %>% solve, Epsilon)
   ss <- tvsobi3(x,lags = 12); MD(ss$Omega_hat %>% solve, Omega);  MD(ss$Epsilon_hat %>% solve, Epsilon)
 
+  SIR(z, tvunmix(x, ss$Omega_hat, ss$Epsilon_hat))
   
 }
 
@@ -258,7 +263,7 @@ approxJD <- function(covs, method = "frjd"){
   list(W = W, D = D, nearestDist = nearestDist)
 }
 
-solve_omega <- function(JD_res, beta_2){
+solve_omega_from_2 <- function(JD_res, beta_2){
   # HUOM: beta_2[p, p, lags + 1] ; D[p, p, lags] due to covariance
   require(matrixcalc)
   EpsilonOmega_hat <- solve(JD_res$W)
@@ -287,58 +292,34 @@ solve_omega <- function(JD_res, beta_2){
   list(Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
 }
 
-tvsobi2 <- function(x, lags){
-  step1 <- cov_sep(x, lags)
-  step2 <- approxJD(step1$beta_3)
-  solve_omega(step2, step1$beta_2)
+
+
+# packed functions --------------------------------------------------------
+
+
+tvsobi_sym <- function(x, lags){
+  step1 <- cov_sep_vec(x, lags) # vec version is proven to be faster
+  
+  # apply correction to beta1 from beta2
+  beta_1_corr <- step1$beta_1
+  n_mat <- dim(step1$beta_1)[3]
+  for(i in 1:n_mat) beta_1_corr[,,i] <- step1$beta_1[,,i] - i*(step1$beta_2[,,i])/2
+
+  step2 <- approxJD(beta_1_corr)
+  
+  step2$W
+  
 }
 
 tvsobi3 <- function(x, lags){
+  step1 <- cov_sep(x, lags)
+  step2 <- approxJD(step1$beta_3)
+  solve_omega_from_2(step2, step1$beta_2)
+}
+
+tvsobi3v <- function(x, lags){
   step1 <- cov_sep_vec(x, lags)
   step2 <- approxJD(step1$beta_3)
-  solve_omega(step2, step1$beta_2)
+  solve_omega_from_2(step2, step1$beta_2)
 }
-
-
-# imported function -------------------------------------------------------
-
-
-MD_fun <- function (W.hat, A) {
-  G <- W.hat %*% A
-  RowNorms <- sqrt(rowSums(G^2))
-  G.0 <- sweep(G, 1, RowNorms, "/")
-  G.tilde <- G.0^2
-  p <- nrow(A)
-  Pmin <- pMatrix.min(G.tilde)
-  G.tilde.p <- Pmin$A
-  md <- sqrt(p - sum(diag(G.tilde.p)))/sqrt(p - 1)
-  md
-}
-
-pMatrix.min <- function (A) 
-{
-  cost <- t(apply(A^2, 1, sum) - 2 * A + 1)
-  vec <- c(solve_LSAP(cost))
-  list(A = A[vec, ], pvec = vec)
-}
-
-solve_LSAP <- function (x, maximum = FALSEALSE) {
-  if (!is.matrix(x) || any(x < 0)) 
-    stop("x must be a matrix with nonnegative entries.")
-  nr <- nrow(x)
-  nc <- ncol(x)
-  if (nr > nc) 
-    stop("x must not have more rows than columns.")
-  if (nc > nr) 
-    x <- rbind(x, matrix(2 * sum(x), nc - nr, nc))
-  if (maximum) 
-    x <- max(x) - x
-  storage.mode(x) <- "double"
-  out <- .C(C_solve_LSAP, x, as.integer(nc), p = integer(nc))$p + 
-    1
-  out <- out[seq_len(nr)]
-  class(out) <- "solve_LSAP"
-  out
-}
-
 
