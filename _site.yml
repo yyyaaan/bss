@@ -5,17 +5,17 @@ navbar:
     - text: "Current"
       href: index.Rmd
     - text: "TV-SOBI"
-      href: brief.Rmd
+      href: w_brief.Rmd
     - text: "BSS Basics"
       href: intro.Rmd
     - text: "Reports"
       menu: 
         - text: "Discussion: Methods"
-          href: discussion-1.Rmd
+          href: w_discussion_1.Rmd
         - text: "Phase 1 Presentation"
           href: "http://boring.fi/report"
         - text: "Phase 1 Research"
-          href: research.Rmd
+          href: w_research.Rmd
 output:
   html_document:
     toc: true
@@ -26,4 +26,4 @@ output:
     df_print: kable
     theme: 'readable'
     include:
-      after_body: _style.Rmd
+      after_body: w_style.Rmd

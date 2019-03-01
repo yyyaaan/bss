@@ -207,32 +207,3 @@ quick_check <- function(){
     theme(axis.text.x = element_text(angle = 90, hjust = 1),
           legend.position = "bottom")
 }
-
-
-# parallel and save file --------------------------------------------------
-
-
-parallel_save <- function(){
-  library(parallel)
-  mclapply(10:50,
-           function(vec) sim_bootstrap(100*2^{0:10}, vec, savefile = "res_PAR_"),
-           mc.cores = detectCores() - 1)
-}
-
-combine_PARs <- function(){
-  res <- readRDS("res_PAR_10.rds")
-  for (ii in 11:50) res <- rbind(res, readRDS(paste0("res_PAR_", ii, ".rds")))
-  saveRDS(res, file = "res_boot_sir_1000.rds")
-}
-
-
-
-# SQL parallel ------------------------------------------------------------
-
-require(odbc); require(parallel)
-
-sqlconn <- dbConnect(odbc::odbc(), "Study Database")
-mclapply(rep(8,120),
-         function(x) sim_bootstrap(100*2^{0:10}, x, savefile = NA,
-                                   sqlconn = sqlconn, sqltable = "boot_rnd-5_rndAR_190115"),
-         mc.cores = detectCores() - 1)

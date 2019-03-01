@@ -1,6 +1,6 @@
 ---
 title: TV-SOBI Algorithm with R
-bibliography: ref.bibtex
+bibliography: w_ref.bibtex
 nocite: | 
   @hyvarinen2000independent,
   @miettinen2017blind,
