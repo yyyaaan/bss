@@ -78,75 +78,72 @@ The linear estimation leads to the matrix equations,
 
 $$ \text{for all } l \in L:\ 
 \begin{cases} 
-\widehat {\boldsymbol\beta_{l,1}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
-\widehat {\boldsymbol\beta_{l,2}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
-\widehat {\boldsymbol\beta_{l,3}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
+\widehat {\boldsymbol\beta_{1,l}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
+\widehat {\boldsymbol\beta_{2,l}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
+\widehat {\boldsymbol\beta_{3,l}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
 \end{cases}
 $$
 
 Note that $\boldsymbol\beta_2$ and $\boldsymbol\beta_3$ are surely symmetric, and symmetry-fix is applied.
 
-## Alternative Approach: Using $\boldsymbol \beta_2$ and $\boldsymbol \beta_3$
+## Step 2 (Method A): Using $\boldsymbol \beta_1$ and $\boldsymbol \beta_2$
 
-This alternative starts from the "smallest" element. Only $\boldsymbol \beta_3$ and $\boldsymbol \beta_2$ are used.
+This approaches focus on the numerically large items, i.e. ignoring the small valued $\boldsymbol \beta_3$.
 
+### Find representation of $\boldsymbol{\Omega \mathcal E \Omega}'$
+
+Observing the equality of $\widehat {\boldsymbol\beta_{1,l}}$ and $\widehat {\boldsymbol\beta_{2,l}}$,
+
+$$\begin{aligned}
+\widehat {\boldsymbol\beta_{1,l}} + \widehat {\boldsymbol\beta_{1,l}}'
+&= \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} + \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol{\mathcal E} \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' } 
+\\ &= 2 \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' + l\, \widehat {\boldsymbol\beta_{2,l}}
+\end{aligned}$$
+
+### Approximated Joint Diagonalization for $\boldsymbol\Omega$
+
+The above ensures that for each $l \in L,\ \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega' = \frac 1 2 \bigg( \widehat {\boldsymbol\beta_{1,l}} + \widehat {\boldsymbol\beta_{1,l}}' - l \widehat {\boldsymbol\beta_{2,l}} \bigg)$, which provides a series of matrices for Joint Diagonalization. Consequently, solutions are available for,
+
+$$
+\begin{cases} \widehat{\boldsymbol\Omega} \\ \widehat{\boldsymbol\Lambda_l} \text{ for all } l\in L \end{cases}
+$$
+
+### Solve for $\boldsymbol {\mathcal E}$ with $\widehat {\boldsymbol\beta_{2}}$
+
+The estimation from step 1 says that $\widehat {\boldsymbol\beta_{2, l}} \approx \boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'} + \widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'} \boldsymbol{\mathcal E}'$. The vectorization form is,
+
+$$\begin{aligned} 
+\text{vec}( \widehat {\boldsymbol\beta_{2, l}})
+&= \text{vec}(\boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'})+ \text{vec}(\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'} \boldsymbol{\mathcal E}')
+\\ &= \text{vec}( \boldsymbol I \boldsymbol{\mathcal E} (\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}))+ \text{vec}((\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) \boldsymbol{\mathcal E}' \boldsymbol I)
+\\ &= \bigg((\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'})' \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol{\mathcal E}) + \bigg( \boldsymbol I' \otimes (\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) \bigg) \text{vec}( \boldsymbol{\mathcal E}')
+\\ &= \bigg((\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol{\mathcal E}) + \bigg( \boldsymbol I \otimes (\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) \bigg) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol{\mathcal E})
+\\ &= \bigg((\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) \otimes \boldsymbol I + (\boldsymbol I \otimes (\widehat{\boldsymbol\Omega} \widehat{ \boldsymbol\Lambda_l} \widehat{ \boldsymbol\Omega'}) ) \boldsymbol K ^{(p,p)}\bigg ) \text{vec}( \boldsymbol{\mathcal E})
+\end{aligned}$$
+
+In computation, stacking (row-binding) over all $l\in L$ solves the unique solution of $\widehat{ \boldsymbol{\mathcal E}}$. The solution can be achieved through inverse, but considering the possibility of singularity, the linear estimation form is more feasible.
+
+## Step 2 (Method B): Using $\boldsymbol \beta_2$ and $\boldsymbol \beta_3$
+
+This methods starts from the relatively "small" element. Only $\boldsymbol \beta_3$ and $\boldsymbol \beta_2$ are used. It might be more accurate if $\boldsymbol{\mathcal E}$ is not sufficiently small.
 
 ### Approximated Joint Diagnolization of $\boldsymbol{\mathcal E \Omega}$
 
 Observing that $\boldsymbol\beta_3 = \boldsymbol{\mathcal E \Omega \Lambda}_l \boldsymbol{\Omega' \mathcal E'}$, it follow the joint diagnolization algorithm, and the approximated solutions are available for
 
 $$
-\begin{cases} \widehat{\boldsymbol{ \mathcal E \Omega}} \\ \widehat{\boldsymbol\Lambda_l} \end{cases}
+\begin{cases} \widehat{\boldsymbol{ \mathcal E \Omega}} \\ \widehat{\boldsymbol\Lambda_l}  \text{ for all } l\in L  \end{cases}
 $$
 
 ### Solving for $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega$
 
-Using the estimation from step 1, $\widehat {\boldsymbol\beta_{l,2}} \approx \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l} \ \boldsymbol\Omega' + \boldsymbol\Omega\ \widehat{\boldsymbol\Lambda_l} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega})'= \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}\, \boldsymbol\Omega '+ \boldsymbol\Omega (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})'$. Denote $\boldsymbol A = \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}$ for convenience, it folows by vectorization,
+Using the estimation from step 1, $\widehat {\boldsymbol\beta_{2,l}} \approx \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l} \ \boldsymbol\Omega' + \boldsymbol\Omega\ \widehat{\boldsymbol\Lambda_l} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega})'= \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}\, \boldsymbol\Omega '+ \boldsymbol\Omega (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})'$. Denote $\boldsymbol A = \widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}$ for convenience, it follows by vectorization,
 
-$$\begin{aligned} \text{vec}(\widehat{\boldsymbol\beta_{l,2}}) &= \text{vec}( \boldsymbol{A\Omega}') + \text{vec}( \boldsymbol{\Omega A}')
-\\ &= \text{vec}( \boldsymbol{A\Omega' I'}) + \text{vec}( \boldsymbol{I \Omega A}')
-\\ &= (\boldsymbol I \otimes \boldsymbol A) \text{vec}( \boldsymbol \Omega') + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
-\\ &= (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol \Omega) + (\boldsymbol A \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
-\\ &= \bigg( (\boldsymbol I \otimes \boldsymbol A) \boldsymbol K ^{(p,p)} + (\boldsymbol A \otimes \boldsymbol I) \bigg) \text{vec}( \boldsymbol \Omega)
+$$\begin{aligned} \text{vec}(\widehat{\boldsymbol\beta_{2,l}}) &= \text{vec}( (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l}) \boldsymbol{\Omega}') + \text{vec}( \boldsymbol{\Omega} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l})')
+\\ &= \text{vec}( \boldsymbol{A\Omega' I'}) + \text{vec}( \boldsymbol{I \Omega} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l})')
+\\ &= (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l})) \text{vec}( \boldsymbol \Omega') + ((\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l}) \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
+\\ &= (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol \Omega) + ((\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l}) \otimes \boldsymbol I) \text{vec}( \boldsymbol \Omega)
+\\ &= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega}\ \widehat{\boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)
 \end{aligned}$$
 
-Therefore,for all $l\in L:\  \text{vec}(\widehat{\boldsymbol\beta}_{l,2})= \bigg( (\boldsymbol I \otimes (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l})) \boldsymbol K ^{(p,p)} + (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega \boldsymbol\Lambda_l}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol \Omega)$. Due to the simple and fixed structure (a $p^2$ vector) of $\boldsymbol\Omega$, it is easy to stack (row-binding) both side of the equation over $l\in L$
-
-A simple linear model solves $\widehat{\boldsymbol\Omega}$ and $\widehat{\boldsymbol{\mathcal E}} = \widehat{\boldsymbol{\mathcal E \Omega}} (\widehat{\boldsymbol\Omega})^{-1}$.
-
-
-## Another Approach: Using $\boldsymbol \beta_1$ and $\boldsymbol \beta_2$
-
-This approaches focus on the numerically large items, i.e. ignoring the small valued $\boldsymbol \beta_3$.
-
-### Solving for $\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'$
-
-From the expression of $\boldsymbol \beta_{l,2}$, letting $\boldsymbol M_l = \boldsymbol \beta_2$ and $\boldsymbol \beta_3$,
-
-$$\begin{aligned} 
-\text{vec}(\widehat{ \boldsymbol \beta_{l,2}})
-&= \text{vec}( \boldsymbol M_l') + \text{vec}( \boldsymbol M_l)
-\\ &= \boldsymbol K^{(p,p)} \text{vec}(\boldsymbol M_l) + \text{vec}( \boldsymbol M_l)
-\\ &= ( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2}) \text{vec}(\boldsymbol M_l)
-\end{aligned}$$
-
-`Problem:` $( \boldsymbol K^{(p,p)} + \boldsymbol I_{p^2})$ `is surely not invertable, and it also seems impossible to solve by linear model/regression?`
-
-### Approximated Joint Diagonalization for $\boldsymbol\Omega$
-
-The equations of $\widehat {\boldsymbol\beta_{l,1}} = \boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'  +l \, {\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}$ ensures that for each $l \in L$.
-
-$$\begin{aligned} 
-\boldsymbol\Omega\ \boldsymbol\Lambda_l \boldsymbol\Omega' &=  \widehat {\boldsymbol\beta_{l,1}}  -l \, \widehat{\boldsymbol\Omega\ \boldsymbol\Lambda_l \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}
-\end{aligned}$$
-
-This provides a series of matrices for Joint Diagonalization, which optimizes for $\boldsymbol\Omega$ and all $\boldsymbol\Lambda_l$.
-
-
-
-
-```{r removed, eval=FALSE, echo=FALSE}
-
-\text{(stacking) }\begin{bmatrix} \boldsymbol S_{l_1} \\ \boldsymbol S_{l_2} \\ \vdots \\ \boldsymbol S_{l_n} \end{bmatrix} = \begin{bmatrix} \boldsymbol H_{l_1} \otimes \boldsymbol I_{p^2} & \boldsymbol 0 & \cdots & \boldsymbol 0\\ \boldsymbol 0 & \boldsymbol H_{l_2}  \otimes \boldsymbol I_{p^2} & \cdots & \boldsymbol 0 \\ & & \ddots\\ \boldsymbol 0 & \boldsymbol 0 & \cdots & \boldsymbol H_{l_n}  \otimes \boldsymbol I_{p^2}\end{bmatrix} \begin{bmatrix} \boldsymbol\beta_{l_1} \\ \boldsymbol\beta_{l_2} \\ \vdots \\ \boldsymbol\beta_{l_n} \end{bmatrix}
-
-```
+It is easy to stack (row-binding) both side of the equation over $l\in L$. A simple linear model solves $\widehat{\boldsymbol\Omega}$ and thereafter $\widehat{\boldsymbol{\mathcal E}} = \widehat{\boldsymbol{\mathcal E \Omega}} (\widehat{\boldsymbol\Omega})^{-1}$.
