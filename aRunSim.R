@@ -1,6 +1,6 @@
 # simulate and evaluate ---------------------------------------------------
 
-  ## params-simulation
+## params-simulation
 N <- 1e3
 z <-cbind(var1 = arima.sim(list(ar=runif(1,-1,1)),N),
           var2 = arima.sim(list(ar=runif(1,-1,1)),N),
@@ -9,12 +9,12 @@ Omega <- matrix(runif(9, 1, 10), ncol = 3)
 Epsilon <- 1e-4 * matrix(runif(9, 1, 10), ncol = 3)
 #Epsilon <- (Epsilon + t(Epsilon)) / 2
 
-  ## get simulation data
+## get simulation data
 x <- tvmix(z, Omega, Epsilon)
 
-  ## params-evaluation
+## params-evaluation
 lags <- 6
-  
+
 
 tvsobi_sym(x, lags) %>% MD(Omega) %>% print
 tvsobi(x, lag.max = lags) %>% use_series(W) %>% MD(Omega) %>% print
@@ -35,11 +35,6 @@ SIR(z, tvunmix(x, ss$Omega_hat, ss$Epsilon_hat))
 
 
 
-# batch sim ---------------------------------------------------------------
 
-require(parallel)
-parallel_save <- function(){
-  mclapply(10:50,
-           function(vec) sim_bootstrap(100*2^{0:10}, vec, savefile = "res_PAR_"),
-           mc.cores = detectCores() - 1)
-}
+
+
