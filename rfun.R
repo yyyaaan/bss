@@ -59,7 +59,7 @@ nearestSPD <- function(X){
 # algorithm ---------------------------------------------------------------
 
 
-cov_sep_vec <- function(x, lags = 6){
+cov_sep_vec <- function(x, lags = 6, fix_symmetry = TRUE){
   T <- nrow(x); p <- ncol(x)
   
   # lags accept two types | we need 0 for whitening
@@ -83,10 +83,15 @@ cov_sep_vec <- function(x, lags = 6){
     
     Beta_col_vecs  <- matrix(lm_res[[i]]$coefficients,  ncol = 3)
     Beta_1[ , , i] <- matrix(Beta_col_vecs[ ,1], ncol = p)
-    Beta_2x <- matrix(Beta_col_vecs[ ,2], ncol = p)
-    Beta_3x <- matrix(Beta_col_vecs[ ,3], ncol = p)
-    Beta_2[ , , i] <- 0.5 * (Beta_2x + t(Beta_2x)) # apply symmetry fix
-    Beta_3[ , , i] <- 0.5 * (Beta_3x + t(Beta_3x)) # apply symmetry fix
+    Beta_2[ , , i] <- matrix(Beta_col_vecs[ ,2], ncol = p)
+    Beta_3[ , , i] <- matrix(Beta_col_vecs[ ,3], ncol = p)
+  }
+  
+  if(fix_symmetry){
+    for(i in 1:length(lags)) {
+      Beta_2[ , , i] <- 0.5 * (Beta_2[ , , i] + t(Beta_2[ , , i])) # apply symmetry fix
+      Beta_3[ , , i] <- 0.5 * (Beta_3[ , , i] + t(Beta_3[ , , i])) # apply symmetry fix
+    }
   }
   
   
@@ -94,98 +99,7 @@ cov_sep_vec <- function(x, lags = 6){
   cat("R_squared in VEC Cov-Separation")
   print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
   
-  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3)
-}
-
-cov_sep_stack <- function(x, lags = 6){
-  T <- nrow(x); p <- ncol(x)
-  
-  # lags accept two types | we need 0 for whitening
-  if(length(lags) == 1) lags <- 0:lags 
-  if(!(0 %in% lags)) lags <- c(0, lags)
-  
-  # each lags
-  Beta_1 <- Beta_2 <- Beta_3 <- array(dim = c(p, p, length(lags) ))
-  H_vec <- S_vec <- lm_res <- list()
-  for(i in 1:length(lags)) {
-    l <- lags[i]
-    
-    seq <- 1:(T-l)
-    H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
-    H_vec[[i]] <- H %x% diag(rep(1, p^2))
-    
-    S_t <- lapply(1:(T-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
-    S_vec[[i]] <- unlist(lapply(S_t, as.vector))
-  }
-  
-  S_stack <- unlist(S_vec)
-  H_stack <- Matrix::bdiag(H_vec)
-  H <- as.matrix(H_stack)
-  res <- lm(S_stack ~ H - 1)
-  summary(res)
-  
-  ### info ###
-  cat("R_squared in VEC Cov-Separation")
-  print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
-  
-  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3)
-}
-
-cov_sep <- function(x, lags = 6, choice = 3, fix_symmetry = TRUE){
-  N <- nrow(x); p <- ncol(x)
-
-    # lags accept two types | we need 0 for whitening
-  if(length(lags) == 1) lags <- 0:lags 
-  if(!(0 %in% lags)) lags <- c(0, lags)
-
-    # looping for each lags and element-wise matrix
-  empty_mat <- array(dim = c(p,p, length(lags)))
-  beta_1 <- beta_2 <- beta_3 <- r_squared <- rep(list(empty_mat), 3); # array(dim = c(p,p, length(lags)))
-  
-  for(id in 1:length(lags)) { for (i in 1:p) { for (j in 1:p) {
-
-    l <- lags[id]
-
-      # build y
-    y <- numeric(N-l)
-    for (t in 1:(N-l)){
-      cov_x_t_l <- matrix(x[t, ], nrow = 3) %*% matrix(x[t + l, ], ncol = 3)
-      y[t] <- cov_x_t_l[i, j]
-    }
-      # build H, except for 1 columns 
-    H2 <-  1:(N-l)
-    H3a <- (1:(N-l))^2                    #  Yeredor
-    H3b <- (1:(N-l))^2 + (1:(N-l)) * l    # "Correct"
-    lm1_data = data.frame(y, H2, H3a, H3b)
-    
-      # regression for betas in alternative ways
-    lm1_res <- list()
-    lm1_res[[1]] <- lm(y ~ H2, lm1_data)
-    lm1_res[[2]] <- lm(y ~ H2 + H3a, lm1_data)
-    lm1_res[[3]] <- lm(y ~ H2 + H3b, lm1_data)
-
-      # get result
-    for(alt in 1:3){
-      r_squared[[alt]][i,j,id] <- summary(lm1_res[[alt]])$r.squared
-      beta_1[[alt]][i,j,id]    <- lm1_res[[alt]]$coefficients[1]
-      beta_2[[alt]][i,j,id]    <- lm1_res[[alt]]$coefficients[2]
-      beta_3[[alt]][i,j,id]    <- lm1_res[[alt]]$coefficients[3]
-    }
-  }}} # end loop for i,j,l
-  
-  # fix symmetry for beta_2 and beta_3
-  if (fix_symmetry){
-    for(alt in 1:3){
-      for(id in 1:length(lags))
-        beta_2[[alt]][,,id] = 0.5 * (beta_2[[alt]][,,id] + t(beta_2[[alt]][,,id]))
-        beta_3[[alt]][,,id] = 0.5 * (beta_3[[alt]][,,id] + t(beta_3[[alt]][,,id]))
-    }
-  }
-  
-  ### info ###
-  cat("R_squared in Cov-Separation: ")
-  lapply(r_squared, mean) %>% unlist %>% print
-  return(list(beta_1 = beta_1[[choice]], beta_2 = beta_2[[choice]], beta_3 = beta_3[[choice]]))
+  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3, lags = lags)
 }
 
 approxJD <- function(covs, method = "frjd"){
@@ -230,21 +144,64 @@ approxJD <- function(covs, method = "frjd"){
   list(W = W, D = D, nearestDist = nearestDist)
 }
 
-solve_omega_from_2 <- function(JD_res, beta_2){
+solve_main <- function(cov_sep_res){
+  require(matrixcalc)
+  beta_1 <- cov_sep_res$beta_1
+  beta_2 <- cov_sep_res$beta_2
+  lags   <- cov_sep_res$lags
+  p      <- dim(beta_1)[1]
+  cov_hat<- array(dim = dim(beta_1))
+    # estimates for Omega * Lambda_l * Omega
+  for(i in 1:length(lags)) cov_hat[,,i] <- 0.5 * (beta_1[,,i] + t(beta_1[,,i]) - lags[i] * beta_2[,,i])
+  
+    # Joint Diagnolization
+  JD_res <- approxJD(cov_hat)
+  Omega_hat  <- solve(JD_res$W)
+  Lambda_hat <- JD_res$D
+    
+    # Find Epsilon
+  I <- diag(rep(1,p))
+  H <- beta_2_vec <- NULL
+  for(j in 1:dim(Lambda_hat)[3]){
+    OLO_hat_j    <- Omega_hat %*% Lambda_hat[,,j] %*% t(Omega_hat)
+    H_j          <- OLO_hat_j %x% I + (I %x% OLO_hat_j) %*% K.matrix(p)
+    beta_2_vec_j <- matrix(c(beta_2[,,j]), nrow = p^2)
+    
+    H            <- rbind(H, H_j)
+    beta_2_vec   <- rbind(beta_2_vec, beta_2_vec_j)
+  } 
+  
+  lm3_res <- lm(beta_2_vec ~ H - 1)
+  Epsilon_hat <- matrix(lm3_res$coefficients, nrow = p)
+  
+    ### info ### 
+  cat("R_squared in Solving Omega: ", summary(lm3_res)$r.squared, "\n")
+  
+  list(W = solve(Omega_hat), Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+}
+
+solve_alt <- function(cov_sep_res){
   # HUOM: beta_2[p, p, lags + 1] ; D[p, p, lags] due to covariance
   require(matrixcalc)
+  beta_2 <- cov_sep_res$beta_2
+  beta_3 <- cov_sep_res$beta_3
+  p      <- dim(beta_2)[1]
+  
+  # Joint Diagnolization
+  JD_res <- approxJD(beta_3)
+  
+  # get Epsion and Omega
   EpsilonOmega_hat <- solve(JD_res$W)
   D <- JD_res$D
-  p <- dim(EpsilonOmega_hat)[1]
-
   I <- diag(rep(1, p)) # identity matrix at proper dim
   H <- beta_2_vec <- NULL       # H and Y are stacked matrix
   for(i in 1:dim(D)[3]){
-    A <- EpsilonOmega_hat %*% D[,,i]
-    H_i <- (I %x% A) %*% K.matrix(p) + (A %x% I)
+    A            <- EpsilonOmega_hat %*% D[,,i]
+    H_i          <- (I %x% A) %*% K.matrix(p) + (A %x% I)
     beta_2_vec_i <-  matrix(c(beta_2[,,i]), nrow = p^2)
-    H <- rbind(H, H_i)
-    beta_2_vec <- rbind(beta_2_vec, beta_2_vec_i)
+    
+    H            <- rbind(H, H_i)
+    beta_2_vec   <- rbind(beta_2_vec, beta_2_vec_i)
   }
   
   lm2_res <- lm(beta_2_vec ~ H - 1)
@@ -256,37 +213,20 @@ solve_omega_from_2 <- function(JD_res, beta_2){
   
   Epsilon_hat <- EpsilonOmega_hat %*% Omega_hat
   
-  list(Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+  list(W = solve(Omega_hat), Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
 }
-
 
 
 # packed functions --------------------------------------------------------
 
-
-tvsobi_sym <- function(x, lags){
-  step1 <- cov_sep_vec(x, lags) # vec version is proven to be faster
-  
-  # apply correction to beta1 from beta2
-  beta_1_corr <- step1$beta_1
-  n_mat <- dim(step1$beta_1)[3]
-  for(i in 1:n_mat) beta_1_corr[,,i] <- step1$beta_1[,,i] - i*(step1$beta_2[,,i])/2
-
-  step2 <- approxJD(beta_1_corr)
-  
-  step2$W
-  
+tvsobi0 <- function(x, lags = 12){
+  cov_sep_vec(x, lags) %>% solve_main()
 }
 
-tvsobi3 <- function(x, lags){
-  step1 <- cov_sep(x, lags)
-  step2 <- approxJD(step1$beta_3)
-  solve_omega_from_2(step2, step1$beta_2)
+tvsobi00 <- function(x, lags = 12){
+  cov_sep_vec(x, lags, FALSE) %>% solve_main()
 }
 
-tvsobi3v <- function(x, lags){
-  step1 <- cov_sep_vec(x, lags)
-  step2 <- approxJD(step1$beta_3)
-  solve_omega_from_2(step2, step1$beta_2)
+tvsobi2 <- function(x, lags = 12){
+  cov_sep_vec(x, lags) %>% solve_alt()
 }
-
