@@ -4,16 +4,16 @@ source("rfun.R"); source("rlab_x.R")
 
 # sim params and preparation ----------------------------------------------
 
+p <- 4
 N <- 1e3
-z <-cbind(var1 = arima.sim(list(ar=runif(1,-1,1)),N),
-          var2 = arima.sim(list(ar=runif(1,-1,1)),N),
-          var3 = arima.sim(list(ar=runif(1,-1,1)),N))
-Omega <- matrix(runif(9, 1, 10), ncol = 3)
-Epsilon <- 1e-4 * matrix(runif(9, 1, 10), ncol = 3)
+z <- NULL
+for (i in 1:p) z <- cbind(z, arima.sim(list(ar=runif(1,-1,1)),N))
+Omega   <- matrix(runif(p^2, 1, 10), ncol = p)
+Epsilon <- 1e-4 * matrix(runif(p^2, 1, 10), ncol = p)
 
   # get simulation data
 x <- tvmix(z, Omega, Epsilon)
-
+plot.ts(z)
 
 # perform -----------------------------------------------------------------
 dofun <- function(call){
@@ -21,10 +21,6 @@ dofun <- function(call){
   paste(call, MD(res[[1]], Omega))
 }
 
-lapply(list("SOBI", "tvsobi", "tvsobi0", "tvsobi00", "tvsobi2"), dofun)
-
-
-
-
-
-
+suppressWarnings(
+lapply(list("tvsobi2", "SOBI", "tvsobi", "tvsobi011", "tvsobi010", "tvsobi001", "tvsobi000" ), dofun)
+)

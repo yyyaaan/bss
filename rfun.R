@@ -59,7 +59,7 @@ nearestSPD <- function(X){
 # algorithm ---------------------------------------------------------------
 
 
-cov_sep_vec <- function(x, lags = 6, fix_symmetry = TRUE){
+cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verbose = TRUE){
   T <- nrow(x); p <- ncol(x)
   
   # lags accept two types | we need 0 for whitening
@@ -73,7 +73,8 @@ cov_sep_vec <- function(x, lags = 6, fix_symmetry = TRUE){
     l <- lags[i]
     
     seq <- 1:(T-l)
-    H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
+    if(quadratic)  H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
+    if(!quadratic) H <- matrix(c(rep(1, T-l), seq), ncol = 2)
     H_vec[[i]] <- H %x% diag(rep(1, p^2))
     
     S_t <- lapply(1:(T-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
@@ -81,10 +82,10 @@ cov_sep_vec <- function(x, lags = 6, fix_symmetry = TRUE){
     
     lm_res[[i]] <- lm(S_vec[[i]] ~ H_vec[[i]] - 1)
     
-    Beta_col_vecs  <- matrix(lm_res[[i]]$coefficients,  ncol = 3)
+    Beta_col_vecs  <- matrix(lm_res[[i]]$coefficients,  ncol = ifelse(quadratic, 3, 2))
     Beta_1[ , , i] <- matrix(Beta_col_vecs[ ,1], ncol = p)
     Beta_2[ , , i] <- matrix(Beta_col_vecs[ ,2], ncol = p)
-    Beta_3[ , , i] <- matrix(Beta_col_vecs[ ,3], ncol = p)
+    if(quadratic) Beta_3[ , , i] <- matrix(Beta_col_vecs[ ,3], ncol = p)
   }
   
   if(fix_symmetry){
@@ -94,10 +95,10 @@ cov_sep_vec <- function(x, lags = 6, fix_symmetry = TRUE){
     }
   }
   
-  
-  ### info ###
-  cat("R_squared in VEC Cov-Separation")
-  print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
+  if(verbose){
+    cat("R_squared in Cov-Separation")
+    print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
+  }
   
   list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3, lags = lags)
 }
@@ -219,14 +220,8 @@ solve_alt <- function(cov_sep_res){
 
 # packed functions --------------------------------------------------------
 
-tvsobi0 <- function(x, lags = 12){
-  cov_sep_vec(x, lags) %>% solve_main()
-}
-
-tvsobi00 <- function(x, lags = 12){
-  cov_sep_vec(x, lags, FALSE) %>% solve_main()
-}
-
-tvsobi2 <- function(x, lags = 12){
-  cov_sep_vec(x, lags) %>% solve_alt()
-}
+tvsobi011 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, TRUE,  TRUE))
+tvsobi010 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, TRUE,  FALSE))
+tvsobi001 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, FALSE, TRUE))
+tvsobi000 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, FALSE, FALSE))
+tvsobi2   <- function(x, lags = 12) solve_alt(cov_sep_vec(x, lags))
