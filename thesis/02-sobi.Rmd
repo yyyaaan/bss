@@ -2,10 +2,10 @@
 
 Blind Source Separation (BSS) assumes that the observed information $p$-vector $\boldsymbol{x}$ is a static mixture of $p$-variate latent source vector $\boldsymbol{z}$, and the basic blind source model can be written as $\boldsymbol{x} = \boldsymbol{\mu} + \boldsymbol{\Omega z}'$, where $\boldsymbol{\Omega}$ denotes $p\times p$ mixing matrix, and $\boldsymbol{\mu}$ stands for the location (usually mean) of $\boldsymbol{x}$. This model can be easily expanded to multidimensional observations such that the $n\times p$ matrices $\boldsymbol{x}=(\boldsymbol{x}_1, \boldsymbol{x}_2,\dots,\boldsymbol{x}_n)'$ and $\boldsymbol{z}=(\boldsymbol{z}_1, \boldsymbol{z}_2,\dots,\boldsymbol{z}_n)'$. Without loss of generality, it can be assumed that the source signals are zero mean (in the sense that each column-vector is zero mean), and the model can be further simplified if the observations are assumed to be zero mean, which can be achieved by subtracting the location parameter, i.e. $(\boldsymbol{x} - \boldsymbol{\mu}) = \boldsymbol{\Omega z}$. This thesis specifies the observations and signals matrices to be $n\times p$ organized in the way that each $p$-vector observation or signal is recorded as a row-vector, which is consistent with common data science programming R and Python Pandas. Finally, the basic form is,
 
-$$\begin{equation*}
+\begin{equation}
 \underset{(n\times p)}{\boldsymbol x} = \underset{(p\times p)}{\boldsymbol{\Omega}} \ \underset{(n\times p)}{\boldsymbol{z}}', \ \ \text{ where } \boldsymbol{x} \text{ has column means of }0
-{\#eq:SOM}
-\end{equation*}$$
+(\#eq:SOM)
+\end{equation}
 
 Although not mathematically required, it is assumed that $\boldsymbol{\Omega}$ is a full-ranked $p\times p$ matrix. In fact, an decrease in dimension of $\boldsymbol{\Omega}$ will allow fewer signal components (number of columns in $\boldsymbol z$) generated from the same observation $\boldsymbol{x}$. However, it is not necessary due to fact that the output carries real-world information, and the usefulness of signal components (columns) can be better determined using scientific evidence of the signal itself. Consequently, it is a justified choice to force the mixing matrix to be full-rank.
 
