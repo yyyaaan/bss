@@ -1,0 +1,11 @@
+# TV-SOBI Algorithm based on Autocovariances {#tvsobi}
+
+Compared with SOBI, TV-SOBI usually demands one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\epsilon}$ in addition to the initial mixing matrix $\boldsymbol{\Omega}_0$.
+
+Joint Diagnolization approach to Time Varying Second Order Blind Identification (TV-SOBI) covers thhe solution that mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable linear estimation. Simple matrix operation is further needed to retrieve the source signals.
+
+Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example acf-function), and let the selected set of lags $L = \{l_1, l_2,\dots, l_{k}\}$.
+
+## Sections
+
+Subsections not copied

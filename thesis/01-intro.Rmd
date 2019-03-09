@@ -1,0 +1,11 @@
+# Introduction {#intro}
+
+In real-world situation, there exists strong need for extracting structured information from observable mixtures of unknown signals. For example, a recording of speech may contain external noise from nearby road traffic, minor discussion among audience and constant electronic interference in addition to the speech voice itself (the "cocktail party" problem). Independence is usually one of the important statistical properties of desired processed information.
+
+Blind Source Separation is set of unsupervised machine learning algorithms in terms of input being only a single data matrix. The output is usually not anticipated in advance and such algorithms mostly serve as exploratory purposes [@hyvarinen2013independent]. 
+
+Key notations:
+- vectors and matrices are always in bold symbols; 
+- the operator $\boldsymbol{A}'$ stands for matrix transpose; 
+- matrix index $\boldsymbol{A}[i,j]$ gives the number in the $i$-th row $j$-th column of matrix $\boldsymbol{A}$;
+- matrix subscript $\boldsymbol{A}_t$ returns the $t$-th row vector of $\boldsymbol{A}$.

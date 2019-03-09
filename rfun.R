@@ -29,10 +29,16 @@ tvunmix <- function(x, Omega_hat, Epsilon_hat){
   z <- matrix(ncol = p, nrow = N)
   Omega_t <- array(dim = c(p,p,N))
   for (t in 1:N) {
-    Omega_t[ , , t] <- (diag(p) + t * Epsilon) %*% Omega
+    Omega_t[ , , t] <- (diag(p) + t * Epsilon_hat) %*% Omega_hat
     z[t, ] <- x[t, ] %*% solve(t(Omega_t[, , t]))
   }
   return(z)
+}
+
+unmix <- function(x, type, bss_res){
+  if (type == "SOBI")    return(x %*% bss_res$W)
+  if (type == "tvsobi")  return(tvunmix(x, solve(bss_res$W), bss_res$Epsilon))
+  tvunmix(x, bss_res$Omega_hat, bss_res$Epsilon_hat)
 }
 
 testApproxJD <- function(){
