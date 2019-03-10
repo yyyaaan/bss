@@ -29,12 +29,12 @@ Vectors and matrices are always marked as bold symbols while a lower case letter
 | $\boldsymbol\Omega_t$ | mixing matrix at given time point $t$ | $p\times p$ matrix. $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$ |
 | $\boldsymbol\Omega$ | mixing matrix at $t=0$ | $\boldsymbol\Omega \overset{\text{def}}= \boldsymbol\Omega_0$ |
 | $\boldsymbol{\mathcal E}$ |time-varying mixing factor | $p\times p$ matrix |
-| $\boldsymbol\Lambda_{\tau_i}$ | autocovariance given stationarity | $p\times p$ matrix that depends only on $\tau_i$ and assumed to be diagonal |
-| $\boldsymbol R_{\tau_i} = \boldsymbol{\Omega \Lambda}_{\tau_i} \boldsymbol\Omega'$ | partially mixed autocovariance  | $p\times p$, a short-hand notation|
+| $\boldsymbol\Lambda_{\tau}$ | autocovariance given stationarity | $p\times p$ matrix that depends only on lag $\tau$ and assumed to be diagonal |
+| $\boldsymbol R_{\tau} = \boldsymbol{\Omega \Lambda}_{\tau} \boldsymbol\Omega'$ | partially mixed autocovariance  | $p\times p$, a short-hand notation|
 | $\boldsymbol K ^{(p,p)}$ | commutation matrix | $p^2\times p^2$ |
 | $t=1,2,\dots,T$ | index of time | use in subscript. $t=0$ is a pseudo notation. | 
-| $\tau_i$ | time lag | $i=1,2,\dots,l$ and $\tau_i\in L$. $\tau_0 \overset{\text{def}}= 0$ for convenience |
-| $L = \{\tau_1,\tau_2,\dots,\tau_l\}$ | set of pre-selected lags | set of positive integers |
+| $\tau \in \{0\}\bigcup L$ | pre-selected time lag | An integer. 0 is included for covenience |
+| $L = \{\tau_1,\tau_2,\dots,\tau_l\}$ | set of pre-selected lags | $l$-item set of positive integers |
 
 
 - the operator $\boldsymbol{A}'$ stands for matrix transpose; 
