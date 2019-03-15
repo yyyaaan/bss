@@ -25,20 +25,14 @@ tvmix <- function(z, Omega, Epsilon, x_only = TRUE){
 }
 
 tvunmix <- function(x, Omega_hat, Epsilon_hat){
-  N <- nrow(z);  p <- ncol(z)
+  N <- nrow(x);  p <- ncol(x)
   z <- matrix(ncol = p, nrow = N)
   Omega_t <- array(dim = c(p,p,N))
   for (t in 1:N) {
     Omega_t[ , , t] <- (diag(p) + t * Epsilon_hat) %*% Omega_hat
     z[t, ] <- x[t, ] %*% solve(t(Omega_t[, , t]))
   }
-  return(z)
-}
-
-unmix <- function(x, type, bss_res){
-  if (type == "SOBI")    return(x %*% bss_res$W)
-  if (type == "tvsobi")  return(tvunmix(x, solve(bss_res$W), bss_res$Epsilon))
-  tvunmix(x, bss_res$Omega_hat, bss_res$Epsilon_hat)
+  return(as.ts(z))
 }
 
 testApproxJD <- function(){
@@ -65,8 +59,8 @@ nearestSPD <- function(X){
 # algorithm ---------------------------------------------------------------
 
 
-cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verbose = TRUE){
-  T <- nrow(x); p <- ncol(x)
+cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE){
+  N <- nrow(x); p <- ncol(x)
   
   # lags accept two types | we need 0 for whitening
   if(length(lags) == 1) lags <- 0:lags 
@@ -78,12 +72,12 @@ cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verb
   for(i in 1:length(lags)) {
     l <- lags[i]
     
-    seq <- 1:(T-l)
-    if(quadratic)  H <- matrix(c(rep(1, T-l), seq, seq * (seq + l)), ncol = 3)
-    if(!quadratic) H <- matrix(c(rep(1, T-l), seq), ncol = 2)
+    seq <- 1:(N-l)
+    if(quadratic)  H <- matrix(c(rep(1, N-l), seq, seq * (seq + l)), ncol = 3)
+    if(!quadratic) H <- matrix(c(rep(1, N-l), seq), ncol = 2)
     H_vec[[i]] <- H %x% diag(rep(1, p^2))
     
-    S_t <- lapply(1:(T-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
+    S_t <- lapply(1:(N-l), function(tt) matrix(x[tt, ], ncol = 1) %*% matrix(x[tt + l, ], nrow = 1))
     S_vec[[i]] <- unlist(lapply(S_t, as.vector))
     
     lm_res[[i]] <- lm(S_vec[[i]] ~ H_vec[[i]] - 1)
@@ -102,11 +96,14 @@ cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verb
   }
   
   if(verbose){
+    print(verbose)
     cat("R_squared in Cov-Separation")
     print(unlist(lapply(lm_res, function(res) summary(res)$r.squared)))
   }
   
-  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3, lags = lags)
+  method <- paste(ifelse(quadratic, "Quadratic", "Linear"),
+                  ifelse(fix_symmetry, "Symmetric", "Non-Symmetric"))
+  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3, lags = lags, x = x, method = method)
 }
 
 approxJD <- function(covs, method = "frjd"){
@@ -128,8 +125,8 @@ approxJD <- function(covs, method = "frjd"){
     # not semi-definite?
     spd <- nearestSPD(covs[ , , 1])
     EVD <- eigen(spd$mat, symmetric = TRUE)
-    warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
-                  "Frobenius norm:", spd$normF))
+    # warning(paste("covariance is NOT semi-definite, applying Nearest SPD;",
+    #               "Frobenius norm:", spd$normF))
     nearestDist <- spd$normF
   }
   white <- EVD$vectors %*% tcrossprod(diag(EVD$values^(-0.5)), EVD$vectors)
@@ -156,6 +153,7 @@ solve_main <- function(cov_sep_res){
   beta_1 <- cov_sep_res$beta_1
   beta_2 <- cov_sep_res$beta_2
   lags   <- cov_sep_res$lags
+  method <- cov_sep_res$method
   p      <- dim(beta_1)[1]
   cov_hat<- array(dim = dim(beta_1))
     # estimates for Omega * Lambda_l * Omega
@@ -165,6 +163,7 @@ solve_main <- function(cov_sep_res){
   JD_res <- approxJD(cov_hat)
   Omega_hat  <- solve(JD_res$W)
   Lambda_hat <- JD_res$D
+  if(!(JD_res$nearestDist == 0)) method <- paste(method, "NearestSPD")
     
     # Find Epsilon
   I <- diag(rep(1,p))
@@ -181,10 +180,12 @@ solve_main <- function(cov_sep_res){
   lm3_res <- lm(beta_2_vec ~ H - 1)
   Epsilon_hat <- matrix(lm3_res$coefficients, nrow = p)
   
-    ### info ### 
-  cat("R_squared in Solving Omega: ", summary(lm3_res)$r.squared, "\n")
+  ### info ### cat("R_squared in Solving Omega: ", summary(lm3_res)$r.squared, "\n")
   
-  list(W = solve(Omega_hat), Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+  S_hat <- tvunmix(cov_sep_res$x, Omega_hat, Epsilon_hat)
+  res <- list(W = solve(Omega_hat), k = lags[-1], method = paste("LTV-SOBI", method), S = S_hat, Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+  attr(res, "class") <- "tvbss"
+  return(res)
 }
 
 solve_alt <- function(cov_sep_res){
@@ -192,10 +193,13 @@ solve_alt <- function(cov_sep_res){
   require(matrixcalc)
   beta_2 <- cov_sep_res$beta_2
   beta_3 <- cov_sep_res$beta_3
+  method <- cov_sep_res$method
+  lags   <- cov_sep_res$lags
   p      <- dim(beta_2)[1]
   
   # Joint Diagnolization
   JD_res <- approxJD(beta_3)
+  if(!(JD_res$nearestDist == 0)) method <- paste(method, "NearestSPD")
   
   # get Epsion and Omega
   EpsilonOmega_hat <- solve(JD_res$W)
@@ -213,21 +217,108 @@ solve_alt <- function(cov_sep_res){
   
   lm2_res <- lm(beta_2_vec ~ H - 1)
   
-  ### info ###
-  cat("R_squared in Solving Omega: ", summary(lm2_res)$r.squared, "\n")
+  ### info ###  cat("R_squared in Solving Omega: ", summary(lm2_res)$r.squared, "\n")
   
   Omega_hat <- matrix(lm2_res$coefficients, nrow = p, byrow = FALSE)
   
   Epsilon_hat <- EpsilonOmega_hat %*% Omega_hat
   
-  list(W = solve(Omega_hat), Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+  S_hat <- tvunmix(cov_sep_res$x, Omega_hat, Epsilon_hat)
+  res <- list(W = solve(Omega_hat), k = lags[-1], method = paste("LTV-SOBI-alt", method), S = S_hat, Omega_hat = Omega_hat, Epsilon_hat = Epsilon_hat)
+  attr(res, "class") <- "tvbss"
+  return(res)
 }
+
+# performance measurement -------------------------------------------------
+
+# JADE::SIR: get correlation; find correct permutation (max at row/col); get mean;
+# rstudioapi::viewer("https://hal.inria.fr/inria-00544230/document")
+
+get_WA_for_SIR <- function(res, N, Omega, Epsilon){
+  Omega_hat <- res$Omega_hat
+  Epsilon_hat <- res$Epsilon_hat
+
+  p <- ncol(Omega_hat); 
+  WA <- WA_r <- WA_r2 <- array(dim = c(p,p,N))
+  for (t in 1:N) {
+    Omega_hat_t <- (diag(p) + t * Epsilon_hat) %*% Omega_hat
+    Omega_t     <- (diag(p) + t * Epsilon) %*% Omega
+    WA[ , , t]  <- solve(Omega_hat_t) %*% Omega_t
+    
+    # find the best permutation here
+    for (i in 1:p) {
+      cur_col <- abs(WA[i, , t])
+      id      <- which(cur_col == max(cur_col))[1]
+      WA_r[i,  i, t] <- cur_col[ id]
+      WA_r[i, -i, t] <- cur_col[-id]
+    }
+    WA_r2[ , , t] <- (WA_r[ , , t])^2 # Hadamard element wise 
+  }
+  
+  list(WA = WA, WA_rotated = WA_r, WA_rotated_sq = WA_r2)
+}
+
+get_SIR_from_WA <- function(WA_rotated){
+  
+  N <- dim(WA_rotated)[3]
+  p <- dim(WA_rotated)[1]
+  ratio <- sum_diag <- sum_off <- numeric(N)
+  
+  for (i in 1:N){
+    items_diag  <- diag(WA_rotated[,,i])
+    items_off   <- as.vector(WA_rotated[,,i] - diag(items_diag, p)) # diag 0 is ok
+    sum_diag[i] <- sum(items_diag)
+    sum_off [i] <- sum(items_off )
+    ratio[i]    <- sum_diag[i] / sum_off[i]
+  }
+  
+  ratio_vec <- 10 * log10(ratio)
+  ratio_new <- 10 * log10( sum(sum_diag) / sum(sum_off))
+  # list(ratio1 = mean(ratio_vec), ratio2 = ratio_new)
+  
+  ratio_new
+}
+
+SIR_all <- function(bss_res, Omega, Epsilon, S){
+  # input true Omega Epsilon and Source
+  N <- nrow(bss_res$S)
+  p <- ncol(bss_res$W)
+  Matrix_0 <- matrix(rep(0, p^2), ncol = p)
+  
+  if(class(bss_res) == "tvbss"){
+    WA  <- get_WA_for_SIR(bss_res, N, Omega, Epsilon)
+    Omega_hat   <- bss_res$Omega_hat
+    Epsilon_hat <- bss_res$Epsilon_hat
+  }
+  else if(class(bss_res) == "bss") {
+    WA  <- get_WA_for_SIR(list(Omega_hat = solve(bss_res$W), Epsilon_hat = Matrix_0), N, Omega, Epsilon)
+    Omega_hat   <- solve(bss_res$W)
+    Epsilon_hat <- Matrix_0
+  }
+  else stop("incompatible input")
+  
+  MD_all_t <- numeric(N)
+  for (t in 1:N) {
+    MD_all_t[t] <- MD((diag(p) + t * Epsilon) %*% Omega, (diag(p) + t * Epsilon_hat) %*% Omega_hat)
+  }
+  
+  
+  list(method = bss_res$method,
+       SIR_diag_sq  = get_SIR_from_WA(WA$WA_rotated_sq),
+       SIR_diag_abs = get_SIR_from_WA(WA$WA_rotated),
+       SIR_original = SIR(S, bss_res$S),
+       MD_0         = MD(Omega_hat, Omega),
+       MD_mean      = mean(MD_all_t))
+}
+
 
 
 # packed functions --------------------------------------------------------
 
-tvsobi011 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, TRUE,  TRUE))
-tvsobi010 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, TRUE,  FALSE))
-tvsobi001 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, FALSE, TRUE))
-tvsobi000 <- function(x, lags = 12) solve_main(cov_sep_vec(x, lags, FALSE, FALSE))
-tvsobi2   <- function(x, lags = 12) solve_alt(cov_sep_vec(x, lags))
+ltvsobi2   <- function(x, lags = 12) {
+  solve_alt(cov_sep_vec(x, lags))
+}
+
+ltvsobi <- function(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE) {
+  solve_main(cov_sep_vec(x, lags, quadratic = quadratic, fix_symmetry = fix_symmetry, verbose = verbose)) 
+}

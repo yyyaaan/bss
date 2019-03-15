@@ -6,7 +6,6 @@
 tvsobi <- function(X, lag.max = 12, 
                    useQuadratic = TRUE,
                    epsilon.method = 1,
-                   getSource = TRUE,
                    jd.method = "frjd"){
 
   # TV-SOBI support ---------------------------------------------------------
@@ -201,11 +200,14 @@ tvsobi <- function(X, lag.max = 12,
     epsilon.est <- try(W.est %*% solve(jd$W), silent = T)
   }
   
+  method <- paste("YeredorTVOBI",
+                  ifelse(useQuadratic, "Quadratic", "Linear"),
+                  paste0("Epsilon-", epsilon.method),
+                  ifelse(nearestDist == 0, "" , "NearestSPD"))
+
+  S_hat <- restore_source(X, W.est, epsilon.est)
+  res <- list(W = W.est, k = 1:lag.max , method = method, S = as.ts(S_hat), Omega_hat = omega.est, Epsilon_hat = epsilon.est)
+  attr(res, "class") <- "tvbss"
   
-  if(!getSource)
-    return(list(W = W.est, Epsilon = epsilon.est, nearestDist = nearestDist))
-  
-  S <- restore_source(X, W.est, epsilon.est)
-  return(list(W = W.est, Epsilon = epsilon.est, S = S, nearestDist = nearestDist))
-  
+  res  
 }

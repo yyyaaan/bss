@@ -1,4 +1,8 @@
-# Restructured Files
+# Topic
+
+See ![project homepage](https://bss.yan.fi)
+
+# File Structures
 
 `rfun.R` and `rsim.R` only provides functions not running; instead `aRunXXX.R` will perform the actual analysis either on request or on batch.
 

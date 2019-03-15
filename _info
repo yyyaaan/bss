@@ -22,7 +22,6 @@ why restoration sources, and what can be expected loss
 
 simulation details, explain why
 
-
 * independece vs. uncorrelation
 
 * linear time varying, special case, Yeredor's 
@@ -38,7 +37,11 @@ simulation details, explain why
 captial letters and similar. 
 
 
+=============================
 
+permutation indeterminacy
+
+tme complexity (speed)
 
 
 
