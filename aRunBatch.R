@@ -1,14 +1,15 @@
-library(bigrquery) 
+library(bigrquery)
 library(parallel)
+library(JADE)
 remove(list = ls()) # clear environment
 source("rfun.R"); source("rlab_x.R")
 options(stringsAsFactors = FALSE)
-#N <- 1000; p <- 4; id = "TEST"
+#N <- 1000; p <- 4; id = "TEST"; append = TRUE
 
 
 # single sim with FIXED source --------------------------------------------
 
-do_one_sim <- function(p = 4, N = 1e3, id = "TEST"){
+do_one_sim <- function(p = 9, N = 1e3, id = "TEST"){
   
   # get source and mix
   Omega   <- matrix(runif(p^2, 1, 10), ncol = p)
@@ -24,8 +25,8 @@ do_one_sim <- function(p = 4, N = 1e3, id = "TEST"){
   x <- tvmix(z, Omega, Epsilon)
   
   #save source
-  save_signal(z, id, "true_signal")
-  save_signal(z, id, "mixture")
+  #save_signal(z, id, "true_signal")
+  #save_signal(z, id, "mixture")
   save_params(Omega, Epsilon, id, "true_param")
   
   # call all methods
@@ -40,7 +41,7 @@ do_one_sim <- function(p = 4, N = 1e3, id = "TEST"){
     if(i == 8) bss_res <- ltvsobi2(x, lags = 6)
     
     save_estimator(bss_res, id)
-    save_restored(bss_res, id)
+    #save_restored(bss_res, id)
     benchmarks <- SIR_all(bss_res, Omega, Epsilon, z)
     remove(bss_res)
     save_eval(benchmarks, id)
@@ -51,9 +52,9 @@ do_one_sim <- function(p = 4, N = 1e3, id = "TEST"){
 
 # functions to save to bigquery --------------------------------------------
 
-#reset_access_cred(); set_service_token("/home/yanpan/.gcp.json")
-#bqcon <- dbConnect(bigrquery::bigquery(), project = "yyyaaannn", dataset = "BSS", billing = "yyyaaannn")
-library(odbc); bqcon <- dbConnect(odbc::odbc(), "Study Database")
+reset_access_cred(); set_service_token("/home/yanpan/.gcp.json")
+bqcon <- dbConnect(bigrquery::bigquery(), project = "yyyaaannn", dataset = "BSS", billing = "yyyaaannn")
+# library(odbc); bqcon <- dbConnect(odbc::odbc(), "Study Database")
 path <- paste0(getwd(), "/sim/")
 
 save_signal <- function(z, id, type){
@@ -63,9 +64,8 @@ save_signal <- function(z, id, type){
              t    = 1:nrow(z),
              z    = z) -> df
   colnames(df)[5:ncol(df)] <- paste0("signal_est_", 1:ncol(z))
-  
-  tryCatch(dbWriteTable(bqcon, "signals", df, append = TRUE), 
-           error = function(e) {saveRDS(df, file = paste0(path, "signals-", id, "-", as.numeric(Sys.time()), ".rds")); print(e)})
+  Sys.sleep(runif(1))
+  saveRDS(df, file = paste0(path, "signals-", id, "-", as.numeric(Sys.time()), ".rds"))
 }
 
 save_params <- function(Omega, Epsilon, id, type = "true_param"){
@@ -74,9 +74,10 @@ save_params <- function(Omega, Epsilon, id, type = "true_param"){
              type    = type,
              omega_vec   = as.vector(Omega),
              epsilon_vec = as.vector(Epsilon)) -> df
-  
-  tryCatch(dbWriteTable(bqcon, "params", df, append = TRUE), 
-           error = function(e) {saveRDS(df, file = paste0(path, "params-", id, "-", as.numeric(Sys.time()), ".rds")); print(e)})
+  Sys.sleep(runif(1))
+  saveRDS(df, file = paste0(path, "params-", id, "-", as.numeric(Sys.time()), ".rds"))
+  # tryCatch(dbWriteTable(bqcon, "params", df, append = TRUE), 
+  #          error = function(e) {saveRDS(df, file = paste0(path, "params-", id, "-", as.numeric(Sys.time()), ".rds")); print(e)})
 }
 
 save_eval <- function(benchmarks, id){
@@ -87,9 +88,8 @@ save_eval <- function(benchmarks, id){
   }
   df$method = benchmarks$method
   df$id     = id
-  tryCatch(dbWriteTable(bqcon, "benchmark", df, append = TRUE), 
-           error = function(e) {saveRDS(df, file = paste0(path, "benchmark-", id, "-", as.numeric(Sys.time()), ".rds")); print(e)})
-  
+  Sys.sleep(runif(1))
+  saveRDS(df, file = paste0(path, "benchmarks-", id, "-", as.numeric(Sys.time()), ".rds"))
 }
   
 
@@ -119,10 +119,30 @@ do_full_set <- function(rid = "XXXX"){
   Ns <- 50 * 2 ^ {1:11}
   ps  <- 3:9
   for(N in Ns) for(p in ps) {
-    tryCatch(do_one_sim(p, N, paste0("ID", rid, "D", p, "N", N)),
+    tryCatch(do_one_sim(p, N, paste0( as.numeric(Sys.Date()), "ID", rid, "D", p, "N", N)),
              error = function(e) print(paste("error occured and ignored:", e)))
   }
+  print(paste("BATCH", rid, "Completed"))
 }
 
-mclapply(9001:9099, function(rid) do_full_set(rid), mc.cores = detectCores())
+for(i in 1:30){
+  
+}
 
+for (i in 1:100) do_full_set(9000 + i)
+# mclapply(9001:9399, function(rid) do_full_set(rid), mc.cores = detectCores())
+
+
+# file processing ---------------------------------------------------------
+
+combined_files <- function(indicator = "benchmarks"){
+  all_files <- list.files("./sim")
+  all_files <- all_files[grep(".rds", all_files)]
+  all_files <- all_files[grep(indicator, all_files)]
+  df <- NA
+  for(f in all_files){
+    read_df <- readRDS(paste0("./sim/", f))  
+    df <- rbind(df, read_df)
+  }
+  saveRDS(df, file = paste0(indicator, ".rds"))
+}
