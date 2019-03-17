@@ -32,7 +32,7 @@ Vectors and matrices are always marked as bold symbols while a lower case letter
 | $\boldsymbol\Lambda_{\tau}$ | autocovariance given stationarity | $p\times p$ matrix that depends only on lag $\tau$ and assumed to be diagonal |
 | $\boldsymbol R_{\tau} = \boldsymbol{\Omega \Lambda}_{\tau} \boldsymbol\Omega'$ | partially mixed autocovariance  | $p\times p$, a short-hand notation|
 | $\boldsymbol K ^{(p,p)}$ | commutation matrix | $p^2\times p^2$ |
-| $t=1,2,\dots,T$ | index of time | use in subscript. $t=0$ is a pseudo notation. | 
+| $t=1,2,\dots,T$ | index of time | use in subscript. $t=0$ is a pseudo notation and $t=1,\ t=T$ are the first and last observation in the time series correspondingly | 
 | $\tau \in \{0\}\bigcup L$ | pre-selected time lag | An integer. 0 is included for covenience |
 | $L = \{\tau_1,\tau_2,\dots,\tau_l\}$ | set of pre-selected lags | $l$-item set of positive integers |
 
