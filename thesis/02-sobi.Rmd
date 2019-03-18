@@ -9,11 +9,17 @@ Blind Source Separation (BSS) assumes that the observed signal vector $\boldsymb
 
 Although mathematically unnecessary, it is assumed that $\boldsymbol{\Omega}$ is a full-rank $p\times p$ matrix. In fact, an decrease in dimension of $\boldsymbol{\Omega}$ will allow fewer signal components (number of columns in $\boldsymbol z$) generated from the same observation $\boldsymbol{x}$. However, it is not necessary due to fact that the output carries real-world information, and the usefulness of signal components (columns) can be better determined using scientific evidence of the signal itself. Consequently, it is a justified choice to force the mixing matrix to be full-rank.
 
-The goal of BSS is always to restore the independent source signals, and the above model assures that finding mixing matrix $\boldsymbol{\Omega}$ or unmixing matrix $\boldsymbol{W}= \boldsymbol{\Omega}^{-1}$ suffices, where the model assumption of full rank guarantees the existence of inverse matrix. For notation simplification and clarity, the following paragraphs shall only use $\boldsymbol\Omega$. The Second order BSS solves the BSS problem using second order statistics, notably measures of scale including variances, median absolute deviation and other 2nd moment estimators [@belouchrani1997blind; @nordhausen2014robustifying]. The major second order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by Tong, Soon, Huang and Liu [-@tong1990amuse] and Second Order Blind Identification, commonly know as SOBI, that originally proposed by Belouchrani, Abed-Meraim, Cardoso and Moulines [-@belouchrani1997blind].
+The goal of BSS is always to restore the independent source signals, and the above model assures that finding mixing matrix $\boldsymbol{\Omega}$ or unmixing matrix $\boldsymbol{W}= \boldsymbol{\Omega}^{-1}$ suffices, where the model assumption of full rank guarantees the existence of inverse matrix. For notation simplification and clarity, the following paragraphs shall only use $\boldsymbol\Omega$. 
 
-## Ambiguities of SOBI and Assumptions
+The Second order Blind Identification (SOBI) solves the BSS problem using second order statistics, notably measures of scale including variances, median absolute deviation and other 2nd moment estimators [@belouchrani1997blind; @nordhausen2014robustifying]. The major second order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by Tong, Soon, Huang and Liu [-@tong1990amuse] and Second Order Blind Identification, commonly know as SOBI, that originally proposed by Belouchrani, Abed-Meraim, Cardoso and Moulines [-@belouchrani1997blind].
 
-Consider the BSS equation \@ref(eq:SOM), it is impossible to solve $\boldsymbol\Omega$ and $\boldsymbol z$ in a finite closed form without further information because of merely one known item. 
+## Ambiguities and Assumptions
+
+
+The BSS equation \@ref(eq:SOM) underlies the impossibility to solve $\boldsymbol\Omega$ and $\boldsymbol z$ in a finite closed form because of merely one known item, and thus BSS solution always incurs,
+
+- Permutation ambiguity: the $a$-th dimension of signal may be confused into $b$-th dimension in the restored one; however, they are always 1-1 mapping after sign-correction. The permutation can also include sign ambiguity.
+- Scale ambiguity: restore signals can be scaled due to the fact that for any (unknown) scale constant $||a||:\ \boldsymbol x \equiv \big(\boldsymbol\Omega ||a||^{-1} \big) \big(||a|| \boldsymbol z \big)$.
 
 There exist different approach to solve BSS problems in terms of identifying mixing matrix and source signal components. Notably, the Independence Component Analysis (ICA) algorithm assumes statistical independence and nongaussian distribution, in addition to the optional setting of component number equality between source and mixture [@comon1994independent].
 
@@ -32,7 +38,8 @@ In information processing, the signals are usually recorded by highly precise me
 (\#eq:SOS)
 \end{equation}
 
-This semi-parametric model can be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption (2) in the SOS model [@miettinen2016separation.] [DETAILS MAY NEED FURNISH].
+This semi-parametric model can be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption (2) in the SOS model, which become a unique constrained optimization using Lagrange method after proper whitening and/or normalization procedures [@miettinen2016separation]. 
+
 
 Nordhausen [-@nordhausen2014robustifying] expanded the algorithm to non-stationary time series using locally stationary intervals and further robustifying with average spatial-sign autocovariances on such intervals.
 
