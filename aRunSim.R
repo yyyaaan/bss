@@ -9,7 +9,7 @@ N <- 1e3
 z <- NULL
 Omega   <- matrix(runif(p^2, 1, 10), ncol = p)
 Matrix_0 <- matrix(rep(0, p^2), ncol = p)
-Epsilon <- 1e-5 * matrix(runif(p^2, 1, 10), ncol = p)
+Epsilon <- 1e-4 * matrix(runif(p^2, 1, 10), ncol = p)
 
 
 # sim signal type ---------------------------------------------------------
@@ -24,7 +24,11 @@ for (i in 1:p){
 
   # get simulation data
 x <- tvmix(z, Omega, Epsilon)
-# plot.ts(z); plot.ts(x)
+y <- tvmix(z, Omega, Matrix_0)
+plot.ts(x); plot.ts(y); plot.ts(z)
+fig_mixing <- list()
+fig_mixing[[3]] <- z
+save(fig_mixing, file = "thesis.rdata")
 
 
 # playground --------------------------------------------------------------
