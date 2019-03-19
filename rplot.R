@@ -1,44 +1,46 @@
 require(tidyverse)
 require(JADE)
+require(visNetwork)
+require(RColorBrewer)
 
+RColorBrewer::brewer.pal(3, "Set2")
 
-res <- SOBI(fig_mixing$mix)
-plot.ts(res$S)
-plot.ts(fig_mixing$source)
+# alogrithm alts ----------------------------------------------------------
 
-# permutation -------------------------------------------------------------
+processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
+               "Yeredor TVSOBI", "LTVSOBI-1", "LTVSOBI-2", 
+               "Restoration", "approxJD", "", "")
+colors   <- RColorBrewer::brewer.pal(length(proc), "Set2")
+outcomes  <- c("Observation", "Autocovariance Matrices", 
+               "Beta_1", "Beta_2" , "Beta_3",
+               "Restored Siganls",
+               "Omega\n(Y-TVSOBI)", "Epsilon\n(Y-TVSOBI)",
+               "Omega\n(LTVSOBI-1)", "Epsilon\n(LTVSOBI-1)",
+               "Omega*Epsilon\n(LTVSOBI-2)","Omega\n(LTVSOBI-2)", "Epsilon\n(LTVSOBI-2)")
+               
+label_ids <- c(1, 9, 2, 9,
+               7, 9, 9, 
+               7, 9, 9, 9, 
+               7, 9, 9, 9, 9, 
+               9, 6, 9, 6, 9, 6)
+edges <- data.frame(from = c(1, 2, 2, 2, 
+                             7, 8, 8,
+                             9, 9, 10, 10,
+                             11, 12, 12, 13, 13,
+                             7, 8, 9, 10, 12, 13),
+                    to   = c(2, 3, 4 ,5, 
+                             3, 4, 7,
+                             3, 4, 4, 9,
+                             5, 4, 11, 4, 11,
+                             rep(6, 6)),
+                    label = processes[label_ids], arrows = c(rep("to", 4), rep("from", 12), rep("to", 6)))
+nodes <- data.frame(id = 1:length(outcomes), shape = "box",
+                    label = outcomes, 
+                    group = c(1, 1, 3, 3, 3, 1, 5, 5, 6, 6, 7, 7, 7),
+                    level = c(1, 2, 3, 3, 3, 6, 4, 4.4, 4, 4.4, 4 ,4.4, 4.4))
 
+visNetwork(nodes, edges) %>% visConfigure(enabled = T) %>% visHierarchicalLayout(direction = "UD", levelSeparation = 130) 
 
-
-# illustration of mixture -------------------------------------------------
-N <- 1e4
-omega <- matrix(rnorm(9) , ncol = 3)
-epsilon <- matrix(rnorm(9) * 1e-4, ncol = 3)
-z1 <- arima.sim(list(ar=c(0.3,0.6)),N)
-z2 <- arima.sim(list(ma=c(-0.3,0.3)),N)
-z3 <- arima.sim(list(ar=c(-0.8,0.1)),N)
-z <- apply(cbind(z1,z2,z3), 2, scale)
-X <- matrix(nrow = nrow(z), ncol = ncol(z))
-for (i in 1:N) X[i,] <- z[i,] %*% t(omega) %*% t(diag(3) + i * t(epsilon))
-
-  # z is normal mix, X is tv-mix
-temp1 <- as.data.frame(X)
-temp1$t <- 1:nrow(temp1)
-temp1 <- melt(temp1, id.vars = "t")
-temp1$type <- "time-varing mix"
-
-temp2 <- as.data.frame(z)
-colnames(temp2) <- c("V1", "V2", "V3")
-temp2$t <- 1:nrow(temp2)
-temp2 <- melt(temp2, id.vars = "t")
-temp2$type <- "ordinary mix"
-
-mix <- rbind(temp1, temp2)
-
-ggplot(mix, aes(t, value, color = variable)) +
-  geom_line() +
-  facet_grid(variable~type) +
-  theme_light()
 
 
 # performance -------------------------------------------------------------
