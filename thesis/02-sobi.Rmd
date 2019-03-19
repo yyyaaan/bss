@@ -21,6 +21,14 @@ The BSS equation \@ref(eq:SOM) underlies the impossibility to solve $\boldsymbol
 - Permutation ambiguity: the $a$-th dimension of signal may be confused into $b$-th dimension in the restored one; however, they are always 1-1 mapping after sign-correction. The permutation can also include sign ambiguity.
 - Scale ambiguity: restore signals can be scaled due to the fact that for any (unknown) scale constant $||a||:\ \boldsymbol x \equiv \big(\boldsymbol\Omega ||a||^{-1} \big) \big(||a|| \boldsymbol z \big)$.
 
+Figure \@ref(fig:ambiguity) illustrates the ambiguity. The observed source are a 4 dimensional signals combining auto-regressive, moving average, sinusoidal and ECG-style time series. Comparing left and right plot, observation series 2 is clearly mapped into series 1 in restored signals, while series 4 become series 2. Though the shape and wave form are very similar, the scale of y_axis indicates the scale ambiguity.
+
+```{r ambiguity, fig.show='hold', fig.cap='Observed vs. restored sources', out.width='50%', echo = FALSE}
+load("thesis.rdata")
+plot.ts(fig_mixing$source, main = "Observed Source",      ann = FALSE)
+plot.ts(fig_mixing$unmix,  main = "SOBI Restored Source", ann = FALSE)
+```
+
 There exist different approach to solve BSS problems in terms of identifying mixing matrix and source signal components. Notably, the Independence Component Analysis (ICA) algorithm assumes statistical independence and nongaussian distribution, in addition to the optional setting of component number equality between source and mixture [@comon1994independent].
 
 
@@ -47,11 +55,10 @@ Nordhausen [-@nordhausen2014robustifying] expanded the algorithm to non-stationa
 
 Time-varying SOBI is originally presented by Yeredor [-@yeredor2003tv], where the slow and linear change exists in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model \@ref(eq:SOS), the time variation can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol\Omega_0$, which is clearly non-constant despite $\boldsymbol{\mathcal E}$ and $\boldsymbol\Omega_0$ are. Figure \@ref(fig:mixingplot) illustrates the difference between ordinary time-invariant mixture and time-varying one. It can be discovered that the time-varying mixture has a certain trend and it does not demonstrate the stationary property. In fact, introduction of time varying factor invalids the stationary property in the observation $\boldsymbol{x}$ almost surely even though the source signals are stationary. This is because $\boldsymbol{\mathcal E}$ changes the scale (second order statistics) over time $t$. Nevertheless, aforementioned SOBI and the upcoming TV-SOBI do not require such property in observation.
 
-```{r mixingplot, fig.show='hold', fig.cap='Two types of 4-dimensional signal mixture example: sources (left), ordinary mixing (middle) and time-varying mixing (right).', out.width='33%', echo = FALSE}
+```{r mixingplot, fig.show='hold', fig.cap='Two types of 4-dimensional signal mixture example: ordinary mixing (left) and time-varying mixing (right).', out.width='50%', echo = FALSE}
 load("thesis.rdata")
-plot.ts(fig_mixing[[3]], main = "", ann = FALSE)
-plot.ts(fig_mixing[[2]], main = "", ann = FALSE)
-plot.ts(fig_mixing[[1]], main = "", ann = FALSE)
+plot.ts(fig_mixing$mix,    main = "Ordinary Mixture",     ann = FALSE)
+plot.ts(fig_mixing$tvmix,  main = "Time-varying Mixture", ann = FALSE)
 ```
 
 The TV-SOBI model below \@ref(eq:tvsobi) is an extension to the SOS model \@ref(eq:SOS), and similar to it, the first assumption is non-restrictive and can be achieved through simple data transformation; the second is required to tackle the ambiguity of BSS, while the third assumption states both stationary and independent characteristics. The final assumption is optional in ensuring that the change of mixing is rather slow, and otherwise, the mixture is not a meaningful as a BSS problem [adapted @yeredor2003tv].

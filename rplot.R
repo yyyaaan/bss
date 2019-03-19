@@ -1,4 +1,14 @@
 require(tidyverse)
+require(JADE)
+
+
+res <- SOBI(fig_mixing$mix)
+plot.ts(res$S)
+plot.ts(fig_mixing$source)
+
+# permutation -------------------------------------------------------------
+
+
 
 # illustration of mixture -------------------------------------------------
 N <- 1e4
