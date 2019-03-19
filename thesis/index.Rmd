@@ -38,7 +38,7 @@ Vectors and matrices are always marked as bold symbols while a lower case letter
 
 
 - the operator $\boldsymbol{A}'$ stands for matrix transpose; 
-- matrix subscript $\boldsymbol{A}_t$ returns the $t$-th row vector of $\boldsymbol{A}$;
+- matrix subscript $\boldsymbol{A}_t$ is the observation at time $t$, returning the $t$-th column vector of $\boldsymbol{A}$;
 - the function $\text{vec}( \boldsymbol A)$ defines vectorization (by-column) of $\boldsymbol A$;
 - the operator $\otimes$ is Kronecker product.
 - matrix index $\boldsymbol{A}[i,j]$ gives the number in the $i$-th row $j$-th column of matrix $\boldsymbol{A}$.
