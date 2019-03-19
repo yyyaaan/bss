@@ -3,15 +3,10 @@ options(stringsAsFactors = F)
 
 # modern simulation -------------------------------------------------------
 
-sim_good_sources <- function(N, p = 4, epsilon_scale = 1e-4, 
-                             sim_one = c("ecg", "sin"), sim_many = c("ar", "ma") ){
+sim_good_sources <- function(N, p = 4, sim_one = c("ecg", "sin"), sim_many = c("ar", "ma") ){
 
 
   z <- NULL
-  Omega    <- matrix(runif(p^2, 1, 10), ncol = p)
-  Matrix_0 <- matrix(rep(0, p^2), ncol = p)
-  Epsilon  <- epsilon_scale * matrix(runif(p^2, 1, 10), ncol = p)
-
   rand_types <- sample(sim_many, p, replace = TRUE)
   rand_types[sample(1:p, length(sim_one))] <- sim_one
   
