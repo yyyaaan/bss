@@ -1,12 +1,12 @@
 require(tidyverse)
 require(JADE)
-require(visNetwork)
 require(RColorBrewer)
 
-RColorBrewer::brewer.pal(3, "Set2")
 
 # alogrithm alts ----------------------------------------------------------
 
+require(visNetwork)
+RColorBrewer::brewer.pal(3, "Set2")
 processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
                "Yeredor TVSOBI", "LTVSOBI-1", "LTVSOBI-2", 
                "Restoration", "approxJD", "", "")
@@ -39,7 +39,7 @@ nodes <- data.frame(id = 1:length(outcomes), shape = "box",
                     group = c(1, 1, 3, 3, 3, 1, 5, 5, 6, 6, 7, 7, 7),
                     level = c(1, 2, 3, 3, 3, 6, 4, 4.4, 4, 4.4, 4 ,4.4, 4.4))
 
-visNetwork(nodes, edges) %>% visConfigure(enabled = T) %>% visHierarchicalLayout(direction = "UD", levelSeparation = 130) 
+visNetwork(nodes, edges) %>% visHierarchicalLayout(direction = "UD", levelSeparation = 130) 
 
 
 

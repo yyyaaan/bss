@@ -1,10 +1,10 @@
 # LTV-SOBI Algorithm based on Autocovariances {#algorithm}
 
-While SOBI can be identify by find one single maxtrix ($\boldsymbol\Omega$), LTV-SOBI demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
+While SOBI can be identify by find one single matrix ($\boldsymbol\Omega$), LTV-SOBI demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 
 Developed from Yeredor [-@yeredor2003tv], this chapter carefully investigate the autocovariance matrices, and introduced new alternatives pursuing better mathematical accuracy given model \@ref(eq:tvsobi). LTV-SOBI algorithm mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
 
-Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For covenience, let $\tau\in\{0\} \bigcup L$
+Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$
 
 ## Decomposition of Autocovariance Structure
 
@@ -25,7 +25,7 @@ Being a second order approach, the LTV-SOBI algorithm is based on the autocovari
 (\#eq:covs)
 \end{equation}
 
-The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligble due to small quantity, which lead to approximation \@ref(eq:ycovs). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by presevering them in autocovariance matries. 
+The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
 
 \begin{equation}
 \mathbb E(\boldsymbol x_t \boldsymbol x_{t+\tau}') \approx
@@ -34,7 +34,7 @@ The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\t
 (\#eq:ycovs)
 \end{equation}
 
-After decompoisition, the observation is summarized in to $l+1$ matrices of autocovariance; the same quantity of pre-selected lags plus the covariance matrices $\mathbb E( \boldsymbol x_t \boldsymbol x_t')$. Consider element-wise equivalence, for $i,j=1,2,…,p$, the autocovariance structure in \@ref(eq:covs) is equivalent to $\boldsymbol S_\tau = \boldsymbol H^*_\tau \boldsymbol \beta^*_\tau$ defined as,
+After decomposition, the observation is summarized in to $l+1$ matrices of autocovariance; the same quantity of pre-selected lags plus the covariance matrices $\mathbb E( \boldsymbol x_t \boldsymbol x_t')$. Consider element-wise equivalence, for $i,j=1,2,…,p$, the autocovariance structure in \@ref(eq:covs) is equivalent to $\boldsymbol S_\tau = \boldsymbol H^*_\tau \boldsymbol \beta^*_\tau$ defined as,
 
 \begin{equation}
 \underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \mathbf S_\tau}
@@ -43,7 +43,7 @@ After decompoisition, the observation is summarized in to $l+1$ matrices of auto
 (\#eq:covmatx)
 \end{equation}
 
-Now that the $p\times N$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last of $\boldsymbol H_\tau$ are constant given $\tau$. Fortunately the modified form in \@ref(eq:covmat) can easily tackle it.
+Now that the $p\times N$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last of $\boldsymbol H_\tau$ are constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can easily tackle it.
 
 \begin{equation}
 \underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \mathbf S_\tau}
@@ -61,7 +61,7 @@ Therefore, a proper linear regression can be applied for each $i,j = 1,2,\dots,p
 (\#eq:covvec)
 \end{equation}
 
-In conclusion, the first step of LTV-SOBI decomposes autocovariance matricies into  $3(\tau + 1)$ matrices as in \@ref(eq:covsep) that contains most characteristic second-order information of observation. 
+The classic linear model theory suggests the unique maximum likelihood estimator of $\boldsymbol\beta_\tau$ in \@ref(eq:covvec) to be $\widehat{ \text{vec} (\boldsymbol \beta_\tau}) = \big[ (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' (\mathbf H_\tau \otimes \boldsymbol I_{p^2})\big]^{-1} (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' \text{vec}(\mathbf S_\tau)$. The estimator coincides with least squared ones [e.g. @myers1990classical] (further discussed in chapter \@ref(discussion)), and the inverse of vectorization is straightforward. In conclusion, the first step of LTV-SOBI decomposes autocovariance matrices into  $3(\tau + 1)$ matrices as in \@ref(eq:covsep) that contains most characteristic second-order information of observation, where $\boldsymbol \beta_{2,\cdot}$s can be viewed as half-time-varying autocovariance, $\boldsymbol \beta_{3,\cdot}$s as time-varying autocovariances.
 
 \begin{equation}
 \text{for all } \tau \in \{0\}\cup L:\ 
@@ -72,3 +72,51 @@ In conclusion, the first step of LTV-SOBI decomposes autocovariance matricies in
 \end{cases}
 (\#eq:covsep)
 \end{equation}
+
+## Processing Decomposed Autocovariance and Joint Diagnolization
+
+## Further Alternative of LTV-SOBI
+
+## Summary of Algorithms
+
+The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly varied results. Figure \@ref(fig:algorithm) visulizes the different approaches in the manner of flow chart.
+
+```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
+
+require(visNetwork)
+processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
+               "Yeredor TVSOBI", "LTVSOBI-1", "LTVSOBI-2", 
+               "Restoration", "approxJD", "", "")
+# colors   <- RColorBrewer::brewer.pal(length(processes), "Set2")
+outcomes  <- c("Observation", "Autocovariance Matrices", 
+               "Beta_1", "Beta_2" , "Beta_3",
+               "Restored Signals",
+               "Omega\n(Y-TVSOBI)", "Epsilon\n(Y-TVSOBI)",
+               "Omega\n(LTVSOBI-1)", "Epsilon\n(LTVSOBI-1)",
+               "Omega*Epsilon\n(LTVSOBI-2)","Omega\n(LTVSOBI-2)", "Epsilon\n(LTVSOBI-2)")
+               
+label_ids <- c(1, 9, 2, 9,
+               7, 9, 9, 
+               7, 9, 9, 9, 
+               7, 9, 9, 9, 9, 
+               9, 6, 9, 6, 9, 6)
+edges <- data.frame(from = c(1, 2, 2, 2, 
+                             7, 8, 8,
+                             9, 9, 10, 10,
+                             11, 12, 12, 13, 13,
+                             7, 8, 9, 10, 12, 13),
+                    to   = c(2, 3, 4 ,5, 
+                             3, 4, 7,
+                             3, 4, 4, 9,
+                             5, 4, 11, 4, 11,
+                             rep(6, 6)),
+                    label = processes[label_ids], arrows = c(rep("to", 4), rep("from", 12), rep("to", 6)))
+nodes <- data.frame(id = 1:length(outcomes), shape = "box",
+                    label = outcomes, 
+                    group = c(1, 1, 3, 3, 3, 1, 5, 5, 6, 6, 7, 7, 7),
+                    level = c(1, 2, 3, 3, 3, 6, 4, 4.4, 4, 4.4, 4 ,4.4, 4.4))
+
+visNetwork(nodes, edges) %>% 
+        visHierarchicalLayout(direction = "UD", levelSeparation = 130) %>% 
+        visInteraction(dragView = FALSE, zoomView = FALSE) 
+```

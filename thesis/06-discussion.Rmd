@@ -1,3 +1,5 @@
-# Discussion
+# Discussion {#discussion}
 
 Accuracy and number of items
+
+Underlying assumption of linear model in \@ref(eq:covvec)
