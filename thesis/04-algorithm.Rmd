@@ -61,29 +61,68 @@ Therefore, a proper linear regression can be applied for each $i,j = 1,2,\dots,p
 (\#eq:covvec)
 \end{equation}
 
-The classic linear model theory suggests the unique maximum likelihood estimator of $\boldsymbol\beta_\tau$ in \@ref(eq:covvec) to be $\widehat{ \text{vec} (\boldsymbol \beta_\tau}) = \big[ (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' (\mathbf H_\tau \otimes \boldsymbol I_{p^2})\big]^{-1} (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' \text{vec}(\mathbf S_\tau)$. The estimator coincides with least squared ones [e.g. @myers1990classical] (further discussed in chapter \@ref(discussion)), and the inverse of vectorization is straightforward. In conclusion, the first step of LTV-SOBI decomposes autocovariance matrices into  $3(\tau + 1)$ matrices as in \@ref(eq:covsep) that contains most characteristic second-order information of observation, where $\boldsymbol \beta_{2,\cdot}$s can be viewed as half-time-varying autocovariance, $\boldsymbol \beta_{3,\cdot}$s as time-varying autocovariances.
+The classic linear model theory suggests the unique maximum likelihood estimator of $\boldsymbol\beta_\tau$ in \@ref(eq:covvec) to be $\widehat{ \text{vec} (\boldsymbol \beta_\tau}) = \big[ (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' (\mathbf H_\tau \otimes \boldsymbol I_{p^2})\big]^{-1} (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' \text{vec}(\mathbf S_\tau)$. The estimator coincides with least squared ones [e.g. @myers1990classical] (further discussed in chapter \@ref(discussion)), and the inverse of vectorization is straightforward. In conclusion, the first step of LTV-SOBI decomposes autocovariance matrices into  $3(\tau + 1)$ matrices as defined in \@ref(eq:covsep) that contains most characteristic second-order information of observation, where $\boldsymbol \beta_{2,\cdot}$ can be viewed as patially time-varying autocovariance, $\boldsymbol \beta_{3,\cdot}$ as time-varying autocovariances.
 
 \begin{equation}
 \text{for all } \tau \in \{0\}\cup L:\ 
 \begin{cases} 
-\widehat {\boldsymbol\beta_{1,\tau}} = \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \ \boldsymbol\Omega'  +\tau \, {\boldsymbol\Omega\ \boldsymbol\Lambda_\tau \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'} \\
-\widehat {\boldsymbol\beta_{2,\tau}} = {\boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \ \boldsymbol\Omega' + \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \ \boldsymbol\Omega'\, \boldsymbol{\mathcal E}'}\\
-\widehat {\boldsymbol\beta_{3,\tau}} ={ \boldsymbol{\mathcal E}\, \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \ \boldsymbol\Omega' \, \boldsymbol{\mathcal E}'}
+\widehat {\boldsymbol\beta_{1,\tau}} = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'  +\tau \, {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'} \\
+\widehat {\boldsymbol\beta_{2,\tau}} = {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' + \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'}\\
+\widehat {\boldsymbol\beta_{3,\tau}} ={ \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'  \boldsymbol{\mathcal E}'}
 \end{cases}
 (\#eq:covsep)
 \end{equation}
 
 ## Processing Decomposed Autocovariance and Joint Diagnolization
 
-## Further Alternative of LTV-SOBI
+According to LTV-SOBI model \@ref(eq:tvsobi), the mathematical properties of $\widehat{\boldsymbol\beta_{1,\tau}},\ \widehat{\boldsymbol\beta_{2,\tau}}$ and $\widehat{\boldsymbol\beta_{3,\tau}}$ are unclear except for the later two's symmetry. Hence, this step tries to further process the results in \@ref(eq:covsep) and then matches the assumptions, especially the diagonal property. Because $\widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}'= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'  + \tau \, {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'} + \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'  + \tau \, {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' } = 2 \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' + \tau\, \widehat {\boldsymbol\beta_{2,l}}$, it is possible to find the repsenting formula as in \@ref(eq:olo), where $\boldsymbol R_tau$ is a short-hand notation of $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$
+
+\begin{equation}
+\boldsymbol R_\tau \overset{\text{def}}= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0' = \frac 1 2 \bigg( \widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}' - l \widehat {\boldsymbol\beta_{2,\tau}} \bigg) \text{ for all }\tau\in \{0\}\cup L
+(\#eq:olo)
+\end{equation}
+
+Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytical using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI-procedure, a whitening & joint diagnolization procedure can optimize for $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary as JADE is limited to finding othogonal matrix $\boldsymbol\Omega_0^*$ [@belouchrani1997blind; @yeredor2002non; @miettinen2017blind; @li2007nonorthogonal]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_\tau$ due to the slightly complex model.
+
+The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ after whitened by $\boldsymbol R_0$ as presented in \@ref(eq:jade)
+
+\begin{equation}
+    \begin{cases}
+    \boldsymbol{R}_0 = \boldsymbol{\Omega}_0 \boldsymbol{\Omega}_0'  & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_0 \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{I} &(*) \\
+    \boldsymbol{R}_{\tau_1} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_1} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_1} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_1 ,  & \Lambda_1 \text{ is diagonal}\\
+    \boldsymbol{R}_{\tau_2} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_2} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_2} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_2,  & \Lambda_2 \text{ is diagonal}\\
+    \vdots \\
+    \boldsymbol{R}_{\tau_l} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_l} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_L \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_l},  & \Lambda_3 \text{ is diagonal}\\
+    \end{cases}
+    (\#eq:jade)
+\end{equation}
+
+It is barely possible to exactly diagnolization all $\Lambda_1,\ \Lambda_2, \dots, \Lambda_L\ (L\geq 2)$ simultaneously, and approximate joint diagnolization provides a reliable estimation (\cite{miettinen2016separation}). This method is based on the idea of minimizing the sum of off-diagonal elements $\sum_{l=1}^L ||\text{off}(\Lambda_l)||^2$. The established approximate joint diagonlization algorithm by \citeauthor{miettinen2017blind} (\citeyear{miettinen2017blind}) can efficiently find an orthogonal matrix $\boldsymbol{V}$ such that $\sum_{l=1}^L||\text{off}(\boldsymbol{VS}_l \boldsymbol{V}')||^2$ is minimized given a stack of know matrices $\boldsymbol S_1,\dots, \boldsymbol S_L$. Consequently, whitening using (*) in Equation \ref{eq: optimizing conditions} to all the rest is needed and this step can be summarized as below,
+\begin{equation}
+\label{algorithm: whiten and JD}
+    \begin{aligned}
+& \text{(1) Whitening } \tilde {\boldsymbol{Ra}}_\tau = \boldsymbol{Ra}_0^{-1/2}\ \boldsymbol {Ra} _\tau\ \boldsymbol {Ra}_0^{-1/2\ '}
+\\ & \text{(2) JD for orthogonal } \boldsymbol V \begin{cases} 
+\boldsymbol V \tilde {\boldsymbol {Ra}}_1 \boldsymbol V' & =  \boldsymbol\Lambda_1 \\
+\boldsymbol V \tilde {\boldsymbol {Ra}}_2 \boldsymbol V' & =  \boldsymbol\Lambda_2 \\
+&\vdots \\
+\boldsymbol V \tilde {\boldsymbol {Ra}}_L \boldsymbol V' & =  \boldsymbol\Lambda_L \\
+\end{cases}
+\\ & \text{(3) }  \boldsymbol\Omega_0 = \boldsymbol{Ra}_0^{1/2} \boldsymbol V
+\end{aligned}
+\end{equation}
+The whitening process indeed requires all $\boldsymbol{Ra}_tau$ to be positive semi-definite, though the linear estimation (Model \ref{eq: element equal} and Equation \ref{eq: estimator of Rabc}) could not ensure such property. In practice, the Nearest Positive Definite Matrix algorithm by \citeauthor{packageMatrix} (\citeyear{packageMatrix}) would be necessary in case that $\boldsymbol{Ra}$ is not proper. [DETAILS OF NearestPD FURNISHED LATER]
+
+
+
+## Alternatives of LTV-SOBI
 
 ## Summary of Algorithms
 
-The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly varied results. Figure \@ref(fig:algorithm) visulizes the different approaches in the manner of flow chart.
+The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly varied results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart.
 
 ```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
-
-require(visNetwork)
+library(visNetwork)
 processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
                "Yeredor TVSOBI", "LTVSOBI-1", "LTVSOBI-2", 
                "Restoration", "approxJD", "", "")
