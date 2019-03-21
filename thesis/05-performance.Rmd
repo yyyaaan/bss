@@ -13,4 +13,4 @@ The minimal distance index [@ilmonen2010new], denoted as $MD$, is selected to me
 
 
 
-The high dimension ($lp^2 \times p^2$) of the first matrix in the right hand side in \@ref(eq:solveepsion) should be well-awared, and for major computer platform, linear estimation is faster and more reliable compared with inversion.
+The high dimension ($lp^2 \times p^2$) of the first matrix in the right hand side in \@ref(eq:solveepsilon) should be well-awared, and for major computer platform, linear estimation is faster and more reliable compared with inversion.

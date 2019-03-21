@@ -82,25 +82,26 @@ According to LTV-SOBI model \@ref(eq:tvsobi), the mathematical properties of $\w
 (\#eq:olo)
 \end{equation}
 
-Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagnolization procedure can optimize for $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix $\boldsymbol\Omega_0^*$ [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_\tau$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade)
+Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagnolization procedure can optimize for $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix $\boldsymbol\Omega_0^*$ [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_\tau$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade).
+
 
 \begin{equation}
-    \begin{cases}
-    \boldsymbol{R}_0 = \boldsymbol{\Omega}_0 \boldsymbol{\Omega}_0'  & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_0 \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{I} &(\text{whitening restriction}) \\
-    \boldsymbol{R}_{\tau_1} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_1} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_1} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_1 ,  & \Lambda_1 \text{ is diagonal}\\
-    \boldsymbol{R}_{\tau_2} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_2} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_2} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_2,  & \Lambda_2 \text{ is diagonal}\\
+\begin{cases}
+    \boldsymbol{R}_0 = \boldsymbol{\Omega}_0 \boldsymbol{\Omega}_0'  & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_0 \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{I} \ \ \ (\text{whitening restriction}) \\
+    \boldsymbol{R}_{\tau_1} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_1} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_1} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_1 , \  \text{ and } \boldsymbol \Lambda_1 \text{ is diagonal}\\
+    \boldsymbol{R}_{\tau_2} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_2} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_2} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_2,  \ \text{ and } \boldsymbol  \Lambda_2 \text{ is diagonal}\\
     \vdots \\
-    \boldsymbol{R}_{\tau_l} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_l} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_L \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_l},  & \Lambda_3 \text{ is diagonal}\\
-    \end{cases}
-    (\#eq:jade)
+    \boldsymbol{R}_{\tau_l} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_l} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_L \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_l}, \ \text{ and } \boldsymbol\Lambda_3 \text{ is diagonal}
+\end{cases}
+(\#eq:jade)
 \end{equation}
 
 It is barely possible to exactly diagnolization all $\Lambda_1,\ \Lambda_2, \dots, \Lambda_L\ (L\geq 2)$ simultaneously, and approximate joint diagnolization provides a potentially best estimation. This method is based on the idea of minimizing the sum of off-diagonal elements $\sum_{\tau=\tau_1}^{\tau_l} ||\text{off}(\Lambda_{\tau})||^2$. The established approximate joint diagonlization algorithm by Miettinen, Nordhausen and Taskinen [-@miettinen2016separation] can efficiently find an orthogonal matrix $\boldsymbol{V}$ such that $\sum_{\tau=\tau_1}^{\tau_l}||\text{off}(\boldsymbol{VR}_{\tau} \boldsymbol{V}')||^2$ is minimized given a stack of known matrices $\boldsymbol R_{\tau_1},\dots, \boldsymbol R_{\tau_l)}$. To achieve the goal of finding non-orthogonal matrix $\boldsymbol \Omega$, the new LTV-SOBI algorithm extends JADE to include whitening using the first condition in \@ref(eq:jade) to all the rest. The non-orthogonal joint diagonalization then follows \@ref(eq:approxJD), 
 
 \begin{equation}
-\text{Approximate Joint Diagonalization Algorithm to find non-orthogonal } \boldsymbol\Omega_0 
-\\ \begin{aligned}
-& \text{(1) Whitening by } \tilde {\boldsymbol{R}}_\tau = \boldsymbol{R}_{0}^{-1/2}\ \boldsymbol {R}_\tau\ \boldsymbol {R}_0^{-1/2\ '}
+\begin{aligned}
+\text{Approximate Joint} & \text{ Diagonalization Algorithm to find non-orthogonal } \boldsymbol\Omega_0 
+\\ & \text{(1) Whitening by } \tilde {\boldsymbol{R}}_\tau = \boldsymbol{R}_{0}^{-1/2}\ \boldsymbol {R}_\tau\ \boldsymbol {R}_0^{-1/2\ '}
 \\ & \text{(2) JADE for orthogonal } \boldsymbol V \begin{cases} 
 \boldsymbol V \tilde {\boldsymbol {R}}_{\tau_1} \boldsymbol V' & =  \boldsymbol\Lambda_{\tau_1} \\
 \boldsymbol V \tilde {\boldsymbol {R}}_{\tau_2} \boldsymbol V' & =  \boldsymbol\Lambda_{\tau_2} \\
@@ -124,18 +125,17 @@ After the above steps, the following matrices \@ref(eq:steptwo) are fully solved
 
 ## Finding $\boldsymbol{\mathcal E}$ through $\widehat{\boldsymbol\beta_2}$ and $\widehat {\boldsymbol \Omega_0}$
 
-Unlike ordinary BSS problem, $\widehat{ \boldsymbol\Omega_0}$ alone does not identify the model, and thus LTV-SOBI procedure continues based on outcomes from prevoius steps \@ref(eq:steptwo) and \@ref(eq:covsep). Observing $\widehat {\boldsymbol\beta_{2, \tau}} \approx \boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} + \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} \boldsymbol{\mathcal E}'$ and with the help of commutation matrix $\boldsymbol K^{(m,n)}$ that ensures $\boldsymbol K^{(m,n)} \text{vec}( \boldsymbol A) = \text{vec}(\boldsymbol A')$ for all $m\times n$matrix $\boldsymbol A$ , the vectorization leads to,
+Unlike ordinary BSS problem, $\widehat{ \boldsymbol\Omega_0}$ alone does not identify the model, and thus LTV-SOBI procedure continues based on outcomes from prevoius steps \@ref(eq:steptwo) and \@ref(eq:covsep). Observing $\widehat {\boldsymbol\beta_{2, \tau}} \approx \boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} + \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} \boldsymbol{\mathcal E}'$ and with the help of commutation matrix $\boldsymbol K^{(m,n)}$ that ensures $\boldsymbol K^{(m,n)} \text{vec}( \boldsymbol A) = \text{vec}(\boldsymbol A')$ for all $m\times n$ matrix $\boldsymbol A$, the vectorization leads to,
 
 \begin{equation}
-\begin{aligned} 
-\text{vec}( \widehat {\boldsymbol\beta_{2, \tau}})
-&= \text{vec}(\boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'})+ \text{vec}(\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} \boldsymbol{\mathcal E}')
+\begin{aligned}
+\text{vec}( \widehat {\boldsymbol\beta_{2, \tau}}) &= \text{vec}(\boldsymbol{\mathcal E} \widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'})+ \text{vec}(\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'} \boldsymbol{\mathcal E}')
 \\ &= \text{vec}( \boldsymbol I \boldsymbol{\mathcal E} (\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}))+ \text{vec}((\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) \boldsymbol{\mathcal E}' \boldsymbol I)
 \\ &= \bigg((\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'})' \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol{\mathcal E}) + \bigg( \boldsymbol I' \otimes (\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) \bigg) \text{vec}( \boldsymbol{\mathcal E}')
 \\ &= \bigg((\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) \otimes \boldsymbol I \bigg) \text{vec}( \boldsymbol{\mathcal E}) + \bigg( \boldsymbol I \otimes (\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) \bigg) \boldsymbol K ^{(p,p)}\text{vec}( \boldsymbol{\mathcal E})
 \\ &= \bigg((\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) \otimes \boldsymbol I + (\boldsymbol I \otimes (\widehat{\boldsymbol\Omega_0} \widehat{ \boldsymbol\Lambda_\tau} \widehat{ \boldsymbol\Omega_0'}) ) \boldsymbol K ^{(p,p)}\bigg ) \text{vec}( \boldsymbol{\mathcal E})
-\end{aligned}
 (\#eq:beta2vec)
+\end{aligned}
 \end{equation}
 
 Stacking (row-binding) over all $\tau\in L$ will provide the equation with only one unknown matrix $\boldsymbol{\mathcal E}$, more accurately,
@@ -155,7 +155,13 @@ The solution of $\text{vec}( \boldsymbol{\mathcal E} )$ can be found by maxmial 
 
 ## Restore Signals
 
-The aforementioned three steps are able to find two major unknown matrix $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$, and restoration is thus not challenging. The restoration is simply the inverse function of time-varying mix.
+The aforementioned three steps are able to find two major unknown matrix $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$, and restoration is thus not challenging. The restoration is simply the inverse function of time-varying mix. However, unlike the SOBI and most other BSS methodologies, the source signals would not be restored by matrix calculation over the whole time span. As the time index $t$ still persists in Equation \@ref(eq:restore), the restoration would have to be conducted one-by-one. Luckily, the restoration procedure itself is straightforward and computation resource-friendly.
+
+\begin{equation}
+\boldsymbol z_t = \bigg( (\boldsymbol I + t \boldsymbol{\mathcal E}) \boldsymbol\Omega_0 \bigg)^{-1} \boldsymbol x_t
+(\#eq:restore)
+\end{equation}
+
 
 ## Alternatives of LTV-SOBI
 
@@ -163,7 +169,8 @@ The aforementioned three steps are able to find two major unknown matrix $\bolds
 
 The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly varied results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart.
 
-```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
+```{r algorithm, eval=TRUE, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
+
 library(visNetwork)
 processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
                "Yeredor TVSOBI", "LTVSOBI-1", "LTVSOBI-2", 
