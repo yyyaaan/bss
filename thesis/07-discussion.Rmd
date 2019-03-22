@@ -1,5 +1,12 @@
 # Discussion {#discussion}
 
-Accuracy and number of items
+> to be improved as final steps, covers challenging ideas that has not been done
 
-Underlying assumption of linear model in \@ref(eq:covvec)
+- Accuracy and number of items: mathematical correctness does not lead to emiprical accuracy
+
+- non-stationary souces, especially ECG from health care
+
+- Underlying assumption of linear model
+
+- Covolution over tensor matrix
+

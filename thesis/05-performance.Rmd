@@ -1,72 +1,69 @@
 # Statistical Performance of LTV-SOBI {#performance}
 
-The accuracy of LTV-SOBI algorithm depends mostly on the source signals and mixture themselves, especially on the assumptions of independence. Nevertheless, compared with SOBI, TV-SOBI could still be embed with more accuracy losses due to its relatively more complex mixture and associating algorithms. Despite being mathematically negligible in each step, the potential losses can accumulate in autocovariance decomposition, approximate joint diagonalization and finally separating $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega_0$. Precision is further compromised when `nearPD` has to been applied in case of non-positive semi-definite matrices.
+The accuracy of LTV-SOBI algorithm depends mostly on the source signals and mixture themselves, especially on the assumptions of uncorrelatedness and stationarity. Nevertheless, compared with SOBI, LTV-SOBI could still be embed with more accuracy losses due to its relatively more complex mixture and associating algorithms. Despite being mathematically negligible in each step, the potential losses can accumulate in autocovariance decomposition, approximate joint diagonalization and finally separating $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega_0$. Precision is further compromised when nearPD has to been applied in case of non-positive semi-definite matrices.
 
 ## Extension of Minimal Distance Index
 
-The minimal distance index, denoted as MD, was introduce to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\hat{\boldsymbol W}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
+The minimal distance index, denoted as MD, was introduce to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\widehat{\boldsymbol W}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
 
 \begin{equation}
 \text{MD} (\widehat{ \boldsymbol {W}}) = \frac 1 {\sqrt{p-1}} \inf\limits_{ \boldsymbol C \in \mathcal C} || \boldsymbol C \widehat{ \boldsymbol {W}} \boldsymbol \Omega - \boldsymbol I_p||
 (\#eq:md)
 \end{equation}
 
-where $\mathcal C$ is collection matrix that allows permutation and scale ambiguity, i.e. each row and column contains exactly one non-zero element. MD-index is an elegant measure for the majority of BSS algorithm, but unfortunately it could not address the time-varying factors.
+where $\mathcal C$ is the set of matrices that allows permutation and scale ambiguity, i.e. each row and column contains exactly one non-zero element. MD-index is an elegant measure for the majority of BSS algorithm, but unfortunately it could not address the time-varying structure.
 
-The true mixing matrix $\boldsymbol \Omega_t$ is varying over the time $t=1,2,\dots,T$, and same for $\widehat{ \boldsymbol W_1}$. Therefore, an extension to MD-index is proposed in \@ref(eq:tvmd)
+The true mixing matrix $\boldsymbol \Omega_t$ is varying over the time $t=1,2,\dots,T$ in TV-SOS model, and same for $\widehat{ \boldsymbol W_1}$. Therefore, an extension to MD-index is proposed in \@ref(eq:tvmd)
 
 \begin{equation}
 \text{tvMD}(\{\widehat{ \boldsymbol W_1}, \widehat{ \boldsymbol W_2}, \dots, \widehat{ \boldsymbol W_T}\}) = \frac 1 T \sum\limits_{t=1}^T \text{MD}(\widehat{ \boldsymbol W_t})
 (\#eq:tvmd)
 \end{equation}
 
-Since TV-SOBI model \@ref(eq:tvsobi) determines all $\widehat{W_t}$ by the pseudo initial mixing matrix $\boldsymbol \Omega_0$ and the time varying factor $\boldsymbol{\mathcal E}$, the $tvMD$ can be determined once LTV-SOBI algorithm is run, and the true mixing is known.
+Since TV-SOS model \@ref(eq:tvsobi) determines all $\widehat{\boldsymbol W_t} = \widehat{\boldsymbol \Omega_t}^{-1}$ by the pseudo initial mixing matrix $\boldsymbol \Omega_0$ and the time varying factor $\boldsymbol{\mathcal E}$, the tvMD can be determined once LTV-SOBI algorithm is completed and the true mixing is known.
 
-While tvMD is technically a mean value of MD-indecies over time, it has a value between $0$ and $1$ by central limit theorem, and the smaller the better.
+Since tvMD is technically a mean value of MD-indies over time, it has a value between $0$ and $1$ by central limit theorem, and the smaller value the better separation.
 
 ## Extension of Signal-to-Inference Ratio
 
-In information processing, researchers tends decompose the restored signals into four parts, namely target signals, interference from other sources, noise and artifacts from separation and evaluation algorithm. The decomposition can be written as [adapted @na2013performance; @vincent2006performance],
+In information processing, researchers tend to decompose the restored signals into four parts, namely target signals, interference from other sources, noise and artifacts from separation and evaluation algorithm. The decomposition can be written as [adapted @na2013performance; @vincent2006performance],
 
 \begin{equation}
 \boldsymbol x = \boldsymbol s_\text{signal} + \boldsymbol s_\text{interf} + \boldsymbol e_\text{noise} + \boldsymbol e_\text{artif}
 (\#eq:foursignal)
 \end{equation}
 
-The targe signal $\boldsymbol s_\text{signal}$ does not need to be exactly the source signal. Instead, certain transformation of source is allowable due to the identifiablity issue in BSS, and it is common to permit scale and permutation transform. In some literature, interference is marked as $\boldsymbol e_\text{interf}$ when false mixture of sources are regarded as error even though it originated from sources. For example, the restore series II mainly corresponds to source series IV, but also have partial mixture from source series I, which should be treated as erroneous interference. Prior BSS researches, especially among information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
+The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact source signal. Instead, certain transformation of source is permissible due to the identifiability issue in BSS, and it is common to permit scale and permutation transform. In fact, permutation and scaling does not usually affect signal interpretation. Some literature markes interference as $\boldsymbol e_\text{interf}$ when false mixture of sources are regarded as error even though it is originated from sources. For example, the restored signal series II mainly corresponds to source series IV, but also have partial mixture from source series I. In this case, the former is sure $\boldsymbol s_\text{signal}$, and the later should be treated as erroneous interference. Prior BSS researches, especially among information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
 
 \begin{equation}
 \text{SIR}= 10 \log_{10} \frac{|| \boldsymbol s_\text{target} ||^2}{|| \boldsymbol s_\text{interf}||^2}
 (\#eq:sir)
 \end{equation}
 
-The LTV-SOBI algorithm by nature does not involve any external noise, and if the noise is present in source signals, it become a part of true signals. Further, $\boldsymbol e_\text{artif}$ is asummed to be $\boldsymbol 0$ for simplicity. Assume the restored signal to be $\widehat{\boldsymbol x}$ and the permutation/scaling matrix $\boldsymbol C$ as defined in \@ref(eq:md); the signal decompose of \@ref(eq:foursignal) become,
+The LTV-SOBI algorithm by nature does not involve any external noise, and even if the noise is present in source signals, it shall become a part of true signals. Further, $\boldsymbol e_\text{artif}$ is assumed to be $\boldsymbol 0$ for simplicity. Assume the restored signal to be $\widehat{\boldsymbol x}$ and the permutation/scaling matrix $\boldsymbol C$ as defined in \@ref(eq:md); the signal decompose of \@ref(eq:foursignal) become,
 
 \begin{equation}
 \begin{aligned}
 \widehat{\boldsymbol x} &= \boldsymbol {s}_\text{signal} + \boldsymbol s_\text{interf}
-\\ &= \boldsymbol {Cx} + (\widehat{ \boldsymbol x} - \boldsymbol {Cx})
+\\ &= \boldsymbol {Cx} + (\widehat{ \boldsymbol x} - \boldsymbol {Cx}) 
 \end{aligned}
 (\#eq:twosignal)
 \end{equation}
 
 Without doubt, time-varying factor should be considered, and the extension can be achieved by introducing a time index, i.e. $\widehat{\boldsymbol x}_t = \boldsymbol C_t \boldsymbol x_t + (\widehat{ \boldsymbol x}_t - \boldsymbol C_t \boldsymbol x_t)$. The SIR-index should also be slight modified to include convolution over $t=1,2,\dots,T$.
 
-The SIR-index for TV-SOBI can be further simplified by taking $\boldsymbol C_t = \text{diag}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1})$ after a permutation fix. In practice, the permutation is found by arranging the numerically largest value to diagnoal position either row-by-row or column-or-column in $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1}$. Finally, the time-varying SIR-index is the measure of all diagonal value agains off-diagonal items, and it is formulated as,
+The SIR-index for TV-SOBI can be further simplified by taking $\boldsymbol C_t = \text{diag}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1})$ after a permutation fix. In practice, the permutation is found by arranging the numerically largest value to diagonal position either row-by-row or column-or-column in $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1}$. Finally, the time-varying SIR-index is the measure of all diagonal value against off-diagonal items, and it is formulated as,
 
 \begin{equation}
-\text{tvSIR}= 10 \log_{10} \frac{ \sum\limits_{t=1}^T|| \text{diag}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1}) ||^2}{ \sum\limits_{t=1}^T || \text{off}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1})||^2}
+\text{tvSIR}= 10 \log_{10} \frac{ \sum\limits_{t=1}^T|| \text{diag}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1}) ||^2}{ \sum\limits_{t=1}^T || \text{off}( \boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1})||^2} 
 (\#eq:tvsir)
 \end{equation}
 
-SIR and tvSIR does not have a direct connection to each other, but the value are comparable. SIR and tvSIR may be any real value from $-\infty$ to $\infty$, and the larger the better.
+where, $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1} = ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \big[ ( \boldsymbol I + t \widehat{\boldsymbol{\mathcal E}}) \widehat{\boldsymbol \Omega_0}\big]^{-1}$.
+
+SIR and tvSIR does not have a direct connection to each other, but the value are comparable. SIR and tvSIR may be any real value from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation based SIR, for example the implementation in `JADE` package [@miettinen2017blind], does not require true mixing parameters to be known, but tvSIR will always require so.
 
 ## Interim Simulation Result
 
-Note: this section will be replaced by "better" simulation at a later stage.
+> Note: this section will be replaced by "better" simulation at a later stage. There are many different perspectives towards the performance, including the size of $p$ and $N$. At this moment, an interactive visulatization will be presented.
 
-There are two major differences between tvMD and tvSIR as performance measurement,
-
-- tvMD requires the mixing system being known, i.e, true $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$ must be available in addition to the source signals, while in contrast, tvSIR does not.
-
-- the smaller tvMD guarentees a better source separation, but tvSIR is exaclty the contrast. In few prior applications, some authors prefered ISR (Interference-to-Signal Ratio) [e.g. @yeredor2003tv]; however, such has never been widely accepted.

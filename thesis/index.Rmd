@@ -3,7 +3,7 @@ title: "Time-Varying Source Separation by Joint Diagnolization on Autocovariance
 author: "Yan Pan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
-documentclass: book
+documentclass: article
 bibliography: 99-ref.bib
 biblio-style: apalike
 link-citations: yes
