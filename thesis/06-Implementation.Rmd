@@ -1,0 +1,8 @@
+# Implementaion of LTV-SOBI in R {#implementation}
+
+## Statistical Softeware Considerations
+
+Vectorization indeed reduce the CPU time in processing compared with `for`-loops. However, vectorization and Kronecker product significantly raise the dimension of matrices in question. Therefore, the improvement in CPU time is at the cost of RAM usage, which become a problem if the dimesion is too high and crash of `R` might happen. It is advised to use  non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$), 
+
+For major computer platform, linear estimation is faster and more reliable compared with inverse matrix. 
+ 
