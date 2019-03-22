@@ -1,14 +1,14 @@
 # LTV-SOBI Algorithm based on Autocovariances {#algorithm}
 
-While SOBI can be identify by find one single matrix ($\boldsymbol\Omega$), LTV-SOBI demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
+While SOS model can be identify by find one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 
-Developed from Yeredor [-@yeredor2003tv], this chapter carefully investigate the autocovariance matrices, and introduced new alternatives pursuing better mathematical accuracy given model \@ref(eq:tvsobi). LTV-SOBI algorithm mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
+Developed from Yeredor [-@yeredor2003tv], this chapter carefully investigates the autocovariance matrices, and introduced new approaches pursuing better mathematical accuracy given TV-SOS model \@ref(eq:tvsobi). Linearly Time Varying Second Order Blind Identification (LTV-SOBI) algorithm mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
 
 Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$
 
 ## Decomposition of Autocovariance Structure {#step1}
 
-Being a second order approach, the LTV-SOBI algorithm is based on the autocovariances of pre-centered observations. From model \@ref(eq:tvsobi), the empirical autocovariances can be derived as,
+Being a second order approach, the LTV-SOBI algorithm is based on the autocovariances of pre-centered observation. From TV-SOS model \@ref(eq:tvsobi), the empirical autocovariances can be derived as,
 
 \begin{equation}
 \begin{aligned}
@@ -25,7 +25,7 @@ Being a second order approach, the LTV-SOBI algorithm is based on the autocovari
 (\#eq:covs)
 \end{equation}
 
-The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
+The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T-\tau$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
 
 \begin{equation}
 \mathbb E(\boldsymbol x_t \boldsymbol x_{t+\tau}') \approx
@@ -37,31 +37,31 @@ The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\t
 After decomposition, the observation is summarized in to $l+1$ matrices of autocovariance; the same quantity of pre-selected lags plus the covariance matrices $\mathbb E( \boldsymbol x_t \boldsymbol x_t')$. Consider element-wise equivalence, for $i,j=1,2,…,p$, the autocovariance structure in \@ref(eq:covs) is equivalent to $\boldsymbol S_\tau = \boldsymbol H^*_\tau \boldsymbol \beta^*_\tau$ defined as,
 
 \begin{equation}
-\underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \mathbf S_\tau}
-= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) &\tau\\  1 & 2 & 2(2+\tau) &\tau \\ \vdots &\vdots &\vdots &\vdots\\  1 & T-\tau & (T-\tau)T &\tau \end{bmatrix}} _ {:= \mathbf H^*_\tau}  
+\underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \boldsymbol S_\tau}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) &\tau\\  1 & 2 & 2(2+\tau) &\tau \\ \vdots &\vdots &\vdots &\vdots\\  1 & T-\tau & (T-\tau)T &\tau \end{bmatrix}} _ {:= \boldsymbol H^*_\tau}  
 \underbrace {\begin{bmatrix} (\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0') \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' + \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \ [i,j]  \\ ( {\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \ [i,j]\end{bmatrix}} _ {:= \boldsymbol \beta^*_\tau}
 (\#eq:covmatx)
 \end{equation}
 
-Now that the $p\times N$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last of $\mathbf H^*_\tau$ are constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can easily tackle it.
+Now that the $p\times T$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last column of $\boldsymbol H^*_\tau$ are constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can easily tackle it.
 
 \begin{equation}
-\underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \mathbf S_\tau}
-= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) \\  1 & 2 & 2(2+\tau)  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & (T-\tau)T  \end{bmatrix}} _ {:= \mathbf H_\tau}  
+\underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \boldsymbol S_\tau}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) \\  1 & 2 & 2(2+\tau)  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & (T-\tau)T  \end{bmatrix}} _ {:= \boldsymbol H_\tau}  
 \underbrace {\begin{bmatrix} (\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' + \tau {\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \ [i,j]\\ ({\boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' + \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'})\ [i,j]\\ ({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \ [i,j]  \end{bmatrix}} _ {:= \boldsymbol \beta_\tau}
 (\#eq:covmat)
 \end{equation}
 
-Therefore, a proper linear regression can be applied for each $i,j = 1,2,\dots,p$ in the form of $\boldsymbol S_\tau[i,j] = \boldsymbol H_\tau[i,j] \boldsymbol\beta_\tau[i,j]$, where $\boldsymbol S_\tau$ are known from observation and $\boldsymbol H_\tau$ are design matrix; ultimately, matrices of $\boldsymbol\beta_\tau$ are estimated in an element-wise manner after looping. For better efficiency, the vectorization form is highly recommended as detailed in \@ref(eq:covvec).
+Therefore, a proper linear regression can be applied for each $i,j = 1,2,\dots,p$ and $\tau\in\{0\}\cup L$ in the form of $\boldsymbol S_\tau[i,j] = \boldsymbol H_\tau[i,j] \boldsymbol\beta_\tau[i,j]$, where $\boldsymbol S_\tau$ are known from observation and $\boldsymbol H_\tau$ are design matrix; ultimately, matrices of $\boldsymbol\beta_\tau$ are fully estimated in an element-wise manner after looping. For better efficiency, the vectorization form is highly recommended as detailed in \@ref(eq:covvec).
 
 \begin{equation}
-\underbrace{\begin{bmatrix} \text{vec}(\boldsymbol x_1 \boldsymbol x_{1+\tau}') \\ \text{vec}(\boldsymbol x_2 \boldsymbol x'_{2+\tau}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-\tau} \boldsymbol x_{T}')\end{bmatrix}}_{:= \text{vec}(\mathbf S_\tau)}
-= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) \\  1 & 2 & 2(2+\tau)  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & (T-\tau)T  \end{bmatrix} \otimes \boldsymbol I_{p^2}} _ {:= \mathbf H_\tau \otimes \boldsymbol I_{p^2}}  \ \
+\underbrace{\begin{bmatrix} \text{vec}(\boldsymbol x_1 \boldsymbol x_{1+\tau}') \\ \text{vec}(\boldsymbol x_2 \boldsymbol x'_{2+\tau}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-\tau} \boldsymbol x_{T}')\end{bmatrix}}_{:= \text{vec}(\boldsymbol S_\tau)}
+= \underbrace {\begin{bmatrix} 1 & 1 & 1(1+\tau) \\  1 & 2 & 2(2+\tau)  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & (T-\tau)T  \end{bmatrix} \otimes \boldsymbol I_{p^2}} _ {:= \boldsymbol H_\tau \otimes \boldsymbol I_{p^2}}  \ \
 \underbrace {\begin{bmatrix} \text{vec}(\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' + \tau {\boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \\ \text{vec}({\boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' + \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'}) \\ \text{vec}({ \boldsymbol{\mathcal E}\, \boldsymbol\Omega_0\boldsymbol\Lambda_\tau  \boldsymbol\Omega_0' \, \boldsymbol{\mathcal E}'})   \end{bmatrix}} _ {:= \text{vec}(\boldsymbol \beta_\tau)}
 (\#eq:covvec)
 \end{equation}
 
-The classic linear model theory suggests the unique maximum likelihood estimator of $\boldsymbol\beta_\tau$ in \@ref(eq:covvec) to be $\widehat{ \text{vec} (\boldsymbol \beta_\tau}) = \big[ (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' (\mathbf H_\tau \otimes \boldsymbol I_{p^2})\big]^{-1} (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' \text{vec}(\mathbf S_\tau)$. The estimator coincides with least squared ones [e.g. @myers1990classical] (further discussed in chapter \@ref(discussion)), and the inverse of vectorization is straightforward. In conclusion, the first step of LTV-SOBI decomposes autocovariance matrices into  $3(\tau + 1)$ matrices as defined in \@ref(eq:covsep) that contains most characteristic second-order information of observation, where $\boldsymbol \beta_{2,\cdot}$ can be viewed as partially time-varying autocovariance, $\boldsymbol \beta_{3,\cdot}$ as time-varying autocovariances.
+The classic linear model theory suggests the unique maximum likelihood estimator of $\boldsymbol\beta_\tau$ in \@ref(eq:covvec) to be $\widehat{ \text{vec} (\boldsymbol \beta_\tau}) = \big[ (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' (\mathbf H_\tau \otimes \boldsymbol I_{p^2})\big]^{-1} (\mathbf H_\tau \otimes \boldsymbol I_{p^2})' \text{vec}(\mathbf S_\tau)$. The estimator coincides with least squared ones [e.g. @myers1990classical], and the inverse of vectorization is straightforward. In conclusion, the first step of LTV-SOBI decomposes autocovariance matrices into $3(\tau + 1)$ matrices as defined in \@ref(eq:covsep) that contains most characteristic second-order information of observation, where $\boldsymbol \beta_{2,\cdot}$ can be viewed as partially time-varying autocovariance, $\boldsymbol \beta_{3,\cdot}$ as time-varying autocovariances.
 
 \begin{equation}
 \text{for all } \tau \in \{0\}\cup L:\ 
