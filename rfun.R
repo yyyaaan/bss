@@ -58,6 +58,61 @@ nearestSPD <- function(X){
 
 # algorithm ---------------------------------------------------------------
 
+cov_sep <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE){
+    
+  N <- nrow(x); p <- ncol(x)
+  
+  # lags accept two types | we need 0 for whitening
+  if(length(lags) == 1) lags <- 0:lags 
+  if(!(0 %in% lags)) lags <- c(0, lags)
+  
+  # looping for each lags and element-wise matrix
+  Beta_1 <- Beta_2 <- Beta_3 <- r_squared <- array(dim = c(p,p, length(lags)))
+  
+  for(id in 1:length(lags)) { for (i in 1:p) { for (j in 1:p) {
+    
+    l <- lags[id]
+    
+    # build y
+    y <- numeric(N-l)
+    for (t in 1:(N-l)){
+      cov_x_t_l <- matrix(x[t, ], nrow = p) %*% matrix(x[t + l, ], ncol = p)
+      y[t] <- cov_x_t_l[i, j]
+    }
+    # build H, except for 1 columns 
+    H2 <-  1:(N-l)
+    H3 <- (1:(N-l))^2 + (1:(N-l)) * l    # "Correct"
+    lm1_data = data.frame(y, H2, H3)
+    
+    # regression for betas in alternative ways
+    if( quadratic) lm1_res <- lm(y ~ H2 + H3, lm1_data)
+    if(!quadratic) lm1_res <- lm(y ~ H2, lm1_data)
+    
+    # get result
+    r_squared[i,j,id] <- summary(lm1_res)$r.squared
+    Beta_1[i,j,id]    <- lm1_res$coefficients[1]
+    Beta_2[i,j,id]    <- lm1_res$coefficients[2]
+    Beta_3[i,j,id]    <- lm1_res$coefficients[3]
+  }}} # end loop for i,j,l
+  
+  # fix symmetry for beta_2 and beta_3
+  if(fix_symmetry){
+    for(i in 1:length(lags)) {
+      Beta_2[ , , i] <- 0.5 * (Beta_2[ , , i] + t(Beta_2[ , , i])) # apply symmetry fix
+      Beta_3[ , , i] <- 0.5 * (Beta_3[ , , i] + t(Beta_3[ , , i])) # apply symmetry fix
+    }
+  }
+  
+  if(verbose){
+    print(verbose)
+    cat("R_squared in Cov-Separation")
+    lapply(r_squared, mean) %>% unlist %>% print
+  }
+  
+  method <- paste(ifelse(quadratic, "Quadratic", "Linear"),
+                  ifelse(fix_symmetry, "Symmetric", "Non-Symmetric"))
+  list(beta_1 = Beta_1, beta_2 = Beta_2, beta_3 = Beta_3, lags = lags, x = x, method = method)
+}
 
 cov_sep_vec <- function(x, lags = 6, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE){
   N <- nrow(x); p <- ncol(x)
@@ -315,10 +370,14 @@ SIR_all <- function(bss_res, Omega, Epsilon, S){
 
 # packed functions --------------------------------------------------------
 
-ltvsobi2   <- function(x, lags = 12) {
-  solve_alt(cov_sep_vec(x, lags))
+ltvsobi2   <- function(x, use_vec = FALSE, lags = 12) {
+  x <- scale(x, center = TRUE, scale = FALSE)
+  if(!use_vec) return(solve_alt(cov_sep(x, lags)))
+  if(use_vec)  return(solve_alt(cov_sep_vec(x, lags)))
 }
 
-ltvsobi <- function(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE) {
-  solve_main(cov_sep_vec(x, lags, quadratic = quadratic, fix_symmetry = fix_symmetry, verbose = verbose)) 
+ltvsobi <- function(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, use_vec = TRUE, verbose = FALSE) {
+  x <- scale(x, center = TRUE, scale = FALSE)
+  if( use_vec) return(solve_main(cov_sep_vec(x, lags, quadratic = quadratic, fix_symmetry = fix_symmetry, verbose = verbose)) )
+  if(!use_vec) return(solve_main(cov_sep    (x, lags, quadratic = quadratic, fix_symmetry = fix_symmetry, verbose = verbose)) )
 }

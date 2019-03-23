@@ -9,7 +9,7 @@ biblio-style: apalike
 link-citations: yes
 description: "LTV-SOBI"
 papersize: a4
-linestretch: 1.4
+linestretch: 1.5
 always_allow_html: yes
 ---
 
