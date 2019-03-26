@@ -1,0 +1,35 @@
+---
+output:
+  html_document:
+    toc: false
+    code_folding: hide
+runtime: shiny
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(comment=NA, warning = FALSE, message = FALSE, echo = FALSE)
+library(shiny)
+library(tidyverse)
+library(plotly)
+df <- readRDS("benchmarks.rds") %>% filter(!is.na(criteria))
+```
+
+```{r selector}
+selectInput("inDim", label = "Veiwpoint", choices = c("by Dimension", "by #obs", "cross over"))
+selectInput("inM", label = "Measurement", choices = unique(df$criteria), multiple = TRUE,
+            selected = c("SIR_diag_sq", "MD_mean"))
+```
+
+```{r viewer}
+renderPlotly({
+  df %>%
+    filter(criteria %in% input$inM) %>%
+    group_by(criteria, simple_method, N, p, logN) %>%
+    summarise_at("value", mean) %>%
+    ggplot(aes(x = N, y = value, color = simple_method)) +
+    geom_line() +
+    scale_x_log10() + 
+    facet_grid(criteria~p, scales = "free") +
+    theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
+})
+```

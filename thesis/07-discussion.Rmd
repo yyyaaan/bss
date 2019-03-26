@@ -10,3 +10,8 @@
 
 - Covolution over tensor matrix
 
+- Potential Error
+
+-- Singular
+
+-- Negative definite
