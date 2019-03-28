@@ -1,32 +1,26 @@
-library(bigrquery)
 library(parallel)
 library(JADE)
+library(tidyverse)
 remove(list = ls()) # clear environment
 source("rfun.R"); source("rlab_x.R")
 source("rsim.R")
+# source("bqhelper.R")
 options(stringsAsFactors = FALSE)
 #N <- 10000; p <- 4; id = "TEST"; append = TRUE
 
 
 # single sim with FIXED source --------------------------------------------
 
-do_one_sim <- function(p = 9, N = 1e3, id = "TEST"){
+do_one_sim <- function(N = 1e3, p = 9, id = "TEST"){
   
   # get source and mix
   Omega   <- matrix(runif(p^2, 1, 10), ncol = p)
   Epsilon <- 1e-4 * matrix(runif(p^2, 1, 10), ncol = p)
-  # z <- NULL
-  # for (i in 1:p){
-  #   rand <- sample(1:3, 1)
-  #   if (rand == 1) var <- arima.sim(list(ar=runif(1,-1,1)),N)
-  #   if (rand == 2) var <- arima.sim(list(ma=runif(1,-1,1)),N)
-  #   if (rand == 3) var <- sin((1:N)/(N/100))
-  #   z   <- cbind(z, var)
-  # }
-  z <- sim_good_sources(N, p)
+
+  z <- sim_good_sources(N, p, sim_one = c("ar", "ma"), sim_many = c("ar", "ma"))
   x <- tvmix(z, Omega, Epsilon)
   x <- scale(x, scale = FALSE)
-  #save source
+  
   #save_signal(z, id, "true_signal")
   #save_signal(z, id, "mixture")
   save_params(Omega, Epsilon, id, "true_param")
@@ -35,16 +29,16 @@ do_one_sim <- function(p = 9, N = 1e3, id = "TEST"){
   for (i in 1:8) {
     flag <- TRUE
     tryCatch({
-      if(i == 1) bss_res <- JADE::SOBI(x, k = 6)
-      if(i == 2) bss_res <- tvsobi  (x, lag.max = 6, TRUE)
-      if(i == 3) bss_res <- tvsobi  (x, lag.max = 6, FALSE)
-      if(i == 4) bss_res <- ltvsobi (x, lags = 6, quadratic = TRUE,  fix_symmetry = TRUE,  use_vec = FALSE)
-      if(i == 5) bss_res <- ltvsobi (x, lags = 6, quadratic = TRUE,  fix_symmetry = FALSE, use_vec = FALSE)
-      if(i == 6) bss_res <- ltvsobi (x, lags = 6, quadratic = FALSE, fix_symmetry = TRUE,  use_vec = FALSE)
-      if(i == 7) bss_res <- ltvsobi (x, lags = 6, quadratic = FALSE, fix_symmetry = FALSE, use_vec = FALSE)
-      if(i == 8) bss_res <- ltvsobi2(x, lags = 6, use_vec = FALSE)
+      if(i == 1) bss_res <- JADE::SOBI(x, k = 12)
+      if(i == 2) bss_res <- tvsobi  (x, lag.max = 12, TRUE)
+      if(i == 3) bss_res <- tvsobi  (x, lag.max = 12, FALSE)
+      if(i == 4) bss_res <- ltvsobi (x, lags = 12, quadratic = TRUE,  fix_symmetry = TRUE,  use_vec = FALSE)
+      if(i == 5) bss_res <- ltvsobi (x, lags = 12, quadratic = TRUE,  fix_symmetry = FALSE, use_vec = FALSE)
+      if(i == 6) bss_res <- ltvsobi (x, lags = 12, quadratic = FALSE, fix_symmetry = TRUE,  use_vec = FALSE)
+      if(i == 7) bss_res <- ltvsobi (x, lags = 12, quadratic = FALSE, fix_symmetry = FALSE, use_vec = FALSE)
+      if(i == 8) bss_res <- ltvsobi2(x, lags = 12, use_vec = FALSE)
     }, error = function(e) {
-      print(paste("skip to next due to", e))
+      print(paste("skip to next method due to", e))
       flag <<- FALSE
     })
     
@@ -62,9 +56,6 @@ do_one_sim <- function(p = 9, N = 1e3, id = "TEST"){
 
 # functions to save to bigquery --------------------------------------------
 
-reset_access_cred(); set_service_token("/home/yanpan/.gcp.json")
-bqcon <- dbConnect(bigrquery::bigquery(), project = "yyyaaannn", dataset = "BSS", billing = "yyyaaannn")
-# library(odbc); bqcon <- dbConnect(odbc::odbc(), "Study Database")
 path <- paste0(getwd(), "/sim/")
 
 save_signal <- function(z, id, type){
@@ -76,6 +67,7 @@ save_signal <- function(z, id, type){
   colnames(df)[5:ncol(df)] <- paste0("signal_est_", 1:ncol(z))
   Sys.sleep(runif(1))
   saveRDS(df, file = paste0(path, "signals-", id, "-", as.numeric(Sys.time()), ".rds"))
+  #save2bq(df, "signals", "BSS", hold = 10)
 }
 
 save_params <- function(Omega, Epsilon, id, type = "true_param"){
@@ -86,8 +78,8 @@ save_params <- function(Omega, Epsilon, id, type = "true_param"){
              epsilon_vec = as.vector(Epsilon)) -> df
   Sys.sleep(runif(1))
   saveRDS(df, file = paste0(path, "params-", id, "-", as.numeric(Sys.time()), ".rds"))
-  # tryCatch(dbWriteTable(bqcon, "params", df, append = TRUE), 
-  #          error = function(e) {saveRDS(df, file = paste0(path, "params-", id, "-", as.numeric(Sys.time()), ".rds")); print(e)})
+  #save2bq(df, "params", "BSS", hold = 3)
+  
 }
 
 save_eval <- function(benchmarks, id){
@@ -96,10 +88,16 @@ save_eval <- function(benchmarks, id){
     df <- data.frame(criteria = attributes(benchmarks)$names[i],
                      value    = benchmarks[[i]]) %>% rbind(df, .)
   }
-  df$method = benchmarks$method
+  df$detail = benchmarks$method
+  df$method = word(benchmarks$method)
   df$id     = id
+  df$desc   = str_remove(benchmarks$method, " NearestSPD")
+  df$N = str_extract(id, "N[:digit:]{3,8}") %>% str_remove("N") %>% parse_integer()
+  df$p = str_extract(id, "D[:digit:]N") %>% str_remove("D") %>% str_remove("N") %>% parse_integer()
+  
   Sys.sleep(runif(1))
   saveRDS(df, file = paste0(path, "benchmarks-", id, "-", as.numeric(Sys.time()), ".rds"))
+  #save2bq(df, "benchmarks", "BSS", hold = 50)
 }
   
 
@@ -123,25 +121,33 @@ save_restored <- function(bss_res, id){
 
 
 
-# function for Parallel Computing -----------------------------------------
+
+# submit batch tasks ------------------------------------------------------
 
 do_full_set <- function(rid = "XXXX"){
+  cat("set started", rid, "\n\n\n")
   Ns <- 50 * 2 ^ {11:1}
   ps  <- 9:3
   for(p in ps) for(N in Ns) {
-    tryCatch(do_one_sim(p, N, paste0( as.numeric(Sys.Date()), "ID", rid, "D", p, "N", N)),
+    tryCatch(do_one_sim(N, p, paste0( as.numeric(Sys.Date()), "ID", rid, "D", p, "N", N)),
              error = function(e) print(paste("error occured and ignored:", e)))
   }
   print(paste("BATCH", rid, "Completed"))
 }
 
+mclapply(999001:999128, function(rid) do_full_set(paste0("ARMA", rid)), mc.cores = detectCores()-1)
 
-for (i in 1:99) do_full_set(paste0("NEW", 6000 + i))
-# mclapply(9001:9399, function(rid) do_full_set(rid), mc.cores = detectCores())
+
+
+
+
+
+
 
 # file processing ---------------------------------------------------------
 
-combined_files <- function(indicator = "benchmarks"){
+combine_files <- function(indicator = "benchmarks", process = TRUE){
+  library(tidyverse)
   all_files <- list.files("./sim")
   all_files <- all_files[grep(".rds", all_files)]
   all_files <- all_files[grep(indicator, all_files)]
@@ -150,21 +156,24 @@ combined_files <- function(indicator = "benchmarks"){
     read_df <- readRDS(paste0("./sim/", f))  
     df <- rbind(df, read_df)
   }
+  
+  # processing
+  if(process){
+    df$m = str_remove(df$method, " NearestSPD")
+    df$simple_method = word(df$method)
+    df$N = str_extract(df$id, "N[:digit:]{3,8}") %>% str_remove("N") %>% parse_integer()
+    df$p = str_extract(df$id, "D[:digit:]N") %>% str_remove("D") %>% str_remove("N") %>% parse_integer()
+    df$logN = log(df$N)
+  }
+  
   saveRDS(df, file = paste0(indicator, ".rds"))
+  df
 }
 
 # benchmarking plotting ---------------------------------------------------
 plotting <- function() {
-  library(tidyverse)
-  combined_files()
-  benchmarks <- readRDS("benchmarks.rds")
-  benchmarks$m = str_remove(benchmarks$method, " NearestSPD")
-  benchmarks$simple_method = word(benchmarks$method)
-  benchmarks$N = str_extract(benchmarks$id, "N[:digit:]{3,8}") %>% str_remove("N") %>% parse_integer()
-  benchmarks$p = str_extract(benchmarks$id, "D[:digit:]N") %>% str_remove("D") %>% str_remove("N") %>% parse_integer()
-  benchmarks$logN = log(benchmarks$N)
   
-  benchmarks %>%
+  combine_files() %>%
     filter(!is.na(value)) %>%
     filter(p <= 6) %>%
     group_by(criteria, simple_method, N, p, logN) %>%
@@ -174,4 +183,11 @@ plotting <- function() {
     facet_grid(criteria ~ p, scales = "free_y")
   
 }
+
+for (i in 1:3) do_full_set(paste0("BQBQ", 3000 + i))
+# mclapply(9001:9399, function(rid) do_full_set(rid), mc.cores = detectCores())
+
+# progress?
+list.files("./sim") %>% substr(1,10)%>% str_extract("NEW[:digit:]{4}") %>% str_remove("NEW") %>% parse_integer() %>% max
+
 print("Compeleted!")
