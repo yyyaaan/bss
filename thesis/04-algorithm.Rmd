@@ -73,7 +73,7 @@ The classic linear model theory suggests the unique maximum likelihood estimator
 (\#eq:covsep)
 \end{equation}
 
-## Finding $\boldsymbol \Omega_0$ with Joint Diagnolization {#step2}
+## Finding $\boldsymbol \Omega_0$ with Approximate Joint Diagnolization {#step2}
 
 According to TV-SOS model \@ref(eq:tvsobi), the mathematical properties of $\widehat{\boldsymbol\beta_{1,\tau}},\ \widehat{\boldsymbol\beta_{2,\tau}}$ and $\widehat{\boldsymbol\beta_{3,\tau}}$ are unclear except for the later two's symmetry. Hence, this step tries to further process the results in \@ref(eq:covsep) and then matches the assumptions, especially the diagonal property. Because $\widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}'= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'  + \tau \, {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'} + \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'  + \tau \, {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' } = 2 \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' + \tau\, \widehat {\boldsymbol\beta_{2,l}}$, it is possible to find the representing formula as in \@ref(eq:olo), where $\boldsymbol R_\tau$ is a short-hand notation of $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$
 
@@ -88,10 +88,10 @@ Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown
 \begin{equation}
 \begin{cases}
     \boldsymbol{R}_0 = \boldsymbol{\Omega}_0 \boldsymbol{\Omega}_0'  & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_0 \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{I} \ \ \ (\text{whitening restriction}) \\
-    \boldsymbol{R}_{\tau_1} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_1} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_1} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_1 , \  \text{ and } \boldsymbol \Lambda_1 \text{ is diagonal}\\
-    \boldsymbol{R}_{\tau_2} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_2} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_2} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_2,  \ \text{ and } \boldsymbol  \Lambda_2 \text{ is diagonal}\\
+    \boldsymbol{R}_{\tau_1} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_1} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_1} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_1} , \  \text{ and } \boldsymbol \Lambda_1 \text{ is diagonal}\\
+    \boldsymbol{R}_{\tau_2} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_2} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_2} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_2},  \ \text{ and } \boldsymbol  \Lambda_2 \text{ is diagonal}\\
     \vdots \\
-    \boldsymbol{R}_{\tau_l} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_l} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_L \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_l}, \ \text{ and } \boldsymbol\Lambda_3 \text{ is diagonal}
+    \boldsymbol{R}_{\tau_l} = \boldsymbol{\Omega}_0 \boldsymbol{\Lambda}_{\tau_l} \boldsymbol{\Omega}_0' & \Leftrightarrow\ \boldsymbol{\Omega}_0^{-1} \boldsymbol{R}_{\tau_l} \boldsymbol{\Omega}_0^{-1'} = \boldsymbol{\Lambda}_{\tau_l}, \ \text{ and } \boldsymbol\Lambda_3 \text{ is diagonal}
 \end{cases}
 (\#eq:jade)
 \end{equation}

@@ -109,3 +109,15 @@ generate_ecg <- function(x, bpm, a1 = 0.05, a2 = 0.025, a3= 1,a4=0.25,a5=0.12){
   ecg<-pwav+qrswav+twav+swav+qwav
   ecg
 }
+
+
+# Yeredor -----------------------------------------------------------------
+
+sim_Yeredor_source <- function(N){	
+  z <- rnorm(N+4)	
+  z1 <- 1 + 2*z[1:N + 3] - 0.5*z[1:N + 2] - z[1:N + 1] + z[1:N]	
+  z <- rnorm(N+3)	
+  z2 <- 1 - z[1:N + 2] + 3*z[1:N + 1] + 2*z[1:N]	
+  z <- cbind(z1,z2)	
+  z
+}
