@@ -6,30 +6,61 @@ output:
 runtime: shiny
 ---
 
+<style> .plotly{height: 600px !important;} </style>
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(comment=NA, warning = FALSE, message = FALSE, echo = FALSE)
 library(shiny)
 library(tidyverse)
 library(plotly)
-df <- readRDS("benchmarks.rds") %>% filter(!is.na(criteria))
+df <- readRDS("all.rds") %>% filter(!is.na(criteria))
 ```
 
 ```{r selector}
-selectInput("inDim", label = "Veiwpoint", choices = c("by Dimension", "by #obs", "cross over"))
-selectInput("inM", label = "Measurement", choices = unique(df$criteria), multiple = TRUE,
+selectInput("inType", label = "Simulation Type", choices = unique(df$sim), selected = "ECG")
+selectInput("inDim",  label = "Signal Series Dimension", choices = unique(df$p), multiple = TRUE, selected = unique(df$p))
+selectInput("inMetric", label = "Metric", choices = unique(df$criteria), multiple = TRUE,
             selected = c("SIR_diag_sq", "MD_mean"))
+selectInput("inDetail", label = "Detailed Method", choices = c("Brief", "Proper", "Detailed"), selected = "Proper" )
 ```
 
-```{r viewer}
+```{r viewer, out.height="600px"}
 renderPlotly({
-  df %>%
-    filter(criteria %in% input$inM) %>%
-    group_by(criteria, simple_method, N, p, logN) %>%
-    summarise_at("value", mean) %>%
-    ggplot(aes(x = N, y = value, color = simple_method)) +
-    geom_line() +
-    scale_x_log10() + 
-    facet_grid(criteria~p, scales = "free") +
-    theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
+    
+  if(input$inDetail == "Brief")    df$mmm <- df$simple_method
+  if(input$inDetail == "Proper")   df$mmm <- df$desc
+  if(input$inDetail == "Detailed") df$mmm <- df$detail
+  
+  
+    df %>%
+      filter(criteria %in% input$inMetric, sim == input$inType, p %in% input$inDim) %>%
+      group_by(criteria, mmm, N, p) %>%
+      summarise_at("value", mean) %>%
+      ggplot(aes(x = N, y = value, color = mmm)) +
+      geom_line() +
+      scale_x_log10() + 
+      facet_grid(criteria~p, scales = "free") +
+      theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
+})
+```
+
+<hr />
+
+```{r viewerbox}
+renderPlot({
+    
+  if(input$inDetail == "Brief")    df$mmm <- df$simple_method
+  if(input$inDetail == "Proper")   df$mmm <- df$desc
+  if(input$inDetail == "Detailed") df$mmm <- df$detail
+  
+  
+    df %>%
+      filter(criteria %in% input$inMetric, sim == input$inType, p %in% input$inDim) %>%
+      group_by(criteria, mmm, N, p) %>%
+      ggplot(aes(x = N, y = value, color = mmm)) +
+      geom_boxplot() +
+      scale_x_log10() + 
+      facet_grid(criteria~p, scales = "free") +
+      theme(legend.position = "bottom", axis.text.x = element_text(angle = 90))
 })
 ```

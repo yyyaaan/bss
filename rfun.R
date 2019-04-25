@@ -363,7 +363,8 @@ SIR_all <- function(bss_res, Omega, Epsilon, S){
        SIR_diag_abs = get_SIR_from_WA(WA$WA_rotated),
        SIR_original = SIR(S, bss_res$S),
        MD_0         = MD(Omega_hat, Omega),
-       MD_mean      = mean(MD_all_t))
+       MD_mean      = mean(MD_all_t),
+       N=N, p=p)
 }
 
 

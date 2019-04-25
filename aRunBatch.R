@@ -30,13 +30,13 @@ do_one_sim <- function(N = 1e3, p = 9, id = "TEST"){
     flag <- TRUE
     tryCatch({
       if(i == 1) bss_res <- JADE::SOBI(x, k = 12)
-      if(i == 2) bss_res <- tvsobi  (x, lag.max = 12, TRUE)
-      if(i == 3) bss_res <- tvsobi  (x, lag.max = 12, FALSE)
-      if(i == 4) bss_res <- ltvsobi (x, lags = 12, quadratic = TRUE,  fix_symmetry = TRUE,  use_vec = FALSE)
-      if(i == 5) bss_res <- ltvsobi (x, lags = 12, quadratic = TRUE,  fix_symmetry = FALSE, use_vec = FALSE)
-      if(i == 6) bss_res <- ltvsobi (x, lags = 12, quadratic = FALSE, fix_symmetry = TRUE,  use_vec = FALSE)
-      if(i == 7) bss_res <- ltvsobi (x, lags = 12, quadratic = FALSE, fix_symmetry = FALSE, use_vec = FALSE)
-      if(i == 8) bss_res <- ltvsobi2(x, lags = 12, use_vec = FALSE)
+      if(i == 2) bss_res <- tvsobi  (x, lag.max = 1, TRUE)
+      if(i == 3) bss_res <- tvsobi  (x, lag.max = 1, FALSE)
+      if(i == 4) bss_res <- ltvsobi (x, lags = 1, quadratic = TRUE,  fix_symmetry = TRUE,  use_vec = FALSE)
+      if(i == 5) bss_res <- ltvsobi (x, lags = 1, quadratic = TRUE,  fix_symmetry = FALSE, use_vec = FALSE)
+      if(i == 6) bss_res <- ltvsobi (x, lags = 1, quadratic = FALSE, fix_symmetry = TRUE,  use_vec = FALSE)
+      if(i == 7) bss_res <- ltvsobi (x, lags = 1, quadratic = FALSE, fix_symmetry = FALSE, use_vec = FALSE)
+      if(i == 8) bss_res <- ltvsobi2(x, lags = 1, use_vec = FALSE)
     }, error = function(e) {
       print(paste("skip to next method due to", e))
       flag <<- FALSE
@@ -191,3 +191,19 @@ for (i in 1:3) do_full_set(paste0("BQBQ", 3000 + i))
 list.files("./sim") %>% substr(1,10)%>% str_extract("NEW[:digit:]{4}") %>% str_remove("NEW") %>% parse_integer() %>% max
 
 print("Compeleted!")
+
+
+
+
+
+
+
+
+simdata <- readRDS("marks.rds")
+temp <- readRDS("xxx.rds")
+temp$sim <- "ARMA"
+all <- rbind(simdata, temp)
+all$detail <- str_trim(all$detail)
+all$desc   <- str_trim(all$desc)
+saveRDS(all, "all.rds")
+
