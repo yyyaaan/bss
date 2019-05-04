@@ -89,15 +89,8 @@ plotIt <- function(sim, need_boxplot = F){
 }    
 
 
-# ACTION ------------------------------------------------------------------
 
 
-require(tidyverse); require(odbc)
+# nice plots --------------------------------------------------------------
 
-sqlconn <- dbConnect(odbc::odbc(), "Study Database")
-dbListTables(sqlconn)
-
-
-sim <- sqlconn %>% dbGetQuery(paste0("select * from `", dbListTables(.)[3], "`"))
-
-plotIt(sim)
+fig_mixing$unmix %>% plot.ts

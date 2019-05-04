@@ -39,7 +39,7 @@ In information processing, the signals are usually recorded by highly precise me
 \begin{equation}
 \begin{aligned} 
 \boldsymbol x_t = \boldsymbol{\Omega}\boldsymbol z'_t,\ \ &\ t=1,2,\dots,T
-\\ \text{satisfies }(1)\ & E( \boldsymbol z_t) = \boldsymbol 0 
+\\ \text{satisfies }(1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
 \\ (2)\ & \mathbb E( \boldsymbol z_t \boldsymbol z_t') = \text{Cov}( \boldsymbol z_t) = \boldsymbol I_p
 \\ (3)\ & \mathbb E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
 \end{aligned}    

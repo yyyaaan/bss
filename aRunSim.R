@@ -110,3 +110,25 @@ for(i in 1:100){
   }
 }
 
+
+# results of boosting -----------------------------------------------------
+
+library(tidyverse)
+res <- readRDS("aBootRes.rds")
+
+
+res_sum <- res %>% 
+  mutate(series = str_sub(id, 12, 15)) %>%
+  group_by(criteria, series, method, N, p, lag) %>%
+  summarise_at("value", mean) 
+
+
+m <- unique(res_sum$criteria)[2]
+
+res_sum %>%
+  filter(criteria == m) %>%
+  ggplot(aes(N, value, color = method)) +
+  geom_point() + geom_line() + 
+  scale_x_log10() +
+  facet_grid(series~lag) +
+  ggtitle(m)

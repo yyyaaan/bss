@@ -1,4 +1,4 @@
-# Time-Varying Second Order Model Formulation {#tvsobi}
+# Time-Varying Second Order Model Formulation and Yeredor's Solution {#tvsobi}
 
 Time-varying Second Order Source Separation (TV-SOS) is originally presented by Yeredor [-@yeredor2003tv], where the slow change exists in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model \@ref(eq:SOS), linear time variation can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol\Omega_0$, which is clearly non-constant despite $\boldsymbol{\mathcal E}$ and $\boldsymbol\Omega_0$ are. Other time-varying structure inlcuding peroidical [@weisman2006separation], geometric curved [@kaftory2007probabilistic], etc. Figure \@ref(fig:mixingplot) illustrates the difference between ordinary time-invariant mixture and linearly time-varying one. It can be discovered that the time-varying mixture has a certain trend and it does not demonstrate the stationary property. In fact, introduction of time varying factor invalids the stationary property in the observation $\boldsymbol{x}$ almost surely even though the source signals are stationary. This is because $\boldsymbol{\mathcal E}$ changes the scale (second order statistics) over time $t$. Nevertheless, aforementioned SOBI and the upcoming LTV-SOBI algorithms do not require such property in observation.
 
@@ -8,9 +8,9 @@ plot.ts(fig_mixing$mix,    main = "Ordinary Mixture",     ann = FALSE)
 plot.ts(fig_mixing$tvmix,  main = "Time-varying Mixture", ann = FALSE)
 ```
 
-## LTV-SOBI Model and Assumptions
+## TV-SOS Model and Assumptions
 
-TV-SOS model below \@ref(eq:tvsobi) can be viewed as an extension to the SOS model \@ref(eq:SOS) and also a special case of general-TV-SOS where the time-dependent variation are assumed to be linear, and similar to SOS, the first assumption is non-restrictive and can be achieved through simple data transformation; the second is required to tackle the ambiguity of BSS, while the third assumption states both stationary and uncorrelated characteristics. The final assumption is optional in ensuring that the change of mixing is rather slow, and otherwise, the mixture is not a meaningful as a BSS problem [adapted @yeredor2003tv].
+TV-SOS model below \@ref(eq:tvsobi) can be viewed as an extension to the SOS model \@ref(eq:SOS) and also a special case of general-TV-SOS where the time-dependent variation are assumed to be linear, and similar to SOS, the first assumption is non-restrictive and can be achieved through simple data transformation; the second is required to tackle the ambiguity of BSS, while the third assumption states both stationary and uncorrelated characteristics. The final and optional assumption ensures that the change of mixing is rather slow, and otherwise, the mixture is not a meaningful BSS problem [adapted @yeredor2003tv].
 
 \begin{equation}
 \begin{aligned} 
@@ -25,3 +25,49 @@ TV-SOS model below \@ref(eq:tvsobi) can be viewed as an extension to the SOS mod
 \end{equation}
 
 It should be noted that the model assumes uncorrelatedness instead of independence in pre-centered source signals, formally, the pearson correlation between different series are always $0$, or $\mathbb E[\boldsymbol x_i \boldsymbol x_j] = 0$ for all $i\neq j$. It is a relatively less-restrictive condition as independence implies uncorrelatedness, while the opposite is not true in general [e.g. @papoulis2002probability].
+
+## Yeredor's TV-SOBI Algorithm
+
+TV-SOBI is the original algorithm provided by Yeredor [-@yeredor2003tv] solves the above TV-SOS model. The algorithm first finds the approximate 3-item expression of autocovariances as \@ref(eq:ycovs). Details of autocovariance calculation will be provided in later chapter.
+
+\begin{equation}
+\begin{aligned}
+\mathbb E(\boldsymbol x_t \boldsymbol x_{t+\tau}') 
+& \approx \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'
+ + t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
+ + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
+ \\ &:= \boldsymbol R ^{(1)}_\tau + t\, \boldsymbol R ^{(2)}_\tau + t^2\, \boldsymbol R ^{(3)}_\tau
+\end{aligned}
+(\#eq:ycovs)
+\end{equation}
+
+Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)}_l,\ \boldsymbol R ^{(2)}_l$ and $\boldsymbol R ^{(3)}_l$ through a linear least square model. The model is achieved by casting matrix equation \@ref(eq:ycovs) to element-wise real-valued equation of,
+
+\begin{equation}
+\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
+= \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}
+\begin{bmatrix} \boldsymbol R ^{(1)}_\tau [i,j] \\ \boldsymbol R ^{(2)}_\tau [i,j] \\ \boldsymbol R ^{(3)}_tau [i,j]   \end{bmatrix}
+(\#eq:ycovmat)
+\end{equation}
+
+The LS-estimation leads to,
+
+\begin{equation}
+\begin{bmatrix} \widehat{\boldsymbol R ^{(1)}_\tau} [i,j] \\ \widehat{\boldsymbol R ^{(2)}_\tau} [i,j] \\ \widehat{\boldsymbol R ^{(3)}_\tau} [i,j]   \end{bmatrix}
+= \begin{pmatrix}\begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}' \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}   \end{pmatrix} ^{-1} \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}'
+\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
+\end{equation}
+
+Yeredor [-@yeredor2003tv] proposed a practical approach to optimize best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the "spatial whitening matrix" $\boldsymbol W = \big( \widehat{\boldsymbol R^{(0)}_\tau} \big)^{-\frac 1 2}$ and the idea is to use sequential Jacobi rotations to optimize,
+
+\begin{equation}
+\begin{cases}
+\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(0)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol \Lambda'||^2 \bigg),
+\ \ \ \text{where, } \Lambda_{\tau_1}, \dots, \Lambda{\tau_l} \text{ are diagonal}
+\\
+\min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R^{(1)}_\tau} - \boldsymbol{\mathcal E} \widehat{\boldsymbol R^{(0)}_\tau} - \widehat{\boldsymbol R^{(0)}_\tau} \boldsymbol{\mathcal E}' ||^2 \bigg)
+\end{cases}
+(\#eq:mins)
+\end{equation}
+
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$ as solved in  \@ref(eq:mins).
