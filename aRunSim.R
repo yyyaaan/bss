@@ -111,12 +111,14 @@ for(i in 1:100){
 }
 
 
+
+
 # results of boosting -----------------------------------------------------
 
 library(tidyverse)
 res <- readRDS("aBootRes.rds")
 
-
+res <- aBootRes
 res_sum <- res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
   group_by(criteria, series, method, N, p, lag) %>%
@@ -132,3 +134,6 @@ res_sum %>%
   scale_x_log10() +
   facet_grid(series~lag) +
   ggtitle(m)
+
+
+
