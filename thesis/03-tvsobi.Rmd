@@ -70,4 +70,4 @@ Yeredor [-@yeredor2003tv] proposed a practical approach to optimize best solutio
 (\#eq:mins)
 \end{equation}
 
-Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$ as solved in  \@ref(eq:mins).
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$ as solved in\@ref(eq:mins).

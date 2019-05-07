@@ -63,7 +63,6 @@ where, $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1} = ( \boldsymbo
 
 SIR and tvSIR does not have a direct connection to each other, but the value are comparable. SIR and tvSIR may be any real value from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation based SIR, for example the implementation in `JADE` package [@miettinen2017blind], does not require true mixing parameters to be known, but tvSIR will always require so.
 
-## Interim Simulation Result
+## Simulation Result
 
-> Note: this section will be replaced by "better" simulation at a later stage. There are many different perspectives towards the performance, including the size of $p$ and $N$. At this moment, an interactive visulatization will be presented.
 

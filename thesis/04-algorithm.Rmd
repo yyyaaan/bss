@@ -2,9 +2,9 @@
 
 While SOS model can be identify by find one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 
-Developed from Yeredor [-@yeredor2003tv], this chapter carefully investigates the autocovariance matrices, and introduced new approaches pursuing better mathematical accuracy given TV-SOS model \@ref(eq:tvsobi). Linearly Time Varying Second Order Blind Identification (LTV-SOBI) algorithm mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
+Developed from Yeredor[-@yeredor2003tv]'s original TV-SOBI, this chapter carefully investigates the autocovariance matrices, and introduces the new Linearly Time Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing better mathematical accuracy given TV-SOS model \@ref(eq:tvsobi).  LTV-SOBI mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
 
-Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$
+Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example with the help of `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$
 
 ## Decomposition of Autocovariance Structure {#step1}
 
