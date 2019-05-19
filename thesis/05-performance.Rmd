@@ -33,7 +33,7 @@ In information processing, researchers tend to decompose the restored signals in
 (\#eq:foursignal)
 \end{equation}
 
-The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact source signal. Instead, certain transformation of source is permissible due to the identifiability issue in BSS, and it is common to permit scale and permutation transform. In fact, permutation and scaling does not usually affect signal interpretation. Some literature markes interference as $\boldsymbol e_\text{interf}$ when false mixture of sources are regarded as error even though it is originated from sources. For example, the restored signal series II mainly corresponds to source series IV, but also have partial mixture from source series I. In this case, the former is sure $\boldsymbol s_\text{signal}$, and the later should be treated as erroneous interference. Prior BSS researches, especially among information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
+The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact source signal. Instead, certain transformation of source is permissible due to the identifiability issue in BSS, and it is common to permit scale and permutation transform. In fact, permutation and scaling does not usually affect signal interpretation. Some literature marks interference as $\boldsymbol e_\text{interf}$ when false mixture of sources are regarded as error even though it is originated from sources. For example, the restored signal series II mainly corresponds to source series IV, but also have partial mixture from source series I. In this case, the former is sure $\boldsymbol s_\text{signal}$, and the later should be treated as erroneous interference. Prior BSS researches, especially among information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
 
 \begin{equation}
 \text{SIR}= 10 \log_{10} \frac{|| \boldsymbol s_\text{target} ||^2}{|| \boldsymbol s_\text{interf}||^2}
@@ -65,4 +65,16 @@ SIR and tvSIR does not have a direct connection to each other, but the value are
 
 ## Simulation Result
 
+The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to address exact factors that affect performance, four sets of simulation have been conducted in _R_. Aiming to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series. Further, 100 repetition for each result is performed, and the arithmetic mean is reported, meaning that each point in graph \@ref(fig:resultA) and \@ref(fig:resultB) is the average performance metric from 100 simulation with given parameters.
 
+Four sets of simulated signal mixture are further sampled into different lengths of observed mixture. For Set I of $100000 (10^5)$ total length, sample frequencies are set to be $1:1,\ 2:1,\ 4:1,\ \dots,  1024:1$ corresponding to $100000, 50000, 25000,\dots, 98$ in observed lengths. Such mehtod would be able to objectively reflect how the sampling frequencies (in terms of observed lengths) would affect performance, and it is rather important in case the mixtures are almost continuous (for example, sound). Therefore, the simulation steps can be summarized as,
+
+1. Loop for set I, II, III and IV;
+
+2. Loop for repitition from 1 to 100;
+
+3. Simulate 1 source signal of size $10^4$ (or $10^5$), and generate corresponding time-varying mixture of same parameters $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$;
+
+4. Loop for sampling frequencies from $1:1$ to $1024:1$ (or $512:1$), generating observed mixture of different length;
+
+5. Loop for different algorithm to solve the TV-SOS problem, and report performance metrics.

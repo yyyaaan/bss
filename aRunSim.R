@@ -116,7 +116,7 @@ for(i in 1:100){
 # results of boosting -----------------------------------------------------
 
 library(tidyverse)
-res <- readRDS("aBootRes.rds")
+res <- readRDS("/home/yan/bss/aBootRes.rds")
 
 res <- aBootRes
 res_sum <- res %>% 
@@ -125,10 +125,10 @@ res_sum <- res %>%
   summarise_at("value", mean) 
 
 
-m <- unique(res_sum$criteria)[2]
+m <- unique(res_sum$criteria)[4]
 
 res_sum %>%
-  filter(criteria == m) %>%
+  filter(criteria == m, N > 49) %>%
   ggplot(aes(N, value, color = method)) +
   geom_point() + geom_line() + 
   scale_x_log10() +
