@@ -73,8 +73,44 @@ Four sets of simulated signal mixture are further sampled into different lengths
 
 2. Loop for repitition from 1 to 100;
 
-3. Simulate 1 source signal of size $10^4$ (or $10^5$), and generate corresponding time-varying mixture of same parameters $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$;
+3. Simulate 1 source signal of size $10^4$ (or $10^5$), and generate corresponding time-varying mixture of fixed $\boldsymbol \Omega_0 = \begin{bmatrix} \begin{bmatrix} 2 & -6 & 0.5 \end{bmatrix} &  \begin{bmatrix} -9 & 5  & 3 \end{bmatrix} & \begin{bmatrix}  -4 &6 &8\end{bmatrix} \end{bmatrix}'$ but differed $\boldsymbol{\mathcal E}$;
 
-4. Loop for sampling frequencies from $1:1$ to $1024:1$ (or $512:1$), generating observed mixture of different length;
+4. Loop for sampling frequencies from $1:1$ to $1024:1$ (or $256:1$), generating observed mixture of different length;
 
-5. Loop for different algorithm to solve the TV-SOS problem, and report performance metrics.
+5. Loop for selected lags, $\{1\}, \ \{1,2,3\}, \ \{1,2,\dots,6\}, \ \{1,2,\dots,12\}$;
+
+6. Loop for different algorithm to solve the TV-SOS problem, and report performance metrics.
+
+Differences in Set I to IV are detailed in the table below,
+
+|  | I | II | III | IV |
+|---------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
+| $\boldsymbol{\mathcal E}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-5}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-4}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-5}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-4}$ |
+| Simulated Total Length | $100000\ (10^5)$ | $100000\ (10^5)$ | $10000\ (10^4)$ | $10000\ (10^4)$ |
+| Sampling Frequency | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 1024:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 1024:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 512:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 512:1$ |
+| Observed Length | $100000\\ 50000\\ 25000\\ \vdots \\ 98$ | $100000\\ 50000\\ 25000\\ \vdots \\ 98$ | $10000\\ 5000\\ 2500\\ \vdots \\ 40$ | $10000\\ 5000\\ 2500\\ \vdots \\ 40$ |
+
+
+```{r resultA, fig.cap='Simulation Results for Set I and II', out.width='93%', echo = FALSE}
+library(tidyverse)
+res_sum <- readRDS("/home/yan/bss/thesis/bss_res.rds")
+m <- unique(res_sum$criteria)[4]
+res_sum %>%
+  filter(criteria == m, N > 90, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
+  ggplot(aes(N, value, color = method)) +
+  geom_point() + geom_line() + 
+  scale_x_log10() +
+  facet_grid(seriesT~lagT) +
+  theme(legend.position="bottom")
+```
+
+```{r resultB, fig.cap='Simulation Results for Set III and IV', out.width='93%', echo = FALSE}
+res_sum %>%
+  filter(criteria == m, N > 30, method != "frjd", lag != 1, seriesT %in% c("Set III", "Set IV")) %>%
+  ggplot(aes(N, value, color = method)) +
+  geom_point() + geom_line() + 
+  scale_x_log10() +
+  facet_grid(seriesT~lagT) +
+  theme(legend.position="bottom")
+```
+

@@ -118,22 +118,34 @@ for(i in 1:100){
 library(tidyverse)
 res <- readRDS("/home/yan/bss/aBootRes.rds")
 
-res <- aBootRes
 res_sum <- res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
   group_by(criteria, series, method, N, p, lag) %>%
   summarise_at("value", mean) 
 
+for (i in 1:nrow(res_sum)){
+if(res_sum$series[i] == "E4N4") res_sum$seriesT[i] = "Set IV"
+if(res_sum$series[i] == "E4N5") res_sum$seriesT[i] = "Set II"
+if(res_sum$series[i] == "E5N4") res_sum$seriesT[i] = "Set III"
+if(res_sum$series[i] == "E5N5") res_sum$seriesT[i] = "Set I"
+
+if(res_sum$lag[i] == 1) res_sum$lagT[i] = "Lag = 1"
+if(res_sum$lag[i] == 3) res_sum$lagT[i] = "Lag = 3"
+if(res_sum$lag[i] == 6) res_sum$lagT[i] = "Lag = 6"
+if(res_sum$lag[i] == 12) res_sum$lagT[i] = "Lag = 12"
+}
+
+saveRDS(res_sum, file = "/home/yan/bss/thesis/bss_res.rds")
 
 m <- unique(res_sum$criteria)[4]
 
-res_sum %>%
-  filter(criteria == m, N > 49) %>%
+readRDS("/home/yan/bss/thesis/bss_res.rds") %>%
+  filter(criteria == m, N > 49, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
   ggplot(aes(N, value, color = method)) +
   geom_point() + geom_line() + 
   scale_x_log10() +
-  facet_grid(series~lag) +
-  ggtitle(m)
-
+  facet_grid(seriesT~lagT) +
+  theme_light()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
 
 
