@@ -65,7 +65,7 @@ SIR and tvSIR does not have a direct connection to each other, but the value are
 
 ## Simulation Result
 
-The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to address exact factors that affect performance, four sets of simulation have been conducted in _R_. Aiming to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series. Further, 100 repetition for each result is performed, and the arithmetic mean is reported, meaning that each point in graph \@ref(fig:resultA) and \@ref(fig:resultB) is the average performance metric from 100 simulation with given parameters.
+The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to address exact factors that affect performance, four sets of simulation have been conducted in _R_. Aiming to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series. Further, 100 repetition for each result is performed, and the arithmetic mean is reported, meaning that each point in graph \@ref(fig:resultA) - \@ref(fig:resultD) is the average performance metric from 100 simulation with given parameters.
 
 Four sets of simulated signal mixture are further sampled into different lengths of observed mixture. For Set I of $100000 (10^5)$ total length, sample frequencies are set to be $1:1,\ 2:1,\ 4:1,\ \dots,  1024:1$ corresponding to $100000, 50000, 25000,\dots, 98$ in observed lengths. Such mehtod would be able to objectively reflect how the sampling frequencies (in terms of observed lengths) would affect performance, and it is rather important in case the mixtures are almost continuous (for example, sound). Therefore, the simulation steps can be summarized as,
 
@@ -84,33 +84,64 @@ Four sets of simulated signal mixture are further sampled into different lengths
 Differences in Set I to IV are detailed in the table below,
 
 |  | I | II | III | IV |
-|---------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|
-| $\boldsymbol{\mathcal E}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-5}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-4}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-5}$ | $\begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix} \times 10^{-4}$ |
+|---|---|---|---|---|
+| $\boldsymbol{\mathcal E}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ |
 | Simulated Total Length | $100000\ (10^5)$ | $100000\ (10^5)$ | $10000\ (10^4)$ | $10000\ (10^4)$ |
-| Sampling Frequency | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 1024:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 1024:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 512:1$ | $1:1\\ 2:1\\ 4:1\\ \vdots\\ 512:1$ |
-| Observed Length | $100000\\ 50000\\ 25000\\ \vdots \\ 98$ | $100000\\ 50000\\ 25000\\ \vdots \\ 98$ | $10000\\ 5000\\ 2500\\ \vdots \\ 40$ | $10000\\ 5000\\ 2500\\ \vdots \\ 40$ |
+| Sampling Frequency | $1:1,\ 2:1,\ \dots,\ 1024:1$ | $1:1,\ 2:1,\ \dots,\ 1024:1$ | $1:1,\ 2:1,\ \dots,\ 512:1$ | $1:1,\ 2:1,\  \dots,\ 512:1$ |
+| Observed Length | $100000,\ 50000,\ \dots ,\ 98$ | $100000,\ 50000,\ \dots ,\ 98$ | $10000,\ 5000,\ \dots ,\ 40$ | $10000,\ 5000,\ \dots ,\ 40$ |
 
+where matrix $\boldsymbol M = \begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix}$.
 
-```{r resultA, fig.cap='Simulation Results for Set I and II', out.width='93%', echo = FALSE}
+```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', echo = FALSE}
 library(tidyverse)
 res_sum <- readRDS("/home/yan/bss/thesis/bss_res.rds")
 m <- unique(res_sum$criteria)[4]
 res_sum %>%
   filter(criteria == m, N > 90, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
-  ggplot(aes(N, value, color = method)) +
-  geom_point() + geom_line() + 
+  ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+  geom_point(size = 1) + geom_line() + 
+  scale_color_brewer(palette = "Set2") +
   scale_x_log10() +
   facet_grid(seriesT~lagT) +
-  theme(legend.position="bottom")
+  scale_y_continuous(name="tvSIR", limits=c(0, 9)) +
+  theme_light()
 ```
 
-```{r resultB, fig.cap='Simulation Results for Set III and IV', out.width='93%', echo = FALSE}
+```{r resultB, message=FALSE, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', echo = FALSE}
 res_sum %>%
   filter(criteria == m, N > 30, method != "frjd", lag != 1, seriesT %in% c("Set III", "Set IV")) %>%
-  ggplot(aes(N, value, color = method)) +
-  geom_point() + geom_line() + 
+  ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+  geom_point(size = 1) + geom_line() + 
+  scale_color_brewer(palette = "Set2") +
   scale_x_log10() +
+  scale_y_continuous(name="tvSIR", limits=c(0, 9)) +
   facet_grid(seriesT~lagT) +
-  theme(legend.position="bottom")
+  theme_light()
+
 ```
 
+```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE}
+m <- unique(res_sum$criteria)[2]
+res_sum %>%
+  filter(criteria == m, N > 90, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
+  ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+  geom_point(size = 1) + geom_line() + 
+  scale_color_brewer(palette = "Set2") +
+  scale_x_log10() +
+  facet_grid(seriesT~lagT) +
+  scale_y_continuous(name="tvMD", limits=c(0.7, 1)) +
+  theme_light()
+```
+
+```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', echo = FALSE}
+res_sum %>%
+  filter(criteria == m, N > 30, method != "frjd", lag != 1, seriesT %in% c("Set III", "Set IV")) %>%
+  ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+  geom_point(size = 1) + geom_line() + 
+  scale_color_brewer(palette = "Set2") +
+  scale_x_log10() +
+  scale_y_continuous(name="tvMD", limits=c(0.7, 1)) +
+  facet_grid(seriesT~lagT) +
+  theme_light()
+
+```

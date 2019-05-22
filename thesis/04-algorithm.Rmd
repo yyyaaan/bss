@@ -25,13 +25,13 @@ Being a second order approach, the LTV-SOBI algorithm is based on the autocovari
 (\#eq:covs)
 \end{equation}
 
-The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T-\tau$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
+The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T-\tau$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs2). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
 
 \begin{equation}
 \mathbb E(\boldsymbol x_t \boldsymbol x_{t+\tau}') \approx
  {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'}
  + t ({ \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'  +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'}) + t^2 ( {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'})
-(\#eq:ycovs)
+(\#eq:ycovs2)
 \end{equation}
 
 After decomposition, the observation is summarized in to $l+1$ matrices of autocovariance; the same quantity of pre-selected lags plus the covariance matrices $\mathbb E( \boldsymbol x_t \boldsymbol x_t')$. Consider element-wise equivalence, for $i,j=1,2,…,p$, the autocovariance structure in \@ref(eq:covs) is equivalent to $\boldsymbol S_\tau = \boldsymbol H^*_\tau \boldsymbol \beta^*_\tau$ defined as,
@@ -191,7 +191,7 @@ Stacking over $\tau\in L$ for \@ref(eq:beta2vecalt) can estimate $\boldsymbol \O
 
 The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm propsed by Yeredor [-@yeredor2003tv] is marked as "Y-TVSOBI".
 
-```{r algorithm, eval=TRUE, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE, screenshot.force = TRUE}
+```{r algorithm, eval=TRUE, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
 
 library(visNetwork)
 processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
