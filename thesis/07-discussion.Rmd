@@ -1,6 +1,11 @@
 # Discussion {#discussion}
 
-> to be improved as final steps, covers challenging ideas that has not been done
+- Variance! boxplot!
+
+Compared with Yeredor's original TVSOBI algorithm, LTV-SOBI eliminates one major problem of non-positive semi-definite (estimated) covariance matrix as detailed in Chapter \@ref(algorithm). Yet, LTV-SOBI algorithm does not always guarantee a solution, and it leads to a missing values in Figure \@ref(fig:resultA) to \@ref(fig:resultD). The missingness is particularily dependent on the observation, and the most significant cause is computational singularity, while in rather few cases, negative-definite covariance estimator also prohibits the execution of algorithm. Despite the mixing matrix $\boldsymbol \Omega_0$ is assumed to be full-rank, the non-singularity of every $\boldsymbol \Omega_t$ could not be assured as a result of small valued $\boldsymbol{\mathcal E}$. Unfortunately, computational singular issue could occur in almost every step, wherever matrix inversion is needed.
+
+Stability
+
 
 - Accuracy and number of items: mathematical correctness does not lead to emiprical accuracy
 
@@ -10,8 +15,3 @@
 
 - Covolution over tensor matrix
 
-- Potential Error
-
--- Singular
-
--- Negative definite

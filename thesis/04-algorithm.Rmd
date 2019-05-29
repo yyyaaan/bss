@@ -191,7 +191,11 @@ Stacking over $\tau\in L$ for \@ref(eq:beta2vecalt) can estimate $\boldsymbol \O
 
 The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm propsed by Yeredor [-@yeredor2003tv] is marked as "Y-TVSOBI".
 
-```{r algorithm, eval=TRUE, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
+```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='70%', echo = FALSE}
+knitr::include_graphics("bss_algorithms.png")
+```
+
+```{r algorithm_code, eval=FALSE, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='90%', echo = FALSE}
 
 library(visNetwork)
 processes <- c("Pre-processing and centering", "Decomposition of Autocovariances",
