@@ -1,6 +1,6 @@
 # Statistical Performance of LTV-SOBI {#performance}
 
-The accuracy of LTV-SOBI algorithm depends mostly on the source signals and mixture themselves, especially on the assumptions of uncorrelatedness and stationarity. Nevertheless, compared with SOBI, LTV-SOBI could still be embed with more accuracy losses due to its relatively more complex mixture and associating algorithms. Despite being mathematically negligible in each step, the potential losses can accumulate in autocovariance decomposition, approximate joint diagonalization and finally separating $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega_0$. Precision is further compromised when nearPD has to been applied in case of non-positive semi-definite matrices.
+The accuracy of LTV-SOBI algorithm principally depends on the source signals and mixture themselves, especially on the assumptions of uncorrelatedness and stationarity. Nevertheless, compared with SOBI, LTV-SOBI could be embedded with extra accuracy losses due to its relatively more complex mixture and associating algorithms. Despite being mathematically negligible in each step of the algorithm, the inherent losses can accumulate in autocovariance decomposition, approximate joint diagonalization and deriving $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega_0$. Precision is further compromised when `nearPD` has to enforce in case of non-positive semi-definite matrices. In contemplation of addressing time-varying characteristics, modification to existing BSS metrics is needed.
 
 ## Extension of Minimal Distance Index
 
@@ -11,7 +11,7 @@ The minimal distance index, denoted as MD, was introduce to measure the ICA algo
 (\#eq:md)
 \end{equation}
 
-where $\mathcal C$ is the set of matrices that allows permutation and scale ambiguity, i.e. each row and column contains exactly one non-zero element. MD-index is an elegant measure for the majority of BSS algorithm, but unfortunately it could not address the time-varying structure.
+where $\mathcal C$ is the set of matrices that allows permutation and scale ambiguity, i.e. each row and column contains exactly one non-zero element. MD-index is an elegant measure for the majority of the BSS algorithms, though regrettably, it could not address the time-varying structure.
 
 The true mixing matrix $\boldsymbol \Omega_t$ is varying over the time $t=1,2,\dots,T$ in TV-SOS model, and same for $\widehat{ \boldsymbol W_1}$. Therefore, an extension to MD-index is proposed in \@ref(eq:tvmd)
 
@@ -33,7 +33,7 @@ In information processing, researchers tend to decompose the restored signals in
 (\#eq:foursignal)
 \end{equation}
 
-The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact source signal. Instead, certain transformation of source is permissible due to the identifiability issue in BSS, and it is common to permit scale and permutation transform. In fact, permutation and scaling does not usually affect signal interpretation. Some literature marks interference as $\boldsymbol e_\text{interf}$ when false mixture of sources are regarded as error even though it is originated from sources. For example, the restored signal series II mainly corresponds to source series IV, but also have partial mixture from source series I. In this case, the former is sure $\boldsymbol s_\text{signal}$, and the later should be treated as erroneous interference. Prior BSS researches, especially among information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
+The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact source signal. Instead, some careful transformation of a source is permissible due to the identifiability issue in BSS, and it is common to allow scale and permutation transform. In particular, permutation and scaling do not usually affect signal interpretation. Some literature marks interference as $\boldsymbol e_\text{interf}$ when falsely mixing of sources is regarded as an error even though it is originated from sources. For example, the restored signal series II mainly corresponds to source series IV, but also have a partial mixture from source series I. In this case, the former is undoubtful $\boldsymbol s_\text{signal}$, and the later should be treated as erroneous interference. Preceding BSS researches, especially under information processing domain, use Signal-to-Inference Ratio (SIR) to measure the similarity between true and restored signals [@eriksson2000source; @vincent2006performance], and its definition is,
 
 \begin{equation}
 \text{SIR}= 10 \log_{10} \frac{|| \boldsymbol s_\text{target} ||^2}{|| \boldsymbol s_\text{interf}||^2}
@@ -61,17 +61,17 @@ The SIR-index for TV-SOBI can be further simplified by taking $\boldsymbol C_t =
 
 where, $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1} = ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \big[ ( \boldsymbol I + t \widehat{\boldsymbol{\mathcal E}}) \widehat{\boldsymbol \Omega_0}\big]^{-1}$.
 
-SIR and tvSIR does not have a direct connection to each other, but the value are comparable. SIR and tvSIR may be any real value from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation based SIR, for example the implementation in `JADE` package [@miettinen2017blind], does not require true mixing parameters to be known, but tvSIR will always require so.
+SIR and tvSIR do not have a direct connection to each other, but the value is comparable. SIR and tvSIR range from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation based SIR (e.g., the implementation in `JADE` package [@miettinen2017blind]) does not require true mixing parameters to be known, but tvSIR will always require so.
 
 ## Simulation Result
 
-The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to address exact factors that affect performance, four sets of simulation have been conducted in _R_. Aiming to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series. Further, 100 repetition for each result is performed, and the arithmetic mean is reported, meaning that each point in graph \@ref(fig:resultA) - \@ref(fig:resultD) is the average performance metric from 100 simulation with given parameters.
+The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to inscribe exact factors that impair the performance, four sets of simulation have been conducted in _R_. Intending to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series. Further, 100 repetitions for each result is performed, and the arithmetic mean is reported, meaning that each point in graph \@ref(fig:resultA) - \@ref(fig:resultD) is the average performance metric from 100 simulations with given parameters.
 
-Four sets of simulated signal mixture are further sampled into different lengths of observed mixture. For Set I of $100000 (10^5)$ total length, sample frequencies are set to $1:1,\ 2:1,\ 4:1,\ \dots,  1024:1$ corresponding to $100000, 50000, 25000,\dots, 98$ in observed lengths. Such mehtod would be able to objectively reflect how the sampling frequencies (in terms of observed lengths) would affect performance, and it is rather important in case the mixtures are almost continuous (for example, sound). Therefore, the simulation steps can be summarized as,
+Four sets of the simulated signal mixture are further sampled into different lengths of the observed mixture. For Set I of $100000 (10^5)$ total length, sample frequencies are set to $1:1,\ 2:1,\ 4:1,\ \dots,  1024:1$ corresponding to $100000, 50000, 25000,\dots, 98$ in observed lengths. Such method manages to objectively reflect how the sampling frequencies (in terms of observed lengths) would affect performance, and it is rather important in case the mixtures are almost continuous (for example, sound). Therefore, the simulation steps can be summarized as,
 
-1. Loop for set I, II, III and IV;
+1. Loop for Set I, II, III and IV;
 
-2. Loop for repitition from 1 to 100;
+2. Loop for repetition index from 1 to 100;
 
 3. Simulate 1 source signal of size $10^4$ (or $10^5$), and generate corresponding time-varying mixture of fixed $\boldsymbol \Omega_0 = \begin{bmatrix} \begin{bmatrix} 2 & -6 & 0.5 \end{bmatrix} &  \begin{bmatrix} -9 & 5  & 3 \end{bmatrix} & \begin{bmatrix}  -4 &6 &8\end{bmatrix} \end{bmatrix}'$ but differed $\boldsymbol{\mathcal E}$;
 
@@ -79,7 +79,7 @@ Four sets of simulated signal mixture are further sampled into different lengths
 
 5. Loop for selected lags, $\{1\}, \ \{1,2,3\}, \ \{1,2,\dots,6\}, \ \{1,2,\dots,12\}$;
 
-6. Loop for different algorithm to solve the TV-SOS problem, and report performance metrics.
+6. Loop for the diverse algorithms to solve the TV-SOS problem, and report performance metrics.
 
 Differences in Set I to IV are detailed in the table below,
 
@@ -87,14 +87,14 @@ Differences in Set I to IV are detailed in the table below,
 |---|---|---|---|---|
 | $\boldsymbol{\mathcal E}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ |
 | Simulated Total Length | $100000\ (10^5)$ | $100000\ (10^5)$ | $10000\ (10^4)$ | $10000\ (10^4)$ |
-| Sampling Frequency | $1:1,\ 2:1,\ \dots,\ 1024:1$ | $1:1,\ 2:1,\ \dots,\ 1024:1$ | $1:1,\ 2:1,\ \dots,\ 512:1$ | $1:1,\ 2:1,\  \dots,\ 512:1$ |
-| Observed Length | $100000,\ 50000,\ \dots ,\ 98$ | $100000,\ 50000,\ \dots ,\ 98$ | $10000,\ 5000,\ \dots ,\ 40$ | $10000,\ 5000,\ \dots ,\ 40$ |
+| Sampling Frequency | 1:1 - 1024:1 | 1:1 - 1024:1 | 1:1 - 512:1 | 1:1 - 512:1 |
+| Observed Length | 100000 - 98 | 100000 - 98| 10000 - 40 | 10000 - 40 |
 
 where matrix $\boldsymbol M = \begin{bmatrix} -3 & 6 & -6 \\ -4 &2.5 & 6\\ 9&2.1 &7 \end{bmatrix}$.
 
-Aforementioned $tvSIR$ and $tvMD$, served as time-varying application of $SIR$ and $MD$ correpsondingly, are applied to measure the algorithm performance (in terms of accuracy and capabity of restoring the orginal signals), and results are reported in graph \@ref(fig:resultA) - \@ref(fig:resultD). Each sub-graph defines a specific simulation set with defined lag parameter used in LTV-SOBI algorithm. The curves illustrates the performance influenced by sampling frequencies, which are equivalent to observed signal length, and log-scale has been applied to the x-axis. Different algorithms can be distinguished by with color or line type.
+Aforementioned $tvSIR$ and $tvMD$, served as a time-varying application of $SIR$ and $MD$ correspondingly, are applied to measure the algorithm performance (in terms of accuracy and capability of restoring the original signals), and results are reported in graph \@ref(fig:resultA) - \@ref(fig:resultD). Each sub-graph defines a specific simulation set with a defined lag parameter used in LTV-SOBI algorithm. The curves visulize the performance influenced by sampling frequencies, which are equivalent to observed signal lengths, and log-scale has been applied to the x-axis. Different algorithms can be distinguished by color or line type.
 
-\@ref(fig:resultA) and \@ref(fig:resultD) presumes to exihibit better performance measured by $tvSIR$ with larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns edge over Yereodr's original TV-SOBI in most cases, while the comparable adavantage seem to be dimished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
+\@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better performance measured by $tvSIR$ with a larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns an edge over Yereodr's original TV-SOBI in most cases, while the comparable advantage seems to be diminished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
 
 ```{r figConfig, include = FALSE}
 library(tidyverse)
@@ -124,7 +124,7 @@ suppressWarnings(
 )
 ```
 
-Using $tvMD$, \@ref(fig:resultA) and \@ref(fig:resultD) demostrates better performance with lower value, and LTV-SOBI-alt is comparably the best algorithm in most cases except for simulation Set III and larger observation usally leads to improved performance. The difference between LTV-SOBI and Yeredor's TVSOBI are esentially ignorable.
+Using $tvMD$, \@ref(fig:resultA) and \@ref(fig:resultD) demonstrate better performance with lower value, and LTV-SOBI-alt is comparably the best algorithm in most cases except for simulation Set III; larger observation regularly leads to improved performance. The difference between LTV-SOBI and Yeredor's TVSOBI are essentially minimum.
 
 ```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 4}
 print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
@@ -134,4 +134,4 @@ print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
 print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
 ```
 
-In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenge, and LTV-SOBI algorithm is a comparably more applicable approach. Nontheless, the metric is not robust enough under different scenarios, and Chapter \@ref(dicussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model, while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Suppose the metric were acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI in case observed length is relatively small. 
+In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenging, and LTV-SOBI algorithm is a comparably more applicable approach. Nonetheless, the metric is not robust enough under all scenarios, and Chapter \@ref(discussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Supposing the metric were acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI when observed length is relatively small. 

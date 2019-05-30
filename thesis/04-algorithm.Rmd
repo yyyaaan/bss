@@ -1,8 +1,8 @@
 # LTV-SOBI Algorithm based on Autocovariances {#algorithm}
 
-While SOS model can be identify by find one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
+While SOS model can be identified by obtaining one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time-varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 
-Developed from Yeredor[-@yeredor2003tv]'s original TV-SOBI, this chapter carefully investigates the autocovariance matrices, and introduces the new Linearly Time Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing better mathematical accuracy given TV-SOS model \@ref(eq:tvsobi).  LTV-SOBI mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
+Developed from Yeredor[-@yeredor2003tv]'s original TV-SOBI, this chapter carefully investigates the autocovariance matrices and introduces the new Linearly Time-Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing better mathematical accuracy given TV-SOS model \@ref(eq:tvsobi).  LTV-SOBI mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is applied in all steps.
 
 Similar to model fitting in time series analysis, the desired lags must be chosen in advance based on the data characteristics (for example with the help of `acf` function), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ are the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$
 
@@ -25,6 +25,8 @@ Being a second order approach, the LTV-SOBI algorithm is based on the autocovari
 (\#eq:covs)
 \end{equation}
 
+where, the underline means that the items will be considered as a whole in later steps.
+
 The assumption of stationarity has been applied above as $\boldsymbol \Lambda_\tau = \mathbb E[ \boldsymbol z_ t \boldsymbol z_{t+\tau}']$ holds for all $\tau\in L$ and not dependent on any $t=1,2,\dots, T-\tau$. Yeredor [-@yeredor2003tv] argues that the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ are negligible due to small quantity, which lead to approximation \@ref(eq:ycovs2). Instead, the proposed LTV-SOBI algorithm seeks to improve accuracy by persevering them in autocovariance matrices. 
 
 \begin{equation}
@@ -43,7 +45,7 @@ After decomposition, the observation is summarized in to $l+1$ matrices of autoc
 (\#eq:covmatx)
 \end{equation}
 
-Now that the $p\times T$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last column of $\boldsymbol H^*_\tau$ are constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can easily tackle it.
+Now that the $p\times T$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last column of $\boldsymbol H^*_\tau$ is constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can comfortably tackle it, where the fourth in $\boldsymbol \beta^*_\tau$ are merged into the first row within the same matrix.
 
 \begin{equation}
 \underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \boldsymbol S_\tau}
@@ -75,14 +77,14 @@ The classic linear model theory suggests the unique maximum likelihood estimator
 
 ## Finding $\boldsymbol \Omega_0$ with Approximate Joint Diagnolization {#step2}
 
-According to TV-SOS model \@ref(eq:tvsobi), the mathematical properties of $\widehat{\boldsymbol\beta_{1,\tau}},\ \widehat{\boldsymbol\beta_{2,\tau}}$ and $\widehat{\boldsymbol\beta_{3,\tau}}$ are unclear except for the later two's symmetry. Hence, this step tries to further process the results in \@ref(eq:covsep) and then matches the assumptions, especially the diagonal property. Because $\widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}'= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'  + \tau \, {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'} + \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'  + \tau \, {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' } = 2 \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' + \tau\, \widehat {\boldsymbol\beta_{2,l}}$, it is possible to find the representing formula as in \@ref(eq:olo), where $\boldsymbol R_\tau$ is a short-hand notation of $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$
+In TV-SOS model \@ref(eq:tvsobi), the mathematical properties of $\widehat{\boldsymbol\beta_{1,\tau}},\ \widehat{\boldsymbol\beta_{2,\tau}}$ and $\widehat{\boldsymbol\beta_{3,\tau}}$ are scarcely particular except for the later two's symmetry. Hence, this step tries to further process the results in \@ref(eq:covsep) and then matches the assumptions, especially the diagonal property. Because $\widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}'= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'  + \tau \, {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'\, \boldsymbol{\mathcal E}'} + \boldsymbol\Omega\ \boldsymbol\Lambda_\tau \boldsymbol\Omega_0'  + \tau \, {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' } = 2 \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol\Omega_0' + \tau\, \widehat {\boldsymbol\beta_{2,l}}$, it is possible to find the representing formula as in \@ref(eq:olo), where $\boldsymbol R_\tau$ is a short-hand notation of $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$
 
 \begin{equation}
 \boldsymbol R_\tau \overset{\text{def}}= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0' = \frac 1 2 \bigg( \widehat {\boldsymbol\beta_{1,\tau}} + \widehat {\boldsymbol\beta_{1,\tau}}' - \tau \widehat {\boldsymbol\beta_{2,\tau}} \bigg) \text{ for all }\tau\in \{0\}\cup L
 (\#eq:olo)
 \end{equation}
 
-Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagnolization procedure can optimize $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_0$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade).
+Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagonalization procedure can optimize $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_0$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade).
 
 
 \begin{equation}
@@ -113,7 +115,7 @@ It is barely possible to exactly diagonolize all $\boldsymbol\Lambda_{\tau_1},\ 
 (\#eq:approxJD)
 \end{equation}
 
-The whitening indeed requires $\boldsymbol{R}_0$ to be positive semi-definite, though the autocovariance decompisition result \@ref(eq:covsep) and Equation \@ref(eq:olo) could not ensure such property. In practice, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] if needed. Details about correcting non-positive semi-definite matrix was proposed by Knol and ten Berge [-@knol1989least], and had been further developed by Cheng and Higham [-@cheng1998modified]. 
+The whitening indeed requires $\boldsymbol{R}_0$ to be positive semi-definite, though the autocovariance decomposition result \@ref(eq:covsep) and Equation \@ref(eq:olo) could not ensure such property. In practice, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] if needed. Details about correcting non-positive semi-definite matrix were proposed by Knol and ten Berge [-@knol1989least] and have been further developed by Cheng and Higham [-@cheng1998modified]. 
 
 After the above steps, the following matrices \@ref(eq:steptwo) are fully solved,
 
@@ -151,18 +153,18 @@ Stacking (row-binding) over all $\tau\in L$ will provide the equation with only 
 (\#eq:solveepsilon)
 \end{equation}
 
-The solution of $\text{vec}( \boldsymbol{\mathcal E} )$ can be found by maxmial likelihood estimator or directly through inverse matrix. 
+The solution of $\text{vec}( \boldsymbol{\mathcal E} )$ can be found by maximal likelihood estimator or directly through the matrix inverse. 
 
 ## Restore Signals {#restore}
 
-The aforementioned three steps are able to find two major unknown matrix $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$, and restoration is thus not challenging, which is simply the reverse of time-varying mix. However, unlike the SOBI and most other BSS methodologies, the source signals would not be restored by a single matrix calculation. As the time index $t$ still persists in Equation \@ref(eq:restore), the restoration has to be conducted one-by-one. Luckily, the restoration procedure itself is straightforward and computation resource-friendly.
+The aforementioned three steps are able to find two major unknown matrix $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$, and restoration is hence not challenging, which is simply the reverse of the time-varying mixing. However, unlike the SOBI and most other BSS methodologies, the source signals would not be restored by a single matrix calculation. As the time index $t$ still persists in Equation \@ref(eq:restore), the restoration has to be conducted one-by-one. Luckily, the restoration procedure itself is straightforward and computation resource-friendly.
 
 \begin{equation}
 \boldsymbol z_t = \bigg( (\boldsymbol I + t \boldsymbol{\mathcal E}) \boldsymbol\Omega_0 \bigg)^{-1} \boldsymbol x_t
 (\#eq:restore)
 \end{equation}
 
-## Minor Alternatives of LTV-SOBI
+## Minor Alternatives for LTV-SOBI
 
 Section \@ref(step1), \@ref(step2) and \@ref(step3) compose the 3 major steps of LTV-SOBI algorithm, and after signal restoration the BSS problem is fully identified. It can also be noticed that decomposition of autocovariance matrices in step 1 (section \@ref(step1)) estimated $\widehat{ \boldsymbol\beta_{3,\tau}}$ that never used in later steps within the proposed LTV-SOBI algorithm. To resolve such reduncancy, one naive way is to never estimate it by replacing \@ref(eq:covvec) with the approximate equation, 
 
@@ -189,9 +191,9 @@ Stacking over $\tau\in L$ for \@ref(eq:beta2vecalt) can estimate $\boldsymbol \O
 
 ## Summary of Algorithms
 
-The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of algorithm are similar, there are notable differences and almost surely lead to slightly diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm propsed by Yeredor [-@yeredor2003tv] is marked as "Y-TVSOBI".
+The above sections detailed applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of the algorithm are similar, there are notable differences and almost surely lead to slightly diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm proposed by Yeredor [-@yeredor2003tv] is marked as "Y-TVSOBI".
 
-```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='70%', echo = FALSE}
+```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='89%', echo = FALSE}
 knitr::include_graphics("bss_algorithms.png")
 ```
 
