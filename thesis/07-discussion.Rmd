@@ -1,17 +1,17 @@
 # Discussion {#discussion}
 
-- Variance! boxplot!
-
 Compared with Yeredor's original TVSOBI algorithm, LTV-SOBI eliminates one major problem of non-positive semi-definite (estimated) covariance matrix as detailed in Chapter \@ref(algorithm). Yet, LTV-SOBI algorithm does not always guarantee a solution, and it leads to a missing values in Figure \@ref(fig:resultA) to \@ref(fig:resultD). The missingness is particularily dependent on the observation, and the most significant cause is computational singularity, while in rather few cases, negative-definite covariance estimator also prohibits the execution of algorithm. Despite the mixing matrix $\boldsymbol \Omega_0$ is assumed to be full-rank, the non-singularity of every $\boldsymbol \Omega_t$ could not be assured as a result of small valued $\boldsymbol{\mathcal E}$. Unfortunately, computational singular issue could occur in almost every step, wherever matrix inversion is needed.
 
-Stability
+As illustrated in \ref(fig:boxplot), the simulation results indicates probable stability issues. There exists considerable amount of simulation that yields siginificantly better results compared with average ($tvSIR \approx 20$), while there barely exists poor results ($tvSIR < 0$). The issue could arise from both algorithm compatibility and metric robustness. Since $\boldsymbol{\mathcal E}$ is supposed to be small, extreme values can offer occur when performing the inverse, and unexpected peak can sometimes be observed in the restored signal. Neither $tvSIR$ and $tvMD$ tackles outlier in a robust manner. Furthermore, $LTV-SOBI$ does not provide the alternative to utilize robust second-order statistics due to its reliance on autocovariance structure in Equation \@ref(eq:tvsobi). Stationarity, seasonality, scale of time-variance, observation size and signal dimension are all possible factors that affect LTV-SOBI's performance. Unfortunately, the exact causes and mechanism have not been identified properly.
 
+```{r boxplot, fig.show='hold', fig.cap='Boxplot for Set I simulation', out.width='75%', echo = FALSE}
+res %>% 
+  mutate(series = str_sub(id, 12, 15)) %>%
+  filter(criteria == "SIR_diag_sq", N > 90, method == "LTV-SOBI", lag != 1, series == "E5N5") %>%
+  ggplot(aes(as.factor(N), value)) + geom_boxplot(color = "darkgrey")  +
+  scale_y_continuous(name="tvSIR") +
+  scale_x_discrete(name="Sampling Size") +
+  theme_light()
+```
 
-- Accuracy and number of items: mathematical correctness does not lead to emiprical accuracy
-
-- non-stationary souces, especially ECG from health care
-
-- Underlying assumption of linear model
-
-- Covolution over tensor matrix
-
+This thesis offers the application, extension and improvement to Yeredor's orginal time-varying blind source identification, together with modified BSS metrics, while remarks the challenges in robustness and imperction of measurement. Further studies would be demanded in terms of tensor observation, consistent performance evaluation and staticial property of TV-SOS results.

@@ -118,6 +118,16 @@ for(i in 1:100){
 library(tidyverse)
 res <- readRDS("/home/yan/bss/aBootRes.rds")
 
+res %>% 
+  mutate(series = str_sub(id, 12, 15)) %>%
+  filter(criteria == "SIR_diag_sq", N > 90, method == "LTV-SOBI", lag != 1, series == "E5N5") %>%
+  ggplot(aes(as.factor(N), value)) + geom_boxplot(color = "darkgrey")  +
+  scale_y_continuous(name="tvSIR") +
+  scale_x_discrete(name="Sampling Size") +
+  theme_light()
+
+
+
 res_sum <- res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
   group_by(criteria, series, method, N, p, lag) %>%
@@ -147,5 +157,3 @@ readRDS("/home/yan/bss/thesis/bss_res.rds") %>%
   facet_grid(seriesT~lagT) +
   theme_light()+
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-

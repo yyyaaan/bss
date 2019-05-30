@@ -1,21 +1,14 @@
 # Implementaion of LTV-SOBI in R {#implementation}
 
-> chapter to be improved as final steps
-
-`R`-functions written:
+The primary `R`-functions that support LTV-SOBI are listed as following,
 
 - `ltvsobi(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)` returns list of class `tvbss` that is compatible with `JADE` pacakges's `bss` class;
 
-- `ltvsobi2(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)`;
+- `ltvsobi2(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)` implements the LTV-SOBI-alt in the same manner as `ltvsobi`
 
-- `SIR_all(bss_res, Omega, Epsilon, S)` provides all applicable performance measurement, support both `tvbss` class and `bss` class;
+- `SIR_all(bss_res, Omega, Epsilon, S)` calculates all applicable performance metric, supporting both `tvbss` class and `bss` class;
 
-- utility `tvmix(z, Omega, Epsilon, x_only = TRUE)` and `tvunmix <- function(x, Omega_hat, Epsilon_hat)`.
+- `tvmix(z, Omega, Epsilon, x_only = TRUE)` and `tvunmix <- function(x, Omega_hat, Epsilon_hat)` serve as TV-SOS utility that generates/restores time-varying mixture based on source signal and mixing parameters.
 
+For major computer platform, linear estimation is faster and more reliable compared with inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which become a problem if the dimesion is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous chapters appoint non-vectorization version.
 
-## Statistical Softeware Considerations
-
-Vectorization indeed reduces the CPU time in processing compared with `for`-loops. However, vectorization and Kronecker product significantly raise the dimension of matrices in question. Therefore, the improvement in CPU time is at the cost of RAM usage, which become a problem if the dimesion is too high and crash of `R` might happen. It is advised to use  non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$), 
-
-For major computer platform, linear estimation is faster and more reliable compared with inverse matrix. 
- 

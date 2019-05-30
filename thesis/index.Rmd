@@ -15,11 +15,13 @@ always_allow_html: yes
 
 # Abstract {-}
 
-Blind source separation (BSS) seeks to recover the true signals from the only observed values, the multivariate time-series mixture, and usually no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably SOBI seeks to identify sources through the spatial independence in second order statistics. This paper extends the Second Order Source Separation (SOS) model   in terms of hidden time variation in mixing, as initially introduced by Yeredor (2003), and presents an improved procedure (LTV-SOBI) and its alternative aiming to estimate through joint diagonalization the time-varying unmixing matrices and ultimately derives the latent independent sources. The performance of TV-SOBI will be analyzed with simulated data and compared to other most common BSS methods. 
+Blind source separation (BSS) seeks to recover the true signals from the only observed values, the multivariate time-series mixture, and no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through spatial independence in second-order statistics. This thesis stretches the Second Order Source Separation (SOS) model in terms of latent time variation in mixing that was initially proposed by Yeredor (2003). An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives the latent independent sources by means of autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI will be analyzed with simulated data and it proves a positive improvement with prior methodologies. 
 
-# Glossary {-}
+# Notation {-}
 
-Vectors and matrices are always marked as bold symbols while a lower case letter stands for a numeric value. The most commonly used symbols are summarized below.
+Vectors and matrices are always marked as bold symbols while a lower case letter stands for a real-valued number. The most commonly used symbols are summarized below.
+
+Table 1: Notation
 
 | Symbol | Meaning | Note |
 |---|---|---|
@@ -36,10 +38,8 @@ Vectors and matrices are always marked as bold symbols while a lower case letter
 | $t=1,2,\dots,T$ | index of time | use in subscript. $t=0$ is a pseudo notation and $t=1,\ t=T$ are the first and last observation in the time series correspondingly | 
 | $\tau \in \{0\}\bigcup L$ | pre-selected time lag | An integer. 0 is included for covenience |
 | $L = \{\tau_1,\tau_2,\dots,\tau_l\}$ | set of pre-selected lags | $l$-item set of positive integers |
-
-
-- the operator $\boldsymbol{A}'$ stands for matrix transpose; 
-- matrix subscript $\boldsymbol{A}_t$ is the observation at time $t$, returning the $t$-th column vector of $\boldsymbol{A}$;
-- the function $\text{vec}( \boldsymbol A)$ defines vectorization (by-column) of $\boldsymbol A$;
-- the operator $\otimes$ is Kronecker product.
-- matrix index $\boldsymbol{A}[i,j]$ gives the number in the $i$-th row $j$-th column of matrix $\boldsymbol{A}$.
+| Operator $\boldsymbol{A}'$ |  matrix transpose of $\boldsymbol A$| |
+| Subscript $\boldsymbol{A}_t$  | the $t$-th column vector of $\boldsymbol{A}$ | observation at time $t$ |
+| Function $\text{vec}( \boldsymbol A)$ | vectorization (by-column) of $\boldsymbol A$ | |
+| Operator $\otimes$ | Kronecker product | |
+| Index $\boldsymbol{A}[i,j]$ | value at the $i$-th row $j$-th column of matrix $\boldsymbol{A}$ | |

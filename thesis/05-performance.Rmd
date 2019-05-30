@@ -98,7 +98,6 @@ Aforementioned $tvSIR$ and $tvMD$, served as time-varying application of $SIR$ a
 
 ```{r figConfig, include = FALSE}
 library(tidyverse)
-res_sum <- readRDS("/home/yan/bss/thesis/bss_res.rds")
 res_sum$lagT = factor(res_sum$lagT, levels = c("Lag = 1", "Lag = 3", "Lag = 6", "Lag = 12"))
 
 getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
@@ -135,4 +134,4 @@ print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
 print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
 ```
 
-In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenge, and LTV-SOBI algorithm is a comparably more applicable approach. Nontheless, the metric is not robust enough under different scenarios, and the next chapter will attempt to address such issue.
+In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenge, and LTV-SOBI algorithm is a comparably more applicable approach. Nontheless, the metric is not robust enough under different scenarios, and Chapter \@ref(dicussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model, while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Suppose the metric were acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI in case observed length is relatively small. 
