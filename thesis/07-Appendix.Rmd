@@ -1,4 +1,6 @@
-# Implementaion of LTV-SOBI in R {#implementation}
+# Appendix {-}
+
+## Implementaion of LTV-SOBI in R {#implementation}
 
 The primary `R`-functions that support LTV-SOBI are listed as following,
 

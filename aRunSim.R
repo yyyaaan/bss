@@ -1,10 +1,15 @@
+# rSim.R contains functions that simulate different type of sources
+# rfun.R contains algorithms and utilities of LTV-SOBI
+# rlab_x.R is an early work to implement Yeredors' TV-SOBI
+# this file runs simulations and save performances to file
+
 remove(list = ls()) # clear environment
-source("rfun.R"); source("rsim.R"); source("rlab_x.R");
 library(tidyverse)
+source("rfun.R"); source("rsim.R"); source("rlab_x.R");
+path <- paste0(getwd(), "/sim/")
 
 
 # simulation sampling interval --------------------------------------------
-
 
 do_it_once <- function(x, z, lll = 6, id = "hi"){
   
@@ -34,8 +39,6 @@ do_it_once <- function(x, z, lll = 6, id = "hi"){
   }  
 }
 
-
-path <- paste0(getwd(), "/sim/")
 
 save_eval <- function(benchmarks, id){
   df <- NULL
@@ -109,51 +112,3 @@ for(i in 1:100){
     }
   }
 }
-
-
-
-
-# results of boosting -----------------------------------------------------
-
-library(tidyverse)
-res <- readRDS("/home/yan/bss/aBootRes.rds")
-
-res %>% 
-  mutate(series = str_sub(id, 12, 15)) %>%
-  filter(criteria == "SIR_diag_sq", N > 90, method == "LTV-SOBI", lag != 1, series == "E5N5") %>%
-  ggplot(aes(as.factor(N), value)) + geom_boxplot(color = "darkgrey")  +
-  scale_y_continuous(name="tvSIR") +
-  scale_x_discrete(name="Sampling Size") +
-  theme_light()
-
-
-
-res_sum <- res %>% 
-  mutate(series = str_sub(id, 12, 15)) %>%
-  group_by(criteria, series, method, N, p, lag) %>%
-  summarise_at("value", mean) 
-
-for (i in 1:nrow(res_sum)){
-if(res_sum$series[i] == "E4N4") res_sum$seriesT[i] = "Set IV"
-if(res_sum$series[i] == "E4N5") res_sum$seriesT[i] = "Set II"
-if(res_sum$series[i] == "E5N4") res_sum$seriesT[i] = "Set III"
-if(res_sum$series[i] == "E5N5") res_sum$seriesT[i] = "Set I"
-
-if(res_sum$lag[i] == 1) res_sum$lagT[i] = "Lag = 1"
-if(res_sum$lag[i] == 3) res_sum$lagT[i] = "Lag = 3"
-if(res_sum$lag[i] == 6) res_sum$lagT[i] = "Lag = 6"
-if(res_sum$lag[i] == 12) res_sum$lagT[i] = "Lag = 12"
-}
-
-saveRDS(res_sum, file = "/home/yan/bss/thesis/bss_res.rds")
-
-m <- unique(res_sum$criteria)[4]
-
-readRDS("/home/yan/bss/thesis/bss_res.rds") %>%
-  filter(criteria == m, N > 49, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
-  ggplot(aes(N, value, color = method)) +
-  geom_point() + geom_line() + 
-  scale_x_log10() +
-  facet_grid(seriesT~lagT) +
-  theme_light()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 

@@ -1,4 +1,4 @@
-# LTV-SOBI Algorithm based on Autocovariances {#algorithm}
+#  Algorithm Linearly Time-Varying Second Order Blind Identification {#algorithm}
 
 While SOS model can be identified by obtaining one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time-varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 

@@ -16,30 +16,3 @@ always_allow_html: yes
 # Abstract {-}
 
 Blind source separation (BSS) seeks to recover the true signals from the only observed values, the multivariate time-series mixture, and no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through spatial independence in second-order statistics. This thesis stretches the Second Order Source Separation (SOS) model in terms of latent time variation in mixing that was initially proposed by Yeredor (2003). An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives the latent independent sources by means of autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI will be analyzed with simulated data and it proves a positive improvement with prior methodologies. 
-
-# Notation {-}
-
-Vectors and matrices are always marked as bold symbols while a lower case letter stands for a real-valued number. The most commonly used symbols are summarized below.
-
-Table 1: Notation
-
-| Symbol | Meaning | Note |
-|---|---|---|
-| $\boldsymbol I$ | identity matrix| compatible dimensions are assigned|
-| $\boldsymbol z$ | source signals| $p\times T$ matrix or $p$-vector |
-| $\boldsymbol x$ | observed signals| $p\times T$ matrix or $p$-vector |
-| $\boldsymbol\mu$ | row means of a matrix   |  vector  |
-| $\boldsymbol\Omega_t$ | mixing matrix at given time point $t$ | $p\times p$ matrix. $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$ |
-| $\boldsymbol\Omega$ | mixing matrix at $t=0$ | $\boldsymbol\Omega \overset{\text{def}}= \boldsymbol\Omega_0$ |
-| $\boldsymbol{\mathcal E}$ |time-varying mixing factor | $p\times p$ matrix |
-| $\boldsymbol\Lambda_{\tau}$ | autocovariance given stationarity | $p\times p$ matrix that depends only on lag $\tau$ and assumed to be diagonal |
-| $\boldsymbol R_{\tau} = \boldsymbol{\Omega \Lambda}_{\tau} \boldsymbol\Omega'$ | partially mixed autocovariance  | $p\times p$, a short-hand notation|
-| $\boldsymbol K ^{(p,p)}$ | commutation matrix | $p^2\times p^2$ |
-| $t=1,2,\dots,T$ | index of time | use in subscript. $t=0$ is a pseudo notation and $t=1,\ t=T$ are the first and last observation in the time series correspondingly | 
-| $\tau \in \{0\}\bigcup L$ | pre-selected time lag | An integer. 0 is included for covenience |
-| $L = \{\tau_1,\tau_2,\dots,\tau_l\}$ | set of pre-selected lags | $l$-item set of positive integers |
-| Operator $\boldsymbol{A}'$ |  matrix transpose of $\boldsymbol A$| |
-| Subscript $\boldsymbol{A}_t$  | the $t$-th column vector of $\boldsymbol{A}$ | observation at time $t$ |
-| Function $\text{vec}( \boldsymbol A)$ | vectorization (by-column) of $\boldsymbol A$ | |
-| Operator $\otimes$ | Kronecker product | |
-| Index $\boldsymbol{A}[i,j]$ | value at the $i$-th row $j$-th column of matrix $\boldsymbol{A}$ | |

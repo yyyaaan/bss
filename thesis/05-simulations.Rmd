@@ -1,10 +1,10 @@
-# Statistical Performance of LTV-SOBI {#performance}
+# Simulation Studies {#performance}
 
 The accuracy of LTV-SOBI algorithm principally depends on the source signals and mixture themselves, especially on the assumptions of uncorrelatedness and stationarity. Nevertheless, compared with SOBI, LTV-SOBI could be embedded with extra accuracy losses due to its relatively more complex mixture and associating algorithms. Despite being mathematically negligible in each step of the algorithm, the inherent losses can accumulate in autocovariance decomposition, approximate joint diagonalization and deriving $\boldsymbol{\mathcal E}$ and $\boldsymbol \Omega_0$. Precision is further compromised when `nearPD` has to enforce in case of non-positive semi-definite matrices. In contemplation of addressing time-varying characteristics, modification to existing BSS metrics is needed.
 
 ## Extension of Minimal Distance Index
 
-The minimal distance index, denoted as MD, was introduce to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\widehat{\boldsymbol W}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
+The minimal distance index, denoted as MD, was initially introduced by Ilmonen [-@ilmonen2010new]to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\widehat{\boldsymbol W}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
 
 \begin{equation}
 \text{MD} (\widehat{ \boldsymbol {W}}) = \frac 1 {\sqrt{p-1}} \inf\limits_{ \boldsymbol C \in \mathcal C} || \boldsymbol C \widehat{ \boldsymbol {W}} \boldsymbol \Omega - \boldsymbol I_p||
@@ -13,7 +13,7 @@ The minimal distance index, denoted as MD, was introduce to measure the ICA algo
 
 where $\mathcal C$ is the set of matrices that allows permutation and scale ambiguity, i.e. each row and column contains exactly one non-zero element. MD-index is an elegant measure for the majority of the BSS algorithms, though regrettably, it could not address the time-varying structure.
 
-The true mixing matrix $\boldsymbol \Omega_t$ is varying over the time $t=1,2,\dots,T$ in TV-SOS model, and same for $\widehat{ \boldsymbol W_1}$. Therefore, an extension to MD-index is proposed in \@ref(eq:tvmd)
+The true mixing matrix $\boldsymbol \Omega_t$ is varying over the time $t=1,2,\dots,T$ in TV-SOS model, and same for $\widehat{ \boldsymbol W_1}$. Therefore, this thesis proposes a time-varying version of the MD-index as defined in Equation \@ref(eq:tvmd),
 
 \begin{equation}
 \text{tvMD}(\{\widehat{ \boldsymbol W_1}, \widehat{ \boldsymbol W_2}, \dots, \widehat{ \boldsymbol W_T}\}) = \frac 1 T \sum\limits_{t=1}^T \text{MD}(\widehat{ \boldsymbol W_t})
