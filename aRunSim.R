@@ -72,22 +72,22 @@ save_eval <- function(benchmarks, id){
 # Omega   <- matrix(runif(p^2, -10, 10), ncol = p)
 # Epsilon <-  1e-3 * matrix(runif(p^2, -10, 10), ncol = p)
 
-Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
-Epsilon <- 1e-5 * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
-zall <- sim_good_sources(N = 1e5, 3)
-xall <- tvmix(zall, Omega, Epsilon)
-save(Omega, Epsilon, xall, zall, file = paste0(getwd(),"/sim/E5N5_A.rdata"))
-
-# loop for freqs
-freq_list <- 2^(0:10)
-for(freq in freq_list){
-  for(l in c(3,6,12,1)){
-    ids  <- seq(from = 1, to = nrow(xall), by = freq)
-    x <- xall[ids,]
-    z <- zall[ids,]
-    do_it_once(x, z, lll = l, id = paste0("fixed_freq_E5N5_A_lag", l))
-  }
-}
+# Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
+# Epsilon <- 1e-5 * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
+# zall <- sim_good_sources(N = 1e5, 3)
+# xall <- tvmix(zall, Omega, Epsilon)
+# save(Omega, Epsilon, xall, zall, file = paste0(getwd(),"/sim/E5N5_A.rdata"))
+# 
+# # loop for freqs
+# freq_list <- 2^(0:10)
+# for(freq in freq_list){
+#   for(l in c(3,6,12,1)){
+#     ids  <- seq(from = 1, to = nrow(xall), by = freq)
+#     x <- xall[ids,]
+#     z <- zall[ids,]
+#     do_it_once(x, z, lll = l, id = paste0("fixed_freq_E5N5_A_lag", l))
+#   }
+# }
 
 
 
@@ -98,7 +98,7 @@ for(freq in freq_list){
 for(i in 1:100){
   Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
   Epsilon <- 1e-5 * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
-  zall <- sim_good_sources(N = 1e5, 3)
+  zall <- sim_good_sources(N = 1e4, 3)
   xall <- tvmix(zall, Omega, Epsilon)
   
   # loop for freqs
@@ -108,7 +108,7 @@ for(i in 1:100){
       ids  <- seq(from = 1, to = nrow(xall), by = freq)
       x <- xall[ids,]
       z <- zall[ids,]
-      do_it_once(x, z, lll = l, id = paste0("fixed_freq_E5N5_Boot_lag", l))
+      do_it_once(x, z, lll = l, id = paste0("fixed_freq_E5N4_Boot_lag", l))
     }
   }
 }

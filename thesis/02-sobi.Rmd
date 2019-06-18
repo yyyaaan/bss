@@ -16,7 +16,7 @@ The Second Order Blind Identification (SOBI) solves the BSS problem using second
 ## Ambiguities and Assumptions
 
 
-The BSS equation \@ref(eq:SOM) underlies the impossibility to solve $\boldsymbol\Omega$ and $\boldsymbol z$ in a finite closed form because of merely one known item, and thus BSS solution always incurs [@belouchrani1997blind]，
+The BSS equation \@ref(eq:SOM) underlies the impossibility to solve $\boldsymbol\Omega$ and $\boldsymbol z$ in a finite closed form because of merely one known item, and thus BSS solution always incurs [@belouchrani1997blind],
 
 - Permutation ambiguity: the $a$-th series of signal may be confused into $b$-th series in the restored one; however, they are always 1-1 mapping after sign-correction. The permutation can also include sign ambiguity.
 - Scale ambiguity: restore signals can be scaled due to the fact that for any (unknown) scale constant $||a||:\ \boldsymbol x \equiv \big(\boldsymbol\Omega ||a||^{-1} \big) \big(||a|| \boldsymbol z \big)$.
