@@ -17,11 +17,15 @@ res %>%
   theme_light()
 
 
-
 res_sum <- res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
   group_by(criteria, series, method, N, p, lag) %>%
   summarise_at("value", mean) 
+
+res_N <- res %>% 
+  mutate(series = str_sub(id, 12, 15)) %>%
+  group_by(criteria, series, desc, N, p, lag) %>%
+  count()
 
 for (i in 1:nrow(res_sum)){
   if(res_sum$series[i] == "E4N4") res_sum$seriesT[i] = "Set IV"
