@@ -11,10 +11,7 @@ Although mathematically unnecessary, it is assumed that $\boldsymbol{\Omega}$ is
 
 The goal of BSS is always to restore the source signals based on observation, and the above model assures that finding mixing matrix $\boldsymbol{\Omega}$ or unmixing matrix $\boldsymbol{W}= \boldsymbol{\Omega}^{-1}$ suffices, where the model assumption of full rank guarantees the existence of inverse matrix. For notation simplification and clarity, the following paragraphs shall only use $\boldsymbol\Omega$. 
 
-The Second Order Blind Identification (SOBI) solves the BSS problem using second-order statistics, notably measures of scale including variances, median absolute deviation and other 2nd moment estimators [@belouchrani1997blind; @nordhausen2014robustifying]. The major second-order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by Tong, Soon, Huang and Liu [-@tong1990amuse] and Second Order Blind Identification, commonly know as SOBI, that originally proposed by Belouchrani, Abed-Meraim, Cardoso and Moulines [-@belouchrani1997blind].
-
 ## Ambiguities and Assumptions
-
 
 The BSS equation \@ref(eq:SOM) underlies the impossibility to solve $\boldsymbol\Omega$ and $\boldsymbol z$ in a finite closed form because of merely one known item, and thus BSS solution always incurs [@belouchrani1997blind],
 
@@ -34,20 +31,20 @@ There exist different approaches to solve the BSS problem in terms of identifyin
 
 ## Stationary Time-Series Source Separation Using Autocovariance Matrices
 
-In information processing, the signals are usually recorded by highly precise measurement instruments at a given time interval, and thus arose the natural time-series data structure. Assuming pre-centered data, the time series observation can be easily adapted to the basic form \@ref(eq:SOM) by introducing the temporal subscript of $t=1,2,\dots, T$ as $\boldsymbol{x}_t = \boldsymbol{\Omega z}_t$. Focusing on the autocovariance matrices, a second order statistics, the second order source separation (SOS) model seeks to extract the original source signals based mainly on independence. Furthermore, the source signals are assumed to be weakly stationary, implying that the autocovariance matrices vary only on the lag $\tau$ but not on the time of observation $t$, which mathematically express as $\mathbb E (\boldsymbol z_t \boldsymbol z_{t+\tau}')$ are constant given $\tau$ for all $t=1,2,\dots,T$. The SOS model [adapted @miettinen2016separation] is,
-
+In information processing, the signals are usually recorded by highly precise measurement instruments at a given time interval, and thus arose the natural time-series data structure. Assuming pre-centered data, the time series observation can be easily adapted to the basic form \@ref(eq:SOM) by introducing the temporal subscript of $t=1,2,\dots, T$ as $\boldsymbol{x}_t = \boldsymbol{\Omega z}_t$. Focusing on the autocovariance matrices, a second order statistics, the second order source separation (SOS) model seeks to extract the original source signals based mainly on uncorrelatedness Furthermore, the source signals are assumed to be weakly stationary, implying that the autocovariance matrices vary only on the lag $\tau$ but not on the time of observation $t$, which mathematically express as $\mathbb E (\boldsymbol z_t \boldsymbol z_{t+\tau}')$ are constant given $\tau$ for all $t=1,2,\dots,T$. The SOS model assumes the discrete stochastic process $(\boldsymbol Z_t)_{t=0,\pm1, \pm2}$ as source signals and the mixture $(\boldsymbol X_t)_{t=0,\pm1, \pm2}$ such that [adapted @miettinen2016separation],
+$$
 \begin{equation}
 \begin{aligned} 
-\boldsymbol x_t = \boldsymbol{\Omega}\boldsymbol z'_t,\ \ &\ t=1,2,\dots,T
-\\ \text{satisfies }(1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
-\\ (2)\ & \mathbb E( \boldsymbol z_t \boldsymbol z_t') = \text{Cov}( \boldsymbol z_t) = \boldsymbol I_p
-\\ (3)\ & \mathbb E( \boldsymbol z_t \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
+\boldsymbol X_t = \boldsymbol{\Omega}\boldsymbol Z'_t,\ \ &\ t=0,\pm 1,\pm2,\dots
+\\ \text{satisfies }(1)\ & \mathbb E( \boldsymbol Z_t) = \boldsymbol 0 
+\\ (2)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_t') = \text{Cov}( \boldsymbol Z_t) = \boldsymbol I_p
+\\ (3)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
 \end{aligned}    
 (\#eq:SOS)
 \end{equation}
+$$
+Give realization of the stochastic progress, this semi-parametric model become $\boldsymbol x_t = \boldsymbol\Omega \boldsymbol z_t$ and can thus be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption 2 in \@ref(eq:SOS), which become a unique constrained optimization using Lagrange method after proper whitening and/or normalization procedures [@miettinen2016separation]. 
 
-This semi-parametric model can be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption 2 in the SOS model, which become a unique constrained optimization using Lagrange method after proper whitening and/or normalization procedures [@miettinen2016separation]. 
-
-Nordhausen [-@nordhausen2014robustifying] expanded the algorithm to non-stationary time series using locally stationary intervals and further robustifying with average spatial-sign autocovariances on such intervals.
+The Second Order Blind Identification (SOBI) solves the BSS problem using second-order statistics when the true signal follows SOS model, and commonly autovariance matrices and the robust corresponder are applied [@belouchrani1997blind; @nordhausen2014robustifying]. The major second-order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by Tong, Soon, Huang and Liu [-@tong1990amuse] and Second Order Blind Identification, commonly know as SOBI, that originally proposed by Belouchrani, Abed-Meraim, Cardoso and Moulines [-@belouchrani1997blind]. Nordhausen [-@nordhausen2014robustifying] expanded the algorithm to non-stationary time series using locally stationary intervals and further robustifying with average spatial-sign autocovariances on such intervals.
 
 

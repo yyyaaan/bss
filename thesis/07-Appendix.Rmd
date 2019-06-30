@@ -14,3 +14,4 @@ The primary `R`-functions that support LTV-SOBI are listed as following,
 
 For major computer platform, linear estimation is faster and more reliable compared with inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which becomes a problem if the dimension is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous chapters appoint non-vectorization version.
 
+## _R_ Code for Simulation Study {#simcode}

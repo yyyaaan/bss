@@ -11,7 +11,7 @@ path <- paste0(getwd(), "/sim/")
 
 # simulation sampling interval --------------------------------------------
 
-do_it_once <- function(x, z, lll = 6, id = "hi"){
+do_it_once <- function(x, z, lll = 6, id = "hi", Omega, Epsilon){
   
   for (i in 1:8) {
     flag <- TRUE
@@ -92,7 +92,7 @@ save_eval <- function(benchmarks, id){
 
 
 multido <- function(E, N, sn){
-  for(i in 1:50){
+  for(i in 1:100){
     Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
     Epsilon <- 10^(-E) * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
     zall <- sim_good_sources(N = 1e4, 3)
@@ -105,16 +105,22 @@ multido <- function(E, N, sn){
         ids  <- seq(from = 1, to = nrow(xall), by = freq)
         x <- xall[ids,]
         z <- zall[ids,]
-        do_it_once(x, z, lll = l, id = paste0("seq", sn, "_fixed_freq_E", E, "N", N, "_Boot_lag", l))
+        do_it_once(x, z, lll = l, id = paste0("seq", sn, "_fixed_freq_E", E, "N", N, "_Boot_lag", l), Omega, Epsilon)
       }
     }
   }
 }
 
+seq <- 2
+multido(5,4,seq)
+multido(4,4,seq)
+multido(5,5,seq)
+multido(4,5,seq)
 
 
-library(parallel)
-mclapply(as.list(1:100), function(seq) {
-  multido(5,5,seq); multido(5,4,seq);
-  multido(4,5,seq); multido(4,4,seq);
-})
+# library(parallel)
+# mclapply(as.list(1:100), function(seq) {
+#   multido(5,5,seq); multido(5,4,seq);
+#   multido(4,5,seq); multido(4,4,seq);
+# })
+

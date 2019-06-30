@@ -96,3 +96,7 @@ plotting <- function() {
   
 }
 
+
+
+
+sum(duplicated(rbind(aBootRes, all)))
