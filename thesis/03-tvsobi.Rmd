@@ -49,9 +49,7 @@ TV-SOBI is the original algorithm provided by Yeredor [-@yeredor2003tv] solves t
 (\#eq:ycovs)
 \end{equation}
 
-where, the underline means that the items will be considered as a whole in later steps and all proceeding chapters.
-
-__Why ignore?__
+where, the underline means that the items will be considered as a whole in later steps and all proceeding chapters. Since $\boldsymbol{\mathcal E}$ is assumed to be rather small in quantity, the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ would also be small due to it scale tranformation by $\boldsymbol{\mathcal E}$, and Yeredor therefore argues their ignorability.
 
 Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)}_l,\ \boldsymbol R ^{(2)}_l$ and $\boldsymbol R ^{(3)}_l$ through a linear least square model. The model is achieved by casting matrix equation \@ref(eq:ycovs) to element-wise real-valued equation of,
 
@@ -76,12 +74,10 @@ Yeredor [-@yeredor2003tv] proposed a practical approach to optimize best solutio
 \min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol \Lambda'||^2 \bigg)
 \end{equation}
 
-where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal, and the exact value are unknown. The optimization algrithm only utilizes the property of being diagonal; the values will be available after the optimization, but they are not of interest in TV-SOBI.
-
-After estimating for $\boldsymbol V$, the 
+where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal, and the exact value are unknown. The optimization algrithm only utilizes the property of being diagonal, and the values will become available only after the optimization. In addition, the other paramter $\boldsymbol{\mathcal E}$ can be found through optimization, 
 
 \begin{equation}
 \min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R^{(2)}_\tau} - \boldsymbol{\mathcal E} \widehat{\boldsymbol R^{(1)}_\tau} - \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol{\mathcal E}' ||^2 \bigg)
 \end{equation}
 
-Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$ as solved in\@ref(eq:mins).
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be notcied in the optimization steps that the value of $\boldsymbol R ^{(3)}_{tau}$ is not used. In fact, Yeredor even provided an alternative that exclude it from \@ref(eq:ycovs). Nontheless, $\boldsymbol R ^{(3)}_{tau}$ is closely associating with $\boldsymbol R ^{(1)}_{tau}$ and $\boldsymbol R ^{(2)}_{tau}$ as in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would indeed affect on the output of TV-SOBI. It is indeed techincally possible to include the expression of $\boldsymbol R ^{(3)}_{tau}$ in optimization procedures, but it would be too complicated to find a solution, and the relatively naive approach described above is sufficient to solve the BSS problem.

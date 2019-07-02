@@ -111,7 +111,7 @@ multido <- function(E, N, sn){
   }
 }
 
-seq <- 2
+seq <- 3
 multido(5,4,seq)
 multido(4,4,seq)
 multido(5,5,seq)
