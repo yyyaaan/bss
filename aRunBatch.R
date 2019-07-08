@@ -3,10 +3,11 @@ source("rfun.R"); source("rlab_x.R"); source("rsim.R")
 library(tidyverse)
 options(stringsAsFactors = FALSE)
 
+
 # results of boosting -----------------------------------------------------
 # this supports aRunSim.R
 
-res <- readRDS("/home/yan/bss/aBootRes.rds")
+res <- readRDS("/home/yanpan/bss/aBootRes.rds")
 
 res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
@@ -39,20 +40,34 @@ for (i in 1:nrow(res_sum)){
   if(res_sum$lag[i] == 12) res_sum$lagT[i] = "Lag = 12"
 }
 
-saveRDS(res_sum, file = "/home/yan/bss/thesis/bss_res.rds")
 
-m <- unique(res_sum$criteria)[4]
+save(fig_mixing, res, res_N, res_sum, file = "thesis.rdata", compress = TRUE)
 
-readRDS("/home/yan/bss/thesis/bss_res.rds") %>%
-  filter(criteria == m, N > 49, method != "frjd", lag != 1, seriesT %in% c("Set I", "Set II")) %>%
-  ggplot(aes(N, value, color = method)) +
-  geom_point() + geom_line() + 
+
+
+# short handed for detailed plot ------------------------------------------
+res_sum <- res %>% 
+  mutate(series = str_sub(id, 12, 15)) %>%
+  group_by(criteria, series, detail, N, p, lag) %>%
+  summarise_at("value", mean) 
+  # do the loop above
+res_sum$method <- res_sum$detail
+res_sum$flag <- substr(res_sum$method, 1, 9)
+
+m <- unique(res_sum2$criteria)[4]; 
+cutoff <- 90; setVector <- c("Set I", "Set II"); yaxisname <- "tvSIR"; limitsVector <- c(0,9);
+res_sum %>%
+  filter(flag == "LTV-SOBI ", criteria == m, N > cutoff, method != "frjd", lag != 1, seriesT %in% setVector) %>%
+  ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+  #geom_point(size = 1) + 
+  geom_line() + 
+  scale_color_brewer(palette = "Set2") +
   scale_x_log10() +
   facet_grid(seriesT~lagT) +
-  theme_light()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
-
-
+  scale_y_continuous(name=yaxisname, limits=limitsVector) +
+  theme(legend.position="bottom",
+        panel.background = element_rect(fill = "white", colour = "grey"),
+        axis.text.x = element_text(angle = 90))
 
 
 # file processing ---------------------------------------------------------

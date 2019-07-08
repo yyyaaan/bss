@@ -61,11 +61,11 @@ The SIR-index for TV-SOBI can be further simplified by taking $\boldsymbol C_t =
 
 where, $\boldsymbol \Omega_t \widehat{ \boldsymbol \Omega_t}^{-1} = ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \big[ ( \boldsymbol I + t \widehat{\boldsymbol{\mathcal E}}) \widehat{\boldsymbol \Omega_0}\big]^{-1}$.
 
-SIR and tvSIR do not have a direct connection to each other, but the value is comparable. SIR and tvSIR range from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation based SIR (e.g., the implementation in `JADE` package [@miettinen2017blind]) does not require true mixing parameters to be known, but tvSIR will always require so.
+SIR and tvSIR do not have a direct connection to each other, but the value is comparable. SIR and tvSIR range from $-\infty$ to $\infty$, and the larger the better. It should also be noted that correlation-based SIR (e.g., the implementation in `JADE` package [@miettinen2017blind]) does not require true mixing parameters to be known, but tvSIR will always require so.
 
 ## Simulation Study
 
-The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to inscribe exact factors that impair the performance, four sets of simulation have been conducted in _R_. Intending to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiographic (ECG) time-series, together with another moving-average or auto-regressive series.  The simulated signal is similar to Figure \@ref(fig:ambiguity) that discussed in earlier chapters, while the simulation study has 1 less dimension of either moving-average or auto-regressive series. The reduction of dimesion is due to the consideration of computatioinal efficiency and visual similarity of such two signals. For convenience, let two matrix constant to be,
+The performance of LTV-SOBI can be expected to be greatly influenced by signal inherited properties, dimension, length and the scale of mixing matrix. Despite the impossibility to inscribe exact factors that impair the performance, four sets of simulation have been conducted in _R_. Intending to minimize potential bias, the four sets have similar sources of 3-dimensional signal that involve sinusoidal and electrocardiograph (ECG) time-series, together with another moving-average or auto-regressive series.  The simulated signal is similar to Figure \@ref(fig:ambiguity) that discussed in earlier chapters, while the simulation study has 1 less dimension of either moving-average or auto-regressive series. The reduction of dimension is due to the consideration of computational efficiency and visual similarity of such two signals. For convenience, let two matrix constant to be,
 
 \begin{equation}
 \boldsymbol \Omega_{\text{sim}} = \begin{bmatrix} 2 & -6 & 0.5 \\  -9 & 5  & 3 \\ -4 &6 &8 \end{bmatrix}
@@ -74,9 +74,9 @@ The performance of LTV-SOBI can be expected to be greatly influenced by signal i
 (\#eq:sim_mat)
 \end{equation}
 
-In simulation configuration, the initial mixing matrix $\boldsymbol{\Omega}_0$ is first arbitrarily fixed to $\boldsymbol \Omega_{\text{sim}}$ as in \@ref(eq:sim_mat); then, 4 sets of simulation are parametered with differed time-varying factors and signal length, while the difference is only in terms of scale with details in Table \@ref(tab:four_sets). In each set, the ture source signal and mixture are thus fixed. 
+In simulation configuration, the initial mixing matrix $\boldsymbol{\Omega}_0$ is first arbitrarily fixed to $\boldsymbol \Omega_{\text{sim}}$ as in \@ref(eq:sim_mat); then, 4 sets of simulation are parameterized with differed time-varying factors and signal length, while the difference is only in terms of scale with details in Table \@ref(tab:four_sets). In each set, the true source signal and mixture are thus fixed. 
 
-Table: (\#tab:four_sets) Key Parametes of Simulation Set
+Table: (\#tab:four_sets) Key Parameters of Simulation Set
 |  | I | II | III | IV |
 |---|---|---|---|---|
 | $\boldsymbol{\mathcal E}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ | $\boldsymbol M \times 10^{-5}$ | $\boldsymbol M \times 10^{-4}$ |
@@ -93,11 +93,11 @@ plot.ts(fig_mixing$mix[,1:3], main="", ann = FALSE,
 
 ```
 
-Supposing the realistic scenario that true source is unobservable while mixture can be observed only at certain sampling rates (aka. sampling frequencies); for example, a piece of sound shall include 4800k samples per second as signal mixture, but the recording equipment can only sample at 48kHz, which means that merely 1 out of every 100 mixture is sampled as observation. Aiming to simulate such fact and evaluate how the observation length could affect LTV-SOBI performance, the simulation study further generates artificial observed mixture and corresponding source upon different sampling rates based on the same source and mixture. Figure \@ref(fig:sampling_rate) illustrates the sampling mechanism, and Table \@ref(tab:four_sets) summarized the sampling rates in each set. Consequently, multiple mixture of different lengths (as a result of sampling rates) are simulated within each set. In brief, instead of generating new pseudo sources and mixtures, the simulation study consider the sampling frequencies as a more robust alternative.
+Supposing the realistic scenario that true source is unobservable while mixture can be observed only at certain sampling rates (aka. sampling frequencies); for example, a piece of sound shall include 4800k samples per second as signal mixture, but the recording equipment can only sample at 48kHz, which means that merely 1 out of every 100 mixture is sampled as observation. Aiming to simulate such fact and evaluate how the observation length could affect LTV-SOBI performance, the simulation study further generates artificial observed mixture and corresponding source upon different sampling rates based on the same source and mixture. Figure \@ref(fig:sampling_rate) illustrates the sampling mechanism, and Table \@ref(tab:four_sets) summarized the sampling rates in each set. Consequently, multiple mixtures of different lengths (as a result of sampling rates) are simulated within each set. In brief, instead of generating new pseudo sources and mixtures, the simulation study considers the sampling frequencies as a more robust alternative.
 
-In the next step, LTV-SOBI algorithms along with various alternatives are applied to each generate observed mixture, and the results are compared against its corresponding true signal using tvMD and tvSIR, which finally leads to performance metric. 
+In the next step, LTV-SOBI algorithms along with various alternatives are applied to each generate observed mixture, and the results are compared against its corresponding true signal using tvMD and tvSIR, which finally leads to performance metrics. Each observed mixture has 7 different algorithms applied, including 2 types of Yeredor's TV-SOBI (with and without quadratic form), 4 types of LTV-SOBI(with and without symmetry fix, with and without quadratic form) and LTV-SOBI-alt.
 
-Finally, 1000 similar simulation is performed to further elimated potential bias and outliers, and enable reporting of bootstrap results. Figure \@ref(fig:simulation_overview) overviews the simulation study in the manner of progress flow, and the full _R_ code is attached in Appendix \@ref(simcode).
+Finally,  over1000 similar simulation is performed to further eliminated potential bias and outliers, and enable reporting of bootstrap results. Figure \@ref(fig:simulation_overview) overviews the simulation study in the manner of progress flow, and the full _R_ code is attached in Appendix \@ref(simcode).
 
 ```{r simulation_overview, fig.cap='Overview of Simulation Study Settings', out.width='89%', echo = FALSE}
 knitr::include_graphics("bss_simulation.png")
@@ -105,15 +105,17 @@ knitr::include_graphics("bss_simulation.png")
 
 ## Simulation Study Results
 
-Aforementioned $tvSIR$ and $tvMD$, served as a time-varying application of $SIR$ and $MD$ correspondingly, are applied to measure the algorithm performance (in terms of accuracy and capability of restoring the original signals), and results are reported in graph \@ref(fig:resultA) - \@ref(fig:resultD). Each sub-graph defines a specific simulation set with a defined lag parameter used in LTV-SOBI algorithm. The curves visulize the performance influenced by sampling frequencies, which are equivalent to observed signal lengths, and log-scale has been applied to the x-axis. Different algorithms can be distinguished by color or line type.
+Aforementioned $tvSIR$ and $tvMD$, served as a time-varying application of $SIR$ and $MD$ correspondingly, are applied to measure the algorithm performance (in terms of accuracy and capability of restoring the original signals), and results are reported in graph \@ref(fig:resultA) - \@ref(fig:resultD). Each sub-graph defines a specific simulation set with a defined lag parameter used in LTV-SOBI algorithm. The curves visualize the performance influenced by sampling frequencies, which are equivalent to observed signal lengths, and log-scale has been applied to the x-axis. Different algorithms can be distinguished by color or line type.
 
-\@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better performance measured by $tvSIR$ with a larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns an edge over Yereodr's original TV-SOBI in most cases, while the comparable advantage seems to be diminished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
+Observing the fact that minor alternatives do not significantly affect the performance of a given algorithm; for example, whether correct symmetry for estimated matrices in LTV-SOBI does not change the overall performance metric. Therefore, further results are aggregated, for convenience and simplicity, only over the major algorithms, namely LTV-SOBI, LTV-SOBI-alt, and Y-TVSOBI. Consequently, a point in Figure \@ref(fig:resultA) and \@ref(fig:resultD) represent the mean value of 399 to 5480 simulation depending on algorithm type and success rate.
+
+Figure \@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better performance measured by $tvSIR$ with a larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns an edge over Yereodr's original TV-SOBI in most cases, while the comparable advantage seems to be diminished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
 
 ```{r figConfig, include = FALSE}
 library(tidyverse)
 res_sum$lagT = factor(res_sum$lagT, levels = c("Lag = 1", "Lag = 3", "Lag = 6", "Lag = 12"))
 
-getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
+getPlotx <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
   m <- unique(res_sum$criteria)[criteria]
   res_sum %>%
     filter(criteria == m, N > cutoff, method != "frjd", lag != 1, seriesT %in% setVector) %>%
@@ -125,13 +127,29 @@ getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
     scale_y_continuous(name=yaxisname, limits=limitsVector) +
     theme_light()
 }
+
+getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
+  m <- unique(res_sum$criteria)[criteria]
+  res_sum %>%
+    filter(criteria == m, N > cutoff, method != "frjd", lag != 1, seriesT %in% setVector) %>%
+    ggplot(aes(N, value, color=method, shape = method, linetype = method)) +
+    #geom_point(size = 1) + 
+    geom_line() + 
+    scale_color_brewer(palette = "Set2") +
+    scale_x_log10() +
+    facet_grid(seriesT~lagT) +
+    scale_y_continuous(name=yaxisname, limits=limitsVector) +
+    theme(legend.position="bottom",
+          panel.background = element_rect(fill = "white", colour = "grey"),
+          axis.text.x = element_text(angle = 90))
+}
 ```
 
-```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 4}
+```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
 print(getPlot(4, 90, c("Set I", "Set II"), "tvSIR", c(0,9)))
 ```
 
-```{r resultB, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 4}
+```{r resultB, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
 suppressWarnings(
   print(getPlot(4, 30, c("Set III", "Set IV"), "tvSIR", c(0,9)))
 )
@@ -139,34 +157,12 @@ suppressWarnings(
 
 Using $tvMD$, \@ref(fig:resultA) and \@ref(fig:resultD) demonstrate better performance with lower value, and LTV-SOBI-alt is comparably the best algorithm in most cases except for simulation Set III; larger observation regularly leads to improved performance. The difference between LTV-SOBI and Yeredor's TVSOBI are essentially minimum.
 
-```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 4}
+```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
 print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
 ```
 
-```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 4}
+```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
 print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
 ```
 
-In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenging, and LTV-SOBI algorithm is a comparably more applicable approach. Nonetheless, the metric is not robust enough under all scenarios, and Chapter \@ref(discussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Supposing the metric were acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI when observed length is relatively small. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenging, and LTV-SOBI algorithm is a comparably more applicable approach. Nonetheless, the metric is not robust enough under all scenarios, and Chapter \@ref(discussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Supposing the metric is acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI when the observed length is relatively small. 
