@@ -7,41 +7,25 @@ options(stringsAsFactors = FALSE)
 # results of boosting -----------------------------------------------------
 # this supports aRunSim.R
 
-res <- readRDS("/home/yanpan/bss/aBootRes.rds")
+aBootRes <- readRDS("/home/yanpan/bss/aBootRes.rds")
+aBootClean <- aBootRes %>% 
+  mutate(series  = ifelse(substr(id, 1, 3) == "seq", substr(id, 17,20), substr(id, 12, 15))) %>%
+  mutate(seriesT = case_when(series == "E4N4" ~ "Set IV",
+                             series == "E4N5" ~ "Set II",
+                             series == "E5N4" ~ "Set III",
+                             series == "E5N5" ~ "Set I"),
+         lagT    = case_when(lag == 1  ~ "Lag = 1",
+                             lag == 3  ~ "Lag = 3",
+                             lag == 6  ~ "Lag = 6",
+                             lag == 12 ~ "Lag = 12")) %>% 
+  mutate(lagT = factor(lagT, levels = c("Lag = 1", "Lag = 3", "Lag = 6", "Lag = 12"))) %>%
+  group_by(criteria, seriesT, method, N, p, lagT)
 
-res %>% 
-  mutate(series = str_sub(id, 12, 15)) %>%
-  filter(criteria == "SIR_diag_sq", N > 90, method == "LTV-SOBI", lag != 1, series == "E5N5") %>%
-  ggplot(aes(as.factor(N), value)) + geom_boxplot(color = "darkgrey")  +
-  scale_y_continuous(name="tvSIR") +
-  scale_x_discrete(name="Sampling Size") +
-  theme_light()
-
-
-res_sum <- res %>% 
-  mutate(series = str_sub(id, 12, 15)) %>%
-  group_by(criteria, series, method, N, p, lag) %>%
-  summarise_at("value", mean) 
-
-res_N <- res %>% 
-  mutate(series = str_sub(id, 12, 15)) %>%
-  group_by(criteria, series, desc, N, p, lag) %>%
-  count()
-
-for (i in 1:nrow(res_sum)){
-  if(res_sum$series[i] == "E4N4") res_sum$seriesT[i] = "Set IV"
-  if(res_sum$series[i] == "E4N5") res_sum$seriesT[i] = "Set II"
-  if(res_sum$series[i] == "E5N4") res_sum$seriesT[i] = "Set III"
-  if(res_sum$series[i] == "E5N5") res_sum$seriesT[i] = "Set I"
-  
-  if(res_sum$lag[i] == 1) res_sum$lagT[i] = "Lag = 1"
-  if(res_sum$lag[i] == 3) res_sum$lagT[i] = "Lag = 3"
-  if(res_sum$lag[i] == 6) res_sum$lagT[i] = "Lag = 6"
-  if(res_sum$lag[i] == 12) res_sum$lagT[i] = "Lag = 12"
-}
-
-
-save(fig_mixing, res, res_N, res_sum, file = "thesis.rdata", compress = TRUE)
+saveRDS(aBootClean, "aBootClean.rds")
+res <- aBootClean
+save(res, fig_mixing, file = "thesis.rdata", compress = TRUE)
+# res_sum2 <- aBootClean %>% summarise_at("value", mean)
+# res_N    <- aBootClean %>% count()
 
 
 

@@ -46,8 +46,6 @@ $$\begin{aligned}
 Two types of 3-dimensional signal mixture: ordinary mixing (left) and time-varying mixing (right). The source signals are the same. $t=1,2,\dots, 1000,\ \ \boldsymbol \epsilon\approx 10^{-4}\boldsymbol{I}$
 </blockquote>
 
-![ ](zzzMixing.png)
-
 ## Autocovariances
 
 $$\begin{aligned}

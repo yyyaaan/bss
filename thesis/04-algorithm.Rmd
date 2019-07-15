@@ -8,7 +8,7 @@ Similar to model fitting in time series analysis, the desired lags must be chose
 
 ## Decomposition of Autocovariance Structure {#step1}
 
-Being a second order approach, the LTV-SOBI algorithm is based on the autocovariances of pre-centered observation. As previously demonstrated in Equation \@ref(eq:ycovs), the autocovariances are
+Being a second-order approach, the LTV-SOBI algorithm is based on the autocovariances of pre-centered observation. As previously demonstrated in Equation \@ref(eq:ycovs), the autocovariances are
 
 \begin{equation} 
 \begin{aligned}
@@ -70,7 +70,7 @@ In TV-SOS model \@ref(eq:tvsobi), the mathematical properties of $\widehat{\bold
 (\#eq:olo)
 \end{equation}
 
-Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagonalization procedure can optimize $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_0$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade).
+Despite both $\boldsymbol \Omega_0$ and $\boldsymbol \Lambda_\tau$ being unknown, the items $\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \ \boldsymbol\Omega_0'$ are analytic using approximate joint diagonalization (JADE) benefiting from the assumption of uncorrelatedness in sources, i.e. diagonal $\boldsymbol\Lambda_\tau$. Similar to ordinary SOBI procedure, a whitening & joint diagonalization procedure can optimize $\boldsymbol\Omega_0$ and $\boldsymbol\Lambda_\tau$ for all $\tau\in \{0\} \cup L$. The optimization is in the sense of maximizing diagonality by measuring the relative scale of diagonal elements against off-diagonal ones in all $\boldsymbol\Lambda_\tau$; whitening is necessary since JADE is limited to finding orthogonal matrix [adapted @belouchrani1997blind; @yeredor2002non; @li2007nonorthogonal; @miettinen2017blind]. Instead of the covariance matrix of observation, LTV-SOBI has to use $\boldsymbol R_0$ due to the slightly complex model. The JADE task in this step can be formulated as optimization for $\boldsymbol{\Omega}_0$ using known matrices $\boldsymbol R_{\tau_1},\ \boldsymbol R_{\tau_1}, \dots, \boldsymbol R_{\tau_l}$ with the conditions set in \@ref(eq:jade).
 
 \begin{equation}
 \begin{cases}
@@ -95,9 +95,9 @@ It is barely possible to exactly diagonolize all $\boldsymbol\Lambda_{\tau_1},\ 
 (\#eq:approxJD)
 \end{equation}
 
-Joint diagonlization steps conclude with unwhitening, where $\boldsymbol symbol \Omega_0$ is found by $\boldsymbol\Omega_0 = \boldsymbol{R}_0^{1/2} \boldsymbol V$.
+Joint diagonlization steps conclude with unwhitening, where $\boldsymbol \Omega_0$ is found by $\boldsymbol\Omega_0 = \boldsymbol{R}_0^{1/2} \boldsymbol V$.
 
-The whitening indeed requires $\boldsymbol{R}_0$ to be positive semi-definite, and mathematically, it is also embed with this property as it represents the (unobservable) covariance matrix of true signal. However, being blind source, $\boldsymbol R_0$ can only be found though the autocovariance decomposition result \@ref(eq:covsep), which is achieved by a linear estimator from Equation \@ref(eq:olo), and naturally the estimator does not always guarentee postive semi-definite property due to residuals and linear fitting. In practice, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] if needed. Details about correcting non-positive semi-definite matrix were proposed by Knol and ten Berge [-@knol1989least] and have been further developed by Cheng and Higham [-@cheng1998modified]. 
+The whitening indeed requires $\boldsymbol{R}_0$ to be positive semi-definite, and mathematically, it is also embedded with this property as it represents the (unobservable) covariance matrix of the true signal. However, being a blind source, $\boldsymbol R_0$ can only be found through the autocovariance decomposition result \@ref(eq:covsep), which is achieved by a linear estimator from Equation \@ref(eq:olo), and naturally the estimator does not always guarantee the positive semi-definite property due to residuals and linear fitting. In practice, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] if needed. Details about correcting non-positive semi-definite matrix were proposed by Knol and ten Berge [-@knol1989least] and have been further developed by Cheng and Higham [-@cheng1998modified]. 
 
 After the above steps, the following matrices \@ref(eq:steptwo) are fully solved,
 
@@ -148,7 +148,7 @@ The aforementioned three steps are able to find two major unknown matrix $\bolds
 
 ## Minor Alternatives for LTV-SOBI
 
-Section \@ref(step1), \@ref(step2) and \@ref(step3) compose the 3 major steps of LTV-SOBI algorithm, and after signal restoration the BSS problem is fully identified. It can also be noticed that decomposition of autocovariance matrices in step 1 (section \@ref(step1)) estimated $\widehat{ \boldsymbol\beta_{3,\tau}}$ that never used in later steps within the proposed LTV-SOBI algorithm. To resolve such reduncancy, one naive way is to never estimate it by replacing \@ref(eq:covvec) with the approximate equation, 
+Section \@ref(step1), \@ref(step2) and \@ref(step3) compose the 3 major steps of LTV-SOBI algorithm, and after signal restoration the BSS problem is fully identified. It can also be noticed that decomposition of autocovariance matrices in step 1 (section \@ref(step1)), the estimated $\widehat{ \boldsymbol\beta_{3,\tau}}$ is never used in later steps within the proposed LTV-SOBI algorithm (note that it affects the estimation of other components). To resolve such reduncancy, one naive way is to never estimate it by replacing \@ref(eq:covvec) with the approximate equation, and this alternative is programmed in _R_-function as a binary optional parameter `quadratic = FALSE`. 
 
 \begin{equation}
 {\begin{bmatrix} \text{vec}(\boldsymbol x_1 \boldsymbol x_{1+\tau}') \\ \text{vec}(\boldsymbol x_2 \boldsymbol x'_{2+\tau}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-\tau} \boldsymbol x_{T}')\end{bmatrix}}
@@ -157,7 +157,7 @@ Section \@ref(step1), \@ref(step2) and \@ref(step3) compose the 3 major steps of
 (\#eq:covvecalt)
 \end{equation}
 
-Another option with LTV-SOBI is to focus first on $\widehat{ \boldsymbol\beta_{3,\tau}}$, namely the LTV-SOBI2 algorithm. The equation $\widehat {\boldsymbol\beta_{3,\tau}} ={ (\boldsymbol{\mathcal E} \boldsymbol\Omega_0 ) \boldsymbol\Lambda_\tau ( \boldsymbol{\mathcal E \Omega}_0 )'}$ satisfies the structue of approximate joint diagonalization, and thus $\widehat{\boldsymbol{\mathcal E \Omega}_0}$ can be estimated following the algorithm in \@ref(eq:approxJD). Preceeding step with this alternative is to find $\boldsymbol\Omega_0$ and $\boldsymbol{\mathcal E}$ separately. The solution is baed on a similar idea as in \@ref(eq:beta2vec), but the known item is different.
+Another option with LTV-SOBI is to focus first on $\widehat{ \boldsymbol\beta_{3,\tau}}$, namely the LTV-SOBI-alt algorithm. The equation $\widehat {\boldsymbol\beta_{3,\tau}} ={ (\boldsymbol{\mathcal E} \boldsymbol\Omega_0 ) \boldsymbol\Lambda_\tau ( \boldsymbol{\mathcal E \Omega}_0 )'}$ satisfies the structue of approximate joint diagonalization, and thus $\widehat{\boldsymbol{\mathcal E \Omega}_0}$ can be estimated following the algorithm in \@ref(eq:approxJD). Preceeding step with this alternative is to find $\boldsymbol\Omega_0$ and $\boldsymbol{\mathcal E}$ separately. The solution is baed on a similar idea as in \@ref(eq:beta2vec), but the known item is different.
 
 \begin{equation}
 \begin{aligned} \text{vec}(\widehat{\boldsymbol\beta_{2,\tau}}) &= \text{vec}( (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega_0}\ \widehat{\boldsymbol\Lambda_\tau}) \boldsymbol{\Omega_0}') + \text{vec}( \boldsymbol{\Omega_0} (\widehat{\boldsymbol{\mathcal E}\, \boldsymbol\Omega_0}\ \widehat{\boldsymbol\Lambda_\tau})')

@@ -22,6 +22,7 @@ Figure \@ref(fig:ambiguity) illustrates the ambiguity. The observed source is a 
 
 ```{r ambiguity, fig.show='hold', fig.cap='Observed vs. restored sources', out.width='50%', echo = FALSE}
 load("thesis.rdata")
+library(tidyverse)
 plot.ts(fig_mixing$source, main = "Observed Source",      ann = FALSE)
 plot.ts(fig_mixing$unmix,  main = "SOBI Restored Source", ann = FALSE)
 ```
@@ -32,7 +33,7 @@ There exist different approaches to solve the BSS problem in terms of identifyin
 ## Stationary Time-Series Source Separation Using Autocovariance Matrices
 
 In information processing, the signals are usually recorded by highly precise measurement instruments at a given time interval, and thus arose the natural time-series data structure. Assuming pre-centered data, the time series observation can be easily adapted to the basic form \@ref(eq:SOM) by introducing the temporal subscript of $t=1,2,\dots, T$ as $\boldsymbol{x}_t = \boldsymbol{\Omega z}_t$. Focusing on the autocovariance matrices, a second order statistics, the second order source separation (SOS) model seeks to extract the original source signals based mainly on uncorrelatedness Furthermore, the source signals are assumed to be weakly stationary, implying that the autocovariance matrices vary only on the lag $\tau$ but not on the time of observation $t$, which mathematically express as $\mathbb E (\boldsymbol z_t \boldsymbol z_{t+\tau}')$ are constant given $\tau$ for all $t=1,2,\dots,T$. The SOS model assumes the discrete stochastic process $(\boldsymbol Z_t)_{t=0,\pm1, \pm2}$ as source signals and the mixture $(\boldsymbol X_t)_{t=0,\pm1, \pm2}$ such that [adapted @miettinen2016separation],
-$$
+
 \begin{equation}
 \begin{aligned} 
 \boldsymbol X_t = \boldsymbol{\Omega}\boldsymbol Z'_t,\ \ &\ t=0,\pm 1,\pm2,\dots
@@ -42,7 +43,7 @@ $$
 \end{aligned}    
 (\#eq:SOS)
 \end{equation}
-$$
+
 Give realization of the stochastic progress, this semi-parametric model become $\boldsymbol x_t = \boldsymbol\Omega \boldsymbol z_t$ and can thus be solved by joint optimization for the diagonal properties in assumption 3 under the restriction of assumption 2 in \@ref(eq:SOS), which become a unique constrained optimization using Lagrange method after proper whitening and/or normalization procedures [@miettinen2016separation]. 
 
 The Second Order Blind Identification (SOBI) solves the BSS problem using second-order statistics when the true signal follows SOS model, and commonly autovariance matrices and the robust corresponder are applied [@belouchrani1997blind; @nordhausen2014robustifying]. The major second-order blind source separation approaches include AMUSE (Algorithm for Multiple Unknown Signals Extraction) by Tong, Soon, Huang and Liu [-@tong1990amuse] and Second Order Blind Identification, commonly know as SOBI, that originally proposed by Belouchrani, Abed-Meraim, Cardoso and Moulines [-@belouchrani1997blind]. Nordhausen [-@nordhausen2014robustifying] expanded the algorithm to non-stationary time series using locally stationary intervals and further robustifying with average spatial-sign autocovariances on such intervals.

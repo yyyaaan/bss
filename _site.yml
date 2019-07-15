@@ -2,12 +2,16 @@ name: "Blind Source Separation"
 navbar:
   title: "Blind Source Separation"
   left:
-    - text: "Current"
+    - text: "Performance Explorer"
+      href: w_aexp.Rmd
+    - text: "LTV-SOBI"
       href: index.Rmd
-    - text: "TV-SOBI"
-      href: w_brief.Rmd
-    - text: "BSS Basics"
-      href: intro.Rmd
+    - text: "Review"
+      menu:
+        - text: "TV-SOBI"
+          href: w_brief.Rmd
+        - text: "BSS Basics"
+          href: intro.Rmd
     - text: "Reports"
       menu: 
         - text: "Phase 2 Thesis Manuscript"
@@ -15,11 +19,11 @@ navbar:
         - text: "Discussion: Methods"
           href: w_discussion_1.Rmd
         - text: "Phase 1 Presentation"
-          href: "http://boring.fi/report"
+          href: "/report"
         - text: "Phase 1 Research"
           href: w_research.Rmd
-    - text: "Explorer"
-      href: w_viewer.Rmd
+        - text: "Old Viewer (may not work)"
+          href: w_viewer.Rmd
 output:
   html_document:
     toc: true

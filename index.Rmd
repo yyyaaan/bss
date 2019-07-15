@@ -6,7 +6,11 @@ title: "Selected Proof with Details"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Model and Notations
+<blockquote>
+This may not be up-to-date.
+</blockquote>
+
+## Model andNotations
 
 $$\begin{aligned} 
 (T\times p) & &(T\times p) & (p\times p)
