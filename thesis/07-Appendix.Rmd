@@ -18,7 +18,9 @@ For major computer platform, linear estimation is faster and more reliable compa
 
 As Chapter \@ref(performance) stated the complexity in presents LTV-SOBI performance due to large number of factors, an interactive dashboard is designed to enable customizable performance exploring. The explorer is available at http://bss.yan.fi and is programmed in `R` with support of `shiny` package. The explorer allows user to view and compare performance metric from different angles.
 
-<screenshot and more description to be attached here>
+```{r explorer, fig.cap='Screeshot of BSS Explorer, an interactive dashboard', out.width='99%', echo = FALSE}
+knitr::include_graphics("bss_explorer.png")
+```
 
 ## _R_ Code for Simulation Study {#simcode}
 

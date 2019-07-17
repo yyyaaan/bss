@@ -9,7 +9,9 @@ options(stringsAsFactors = FALSE)
 
 aBootRes <- readRDS("/home/yanpan/bss/aBootRes.rds")
 aBootClean <- aBootRes %>% 
-  mutate(series  = ifelse(substr(id, 1, 3) == "seq", substr(id, 17,20), substr(id, 12, 15))) %>%
+  mutate(series  = case_when(substr(id, 7, 10) == "_fix" ~ substr(id, 19, 22),
+                             substr(id, 5, 8)  == "_fix" ~ substr(id, 17, 20),
+                             substr(id, 1, 4)  == "fixe" ~ substr(id, 12, 15))) %>%
   mutate(seriesT = case_when(series == "E4N4" ~ "Set IV",
                              series == "E4N5" ~ "Set II",
                              series == "E5N4" ~ "Set III",
@@ -23,7 +25,7 @@ aBootClean <- aBootRes %>%
 
 saveRDS(aBootClean, "aBootClean.rds")
 res <- aBootClean
-save(res, fig_mixing, file = "thesis.rdata", compress = TRUE)
+save(res, fig_mixing, file = "/home/yanpan/bss/thesis/thesis.rdata", compress = TRUE)
 # res_sum2 <- aBootClean %>% summarise_at("value", mean)
 # res_N    <- aBootClean %>% count()
 
