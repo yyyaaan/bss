@@ -82,22 +82,3 @@ combine_files <- function(indicator = "benchmarks", process = TRUE){
   df
 }
 
-# old benchmarking plotting -----------------------------------------------
-
-plotting <- function() {
-  
-  combine_files() %>%
-    filter(!is.na(value)) %>%
-    filter(p <= 6) %>%
-    group_by(criteria, simple_method, N, p, logN) %>%
-    summarise_at("value", mean) %>%
-    ggplot(aes(x = logN, y = value, color = simple_method)) +
-    geom_line() +
-    facet_grid(criteria ~ p, scales = "free_y")
-  
-}
-
-
-
-
-sum(duplicated(rbind(aBootRes, all)))

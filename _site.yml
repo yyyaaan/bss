@@ -2,8 +2,6 @@ name: "Blind Source Separation"
 navbar:
   title: "Blind Source Separation"
   left:
-    - text: "Performance Explorer"
-      href: w_aexp.Rmd
     - text: "LTV-SOBI"
       href: index.Rmd
     - text: "Review"
