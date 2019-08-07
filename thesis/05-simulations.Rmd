@@ -115,6 +115,8 @@ Figure \@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better perf
 ```{r figConfig, include = FALSE}
 res_sum <- res %>%  filter(note != "") %>% 
   group_by(criteria, seriesT, method, N, p, lagT)  %>% summarise_at("value", mean)
+res_cnt <- res %>%  filter(note != "", note != "new206") %>% 
+  group_by(criteria, seriesT, method, N, p, lagT)  %>% tally
 
 getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
   m <- unique(res_sum$criteria)[criteria]

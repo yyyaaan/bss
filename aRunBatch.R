@@ -6,7 +6,7 @@ options(stringsAsFactors = FALSE)
 
 # results of boosting -----------------------------------------------------
 # this supports aRunSim.R
-
+library(tidyverse)
 aBootRes <- readRDS("/home/yanpan/bss/aBootRes.rds")
 aBootClean <- aBootRes %>% 
   mutate(series  = case_when(substr(id, 7, 10) == "_fix" ~ substr(id, 19, 22),
@@ -19,8 +19,12 @@ aBootClean <- aBootRes %>%
          lagT    = case_when(lag == 1  ~ "Lag = 1",
                              lag == 3  ~ "Lag = 3",
                              lag == 6  ~ "Lag = 6",
-                             lag == 12 ~ "Lag = 12")) %>% 
-  mutate(lagT = factor(lagT, levels = c("Lag = 1", "Lag = 3", "Lag = 6", "Lag = 12"))) %>%
+                             lag == 12 ~ "Lag = 12"),
+         detail  = str_replace_all(detail, "YeredorTVOBI", "YeredorTVSOBI"))
+aBootClean <- aBootClean %>%
+  mutate(desc   = str_replace_all(desc  , "YeredorTVOBI", "YeredorTVSOBI"),
+         method = str_replace_all(method, "YeredorTVOBI", "YeredorTVSOBI"),
+         lagT   = factor(lagT, levels = c("Lag = 1", "Lag = 3", "Lag = 6", "Lag = 12"))) %>%
   group_by(criteria, seriesT, method, N, p, lagT)
 
 saveRDS(aBootClean, "aBootClean.rds")

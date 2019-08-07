@@ -37,9 +37,9 @@ In information processing, the signals are usually recorded by highly precise me
 \begin{equation}
 \begin{aligned} 
 \boldsymbol X_t = \boldsymbol{\Omega}\boldsymbol Z'_t,\ \ &\ t=0,\pm 1,\pm2,\dots
-\\ \text{satisfies }(1)\ & \mathbb E( \boldsymbol Z_t) = \boldsymbol 0 
-\\ (2)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_t') = \text{Cov}( \boldsymbol Z_t) = \boldsymbol I_p
-\\ (3)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
+\\ \text{satisfies }(A1)\ & \mathbb E( \boldsymbol Z_t) = \boldsymbol 0 
+\\ (A2)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_t') = \text{Cov}( \boldsymbol Z_t) = \boldsymbol I_p
+\\ (A3)\ & \mathbb E( \boldsymbol Z_t \boldsymbol Z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all } \tau = 1,2,\dots
 \end{aligned}    
 (\#eq:SOS)
 \end{equation}

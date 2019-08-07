@@ -31,7 +31,7 @@ After decomposition, the observation is summarized in to $l+1$ matrices of autoc
 (\#eq:covmatx)
 \end{equation}
 
-Now that the $p\times T$ matrix $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last column of $\boldsymbol H^*_\tau$ is constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can comfortably tackle it, where the fourth in $\boldsymbol \beta^*_\tau$ are merged into the first row within the same matrix.
+Now that the $p$-vector $\boldsymbol{x}$ is the only available observation, it seems that element-wise linear regression is a simple but practical solution to decompose the autocovariances into the structure as in \@ref(eq:covs). The challenge of equation \@ref(eq:covmatx) is that the last column of $\boldsymbol H^*_\tau$ is constant given $\tau$ and fortunately, the modified form in \@ref(eq:covmat) can comfortably tackle it, where the fourth in $\boldsymbol \beta^*_\tau$ are merged into the first row within the same matrix.
 
 \begin{equation}
 \underbrace{\begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}}_{:= \boldsymbol S_\tau}
