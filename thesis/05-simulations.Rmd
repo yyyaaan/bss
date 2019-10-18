@@ -102,7 +102,7 @@ In the next step, LTV-SOBI algorithms along with various alternatives are applie
 Finally,  over1000 similar simulation is performed to further eliminated potential bias and outliers, and enable reporting of bootstrap results. Figure \@ref(fig:simOverview) overviews the simulation study in the manner of progress flow, and the full _R_ code is attached in Appendix \@ref(simcode).
 
 ```{r simOverview, fig.cap='Overview of Simulation Study Settings', out.width='89%', echo = FALSE}
-knitr::include_graphics("bss_simulation.png")
+knitr::include_graphics("bss_sim_flow.png")
 ```
 
 ## Simulation Study Results
@@ -113,8 +113,9 @@ Observing the fact that minor alternatives do not significantly affect the perfo
 
 Figure \@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better performance measured by $tvSIR$ with a larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns an edge over Yereodr's original TV-SOBI in most cases, while the comparable advantage seems to be diminished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
 
-```{r figConfig, include = FALSE, eval = T}
-# replace by screenshot
+```{r figConfig, include = FALSE, eval = FALSE}
+
+######### replace by screenshot #########
 res_sum <- res %>%  filter(note != "") %>% 
   group_by(criteria, seriesT, method, N, p, lagT)  %>% summarise_at("value", mean)
 res_cnt <- res %>%  filter(note != "", note != "new206") %>% 
@@ -141,23 +142,21 @@ getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
 ```
 
 ```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
-print(getPlot(4, 90, c("Set I", "Set II"), "tvSIR", c(0,12)))
+# print(getPlot(4, 90, c("Set I", "Set II"), "tvSIR", c(0,12)))
 ```
 
 ```{r resultB, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
-suppressWarnings(
-  print(getPlot(4, 30, c("Set III", "Set IV"), "tvSIR", c(0,12)))
-)
+#  print(getPlot(4, 30, c("Set III", "Set IV"), "tvSIR", c(0,12)))
 ```
 
 Using $tvMD$, \@ref(fig:resultA) and \@ref(fig:resultD) demonstrate better performance with lower value, and LTV-SOBI-alt is comparably the best algorithm in most cases except for simulation Set III; larger observation regularly leads to improved performance. The difference between LTV-SOBI and Yeredor's TVSOBI are essentially minimum.
 
 ```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
-print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
+# print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
 ```
 
 ```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
-print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
+# print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
 ```
 
 In conclusion, the extension of $MD$ and $SIR$ grants insights of algorithm performance; the simulation results suggest that LTV-SOS problem could yet be rather challenging, and LTV-SOBI algorithm is a comparably more applicable approach. Nonetheless, the metric is not robust enough under all scenarios, and Chapter \@ref(discussion) will attempt to detail such issue. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Supposing the metric is acceptable with SOBI, the results prefer SOBI under large size of observations and LTV-SOBI when the observed length is relatively small. 

@@ -23,7 +23,8 @@ Table 1: Notation
 | $\boldsymbol x$ | observed signals| $p$-vector; an observable stochastic process $(X_t)$ |
 | $\boldsymbol\mu$ | row means of a matrix   |  vector  |
 | $\boldsymbol\Omega_t$ | mixing matrix at given time point $t$ | $p\times p$ matrix. $\boldsymbol\Omega_t = ( \boldsymbol I+t \boldsymbol{\mathcal E}) \boldsymbol\Omega$ |
-| $\boldsymbol\Gamma_t$ | unmixing matrix at $t$ | $\boldsymbol\Gamma \overset{\text{def}}= \boldsymbol\Omega^{-1}$ | | $\boldsymbol\Omega$ | mixing matrix at $t=0$ | $\boldsymbol\Omega \overset{\text{def}}= \boldsymbol\Omega_0$ |
+| $\boldsymbol\Gamma_t$ | unmixing matrix at $t$ | $\boldsymbol\Gamma_t \overset{\text{def}}= \boldsymbol\Omega^{-1}_t$ | 
+| $\boldsymbol\Omega$ | mixing matrix at $t=0$ | $\boldsymbol\Omega \overset{\text{def}}= \boldsymbol\Omega_0$ |
 | $\boldsymbol{\mathcal E}$ |time-varying mixing factor | $p\times p$ matrix |
 | $\boldsymbol\Lambda_{\tau}$ | autocovariance given stationarity | $p\times p$ matrix that depends only on lag $\tau$ and assumed to be diagonal |
 | $\boldsymbol W$| affine tranformation matrix used in joint diagonalization | not confused with $\boldsymbol\Gamma$ |

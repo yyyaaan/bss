@@ -1,17 +1,34 @@
---- 
+---
 title: "Time-Varying Source Separation by Joint Diagnolization on Autocovariances"
-author: "Yan Pan"
+author: Yan Pan^[University of Jyväskylä]
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: article
+papersize: a4
+linestretch: 1.5
+latex_engine: pdflatex
+citation_package: natbib
 bibliography: 99-ref.bib
 biblio-style: apalike
 link-citations: yes
-description: "LTV-SOBI"
-papersize: a4
-linestretch: 1.5
+github-repo: yyyaaan/bss
 always_allow_html: yes
+output:
+  bookdown::gitbook:
+    config:
+      download: ["pdf", "epub", "tex"]
+    sharing: null
+  bookdown::pdf_book:
+    toc: false
+    keep_tex: yes
+    includes:
+      in_header: latex_preamble.tex
+  bookdown::epub_book: default
 ---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "H")
+```
 
 # Abstract {-}
 
@@ -20,3 +37,8 @@ Blind source separation (BSS) seeks to recover the true signals from the observe
 # Tiivistelmä {-}
 
 Sokealähdeerottaminen (Blind Source Separation, BSS) pyritään palauttamaan todelliset signaalit havaituista, joista ei mitään aikaisempaa tietoa (sokea) sekoitusmatriisista ole saatavilla. BSS:n ratkaisut ovat perustettu useita menetelmiä, ja etenkin toisen asteen sokeatunnistaminen (SOBI) tunnistaa lähteet alueellisen riippumattomuuden ja toisen asteen tilastojen avulla. Tämän tutkimuksen tarkoituksena on laajentaa toinen asteen lähdeerottamismalli (Second Order Souce Separation, SOS) suhteen aikavaihtelevan sekoitusmekanismin tapauksessa, jonka Yeredor (2003) ehdotti alun perin. Parannettu algoritmi, eli lineaarisesti aikavaihteleva SOBI (linearly time-varying SOBI, LTV-SOBI) ja sen vaihtoehtoja yrittää estimoida sekoitusparametreja ja johtaa lopulta piilevät riippumattomat lähteet autokovarianssin hajoamisen ja yhteisdiagonaalin avulla. LTV-SOBI:n suorituskykyä analysoidaan simuloidulla datalla laajentamalla suorituskykymetriikka Signaali-kohinasuhde aikavaihtelevan tapaukseen. Massasimulaatio esittää uuden LTV-SOBI-algoritmin paremmuuteen verrattuna Yeredorin TV-SOBI, vaikka kokonaistulokset eivät ole vielä optimaalisia. LTV-SOBI-algoritmi on toteutettu kokonaan _R_:ssä ja sen lisäksi, että interaktiivinen kojetaulu on tehty algoritmien suorituskyvyn tutkimiseksi edelleen.
+
+```{=latex}
+\tableofcontents
+\setcounter{page}{1}
+```

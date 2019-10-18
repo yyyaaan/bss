@@ -6,8 +6,5 @@
 placeholder.png
 zzz*
 .ipynb_checkpoints/
-thesis/_book/
-thesis/_bookdown_files/
-thesis/version1.zzz
-thesis/packages.bib
 sim/
+thesis/_*

@@ -4,7 +4,9 @@ Previous sections have reviewed the TV-SOS model together with Yeredor's origina
 
 As illustrated in Figure \@ref(fig:boxplot), the simulation results indicate probable stability issues. There exists a considerable amount of simulation that yields significantly better results compared with average ($tvSIR \approx 20$), while there barely exists poor results ($tvSIR < 0$). The issue could arise from both algorithm compatibility and metric robustness. Since $\boldsymbol{\mathcal E}$ is supposed to be small, extreme values can often occur when performing the inverse, and unexpected peak can sometimes be observed in the restored signal. Neither $tvSIR$ and $tvMD$ tackles outlier in a robust manner. Furthermore, LTV-SOBI does not provide the option to utilize robust second-order statistics due to its reliance on autocovariance structure in Equation \@ref(eq:tvsobi). Stationarity, seasonality, the scale of time-variance, observation length and signal dimension are all possible factors that affect LTV-SOBI's performance. Unfortunately, the exact causes and mechanism have not been identified properly.
 
-```{r boxplot, fig.show='hold', fig.cap='Boxplot for Set I simulation', out.width='75%', echo = FALSE}
+```{r boxplot, fig.show='hold', fig.cap='Boxplot for Set I simulation', out.width='75%', echo = FALSE, eval = FALSE}
+
+######### replace by screenshot #########
 res %>% 
   mutate(series = str_sub(id, 12, 15)) %>%
   filter(criteria == "SIR_diag_sq", N > 90, method == "LTV-SOBI", lag != 1, series == "E5N5") %>%
