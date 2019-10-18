@@ -1,6 +1,6 @@
 ---
 title: "Time-Varying Source Separation by Joint Diagnolization on Autocovariances"
-author: Yan Pan^[University of Jyväskylä]
+author: "Yan Pan"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: article
@@ -28,17 +28,55 @@ output:
 
 ```{r setup, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "H")
+# title, abstract pages are overwritten below (YAML header not in use)
 ```
 
-# Abstract {-}
+# Abstract | Tiivistelmä {-}
+
+```{=latex} 
+\clearpage
+{\setstretch{1}
+UNIVERSITY OF JYVÄSKYLÄN, Faculty of Mathematics and Science\\Department of Mathematics and Statistics\\Statistics}
+
+\begin{table}[H]
+\begin{tabular}{ll}
+\hline
+Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on Autocovariances \\
+MSc thesis: & p., 1 appendices ( p.) \\
+Supervisor: & Senior lecturer Sara Taskinen \\
+Inspectors: & \\
+November 2019  \\ \hline
+\end{tabular}
+\end{table}
+```
+
+Keywords: 
 
 Blind source separation (BSS) seeks to recover the true signals from the observed ones, and no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through spatial independence in second-order statistics. This thesis stretches the Second Order Source Separation (SOS) model in terms of latent time variation in mixing mechanism that was initially proposed by Yeredor (2003). An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives the latent independent sources by means of autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI is analyzed with simulated data by extending the performance metric Signal-to-interference ratio (SIR) into the time-varying case. Mass simulation suggests the superiority of the new LTV-SOBI algorithm compared with Yeredor's TV-SOBI algorithm, despite overall results are still non-optimal. In addtion to the full implementation of LTV-SOBI algorithm in _R_, an interactive dashboard is designed to enable further investiagtion of algorithm performance.
 
-# Tiivistelmä {-}
+```{=latex} 
+\clearpage
+{\setstretch{1}
+JYVÄSKYLÄN YLIOPISTO, Matemaattis-luonnontieteellinen tiedekunta\\Matematiikan ja tilastotieteen laitos\\Tilastotiede}
+
+\begin{table}[H]
+\begin{tabular}{ll}
+\hline
+Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on Autocovariances \\
+Pro-gradu -tutkielma: &  s., 1 liitettä ( s.) \\
+Työn ohjaaja: & Yliopiston lehtori Sara Taskinen \\
+Tarkastajat: & \\
+Marraskuu 2019  \\ \hline
+\end{tabular}
+\end{table}
+
+```
+
+Hakusanat: 
 
 Sokealähdeerottaminen (Blind Source Separation, BSS) pyritään palauttamaan todelliset signaalit havaituista, joista ei mitään aikaisempaa tietoa (sokea) sekoitusmatriisista ole saatavilla. BSS:n ratkaisut ovat perustettu useita menetelmiä, ja etenkin toisen asteen sokeatunnistaminen (SOBI) tunnistaa lähteet alueellisen riippumattomuuden ja toisen asteen tilastojen avulla. Tämän tutkimuksen tarkoituksena on laajentaa toinen asteen lähdeerottamismalli (Second Order Souce Separation, SOS) suhteen aikavaihtelevan sekoitusmekanismin tapauksessa, jonka Yeredor (2003) ehdotti alun perin. Parannettu algoritmi, eli lineaarisesti aikavaihteleva SOBI (linearly time-varying SOBI, LTV-SOBI) ja sen vaihtoehtoja yrittää estimoida sekoitusparametreja ja johtaa lopulta piilevät riippumattomat lähteet autokovarianssin hajoamisen ja yhteisdiagonaalin avulla. LTV-SOBI:n suorituskykyä analysoidaan simuloidulla datalla laajentamalla suorituskykymetriikka Signaali-kohinasuhde aikavaihtelevan tapaukseen. Massasimulaatio esittää uuden LTV-SOBI-algoritmin paremmuuteen verrattuna Yeredorin TV-SOBI, vaikka kokonaistulokset eivät ole vielä optimaalisia. LTV-SOBI-algoritmi on toteutettu kokonaan _R_:ssä ja sen lisäksi, että interaktiivinen kojetaulu on tehty algoritmien suorituskyvyn tutkimiseksi edelleen.
 
 ```{=latex}
-\tableofcontents
 \setcounter{page}{1}
+\tableofcontents
 ```
