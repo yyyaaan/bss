@@ -200,7 +200,7 @@ tvsobi <- function(X, lag.max = 12,
     epsilon.est <- try(W.est %*% solve(jd$W), silent = T)
   }
   
-  method <- paste("YeredorTVOBI",
+  method <- paste("YeredorTVSOBI",
                   ifelse(useQuadratic, "Quadratic", "Linear"),
                   paste0("Epsilon-", epsilon.method),
                   ifelse(nearestDist == 0, "" , "NearestSPD"))

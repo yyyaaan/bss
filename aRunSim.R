@@ -111,23 +111,13 @@ multido <- function(E, N, sn){
   }
 }
 
-seq <- 204
+
+seq <- 305
 multido(5,4,seq)
 multido(4,4,seq)
 multido(5,5,seq)
 multido(4,5,seq)
 
-seq <- 205
-multido(5,4,seq)
-multido(4,4,seq)
-multido(5,5,seq)
-multido(4,5,seq)
-
-seq = 206
-multido(5,4,seq)
-multido(4,4,seq)
-multido(5,5,seq)
-multido(4,5,seq)
 
 # library(parallel)
 # mclapply(as.list(1:100), function(seq) {

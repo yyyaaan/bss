@@ -4,7 +4,7 @@ The accuracy of LTV-SOBI algorithm principally depends on the source signals and
 
 ## Extension of Minimal Distance Index
 
-The minimal distance index, denoted as MD, was initially introduced by Ilmonen [-@ilmonen2010new]to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\widehat{\boldsymbol W}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
+The minimal distance index, denoted as MD, was initially introduced by Ilmonen [-@ilmonen2010new]to measure the ICA algorithm performance by comparing true mixing matrix $\boldsymbol \Omega$ and estimated unmixing matrix $\widehat{\boldsymbol \Gamma}$. For a non-time-varying model, MD-index is defined as [adapted @ilmonen2010new], 
 
 \begin{equation}
 \text{MD} (\widehat{ \boldsymbol {W}}) = \frac 1 {\sqrt{p-1}} \inf\limits_{ \boldsymbol C \in \mathcal C} || \boldsymbol C \widehat{ \boldsymbol {W}} \boldsymbol \Omega - \boldsymbol I_p||
@@ -74,9 +74,10 @@ The performance of LTV-SOBI can be expected to be greatly influenced by signal i
 (\#eq:sim_mat)
 \end{equation}
 
-In simulation configuration, the initial mixing matrix $\boldsymbol{\Omega}_0$ is first arbitrarily fixed to $\boldsymbol \Omega_{\text{sim}}$ as in \@ref(eq:sim_mat); then, 4 sets of simulation are parameterized with differed time-varying factors and signal length, while the difference is only in terms of scale with details in Table \@ref(tab:four_sets). In each set, the true source signal and mixture are thus fixed. 
+In simulation configuration, the initial mixing matrix $\boldsymbol{\Omega}_0$ is first arbitrarily fixed to $\boldsymbol \Omega_{\text{sim}}$ as in \@ref(eq:sim_mat); then, 4 sets of simulation are parameterized with differed time-varying factors and signal length, while the difference is only in terms of scale with details in Table \@ref(tab:four-sets). In each set, the true source signal and mixture are thus fixed. 
 
-Table: (\#tab:four_sets) Key Parameters of Simulation Set
+
+Table: (\#tab:four-sets) Key Parameters of Simulation Set
 
 |  | I | II | III | IV |
 |---|---|---|---|---|
@@ -112,7 +113,8 @@ Observing the fact that minor alternatives do not significantly affect the perfo
 
 Figure \@ref(fig:resultA) and \@ref(fig:resultD) presumes to exhibit better performance measured by $tvSIR$ with a larger value, i.e. the higher the points and curves the better. The missing values and other deviations will be deliberated in Chapter \@ref(discussion). With the two graphs, the new LTV-SOBI earns an edge over Yereodr's original TV-SOBI in most cases, while the comparable advantage seems to be diminished with increased observed length. On the other hand, the LTV-SOBI-alt algorithm is relatively insensitive to length, though it could not benefit from the larger size of observed information.
 
-```{r figConfig, include = FALSE}
+```{r figConfig, include = FALSE, eval = T}
+# replace by screenshot
 res_sum <- res %>%  filter(note != "") %>% 
   group_by(criteria, seriesT, method, N, p, lagT)  %>% summarise_at("value", mean)
 res_cnt <- res %>%  filter(note != "", note != "new206") %>% 
