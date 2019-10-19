@@ -4,7 +4,7 @@ Imagine a situation that a small musical band composed of a piano, a bass, and a
 
 In most cases, the mixing mechanism is unclear or too costly to measure, and thus it arises a set of statistical problem to seek restoration of source signals given observed ones based on a certain proper statistical assumption - independence as an example. Further, the mixing mechanism is not necessarily static; in recording, the microphones can be moving slowly towards or against the artists due to some relative movement (dancing, walking, etc.). Figure \@ref(fig:algorithm) provides a simple illustration of the BSS problem.
 
-```{r illustration, fig.cap='Illustration of Blind Source Separation with Time-varying Factor', out.width='90%', echo = FALSE}
+```{r illustration, fig.cap='Illustration of Blind Source Separation with Time-varying Factor', out.width='70%', echo = FALSE}
 knitr::include_graphics("bss_pic.png")
 ```
 

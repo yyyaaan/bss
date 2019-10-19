@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 documentclass: article
 papersize: a4
-linestretch: 1.5
+linestretch: 1.1
 latex_engine: pdflatex
 citation_package: natbib
 bibliography: 99-ref.bib
@@ -16,8 +16,8 @@ always_allow_html: yes
 output:
   bookdown::gitbook:
     config:
+      sharing: null
       download: ["pdf", "epub", "tex"]
-    sharing: null
   bookdown::pdf_book:
     toc: false
     keep_tex: yes
@@ -27,21 +27,45 @@ output:
 ---
 
 ```{r setup, echo = FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.pos = "H")
+knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 # title, abstract pages are overwritten below (YAML header not in use)
 ```
 
-# Abstract | Tiivistelmä {-}
+```{=latex} 
+% PDF title page -> NOTE it doesn't get YAML meta
+\pagenumbering{gobble} 
+\clearpage
+\begin{center}
+\large
+\textbf{MSc Thesis}\\
+\vspace{72px}
+\Large
+\textbf{Time-Varying Source Separation by Joint Diagnolization on Autocovariances}\\
+\vspace{20px}
+\large
+Yan Pan\\
+\vspace{169px}
+\begin{figure}[h]
+\centering\includegraphics[width=5cm]{jyu-keskitetty-kaksikielinen.jpg}
+\end{figure}
+Department of Mathematics and Statistics\\
+Statistics\\
+01 November 2019
+\end{center}
+\normalsize
+```
+
+`r if(!knitr::is_latex_output()) {"# Abstract {-}"}`
 
 ```{=latex} 
 \clearpage
 {\setstretch{1}
-UNIVERSITY OF JYVÄSKYLÄN, Faculty of Mathematics and Science\\Department of Mathematics and Statistics\\Statistics}
+UNIVERSITY OF JYVÄSKYLÄ, Faculty of Mathematics and Science\\Department of Mathematics and Statistics\\Statistics}
 
 \begin{table}[H]
 \begin{tabular}{ll}
 \hline
-Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on Autocovariances \\
+Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on\\ & Autocovariances \\
 MSc thesis: & p., 1 appendices ( p.) \\
 Supervisor: & Senior lecturer Sara Taskinen \\
 Inspectors: & \\
@@ -54,6 +78,8 @@ Keywords:
 
 Blind source separation (BSS) seeks to recover the true signals from the observed ones, and no prior information (blind) about the mixing matrix is available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through spatial independence in second-order statistics. This thesis stretches the Second Order Source Separation (SOS) model in terms of latent time variation in mixing mechanism that was initially proposed by Yeredor (2003). An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives the latent independent sources by means of autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI is analyzed with simulated data by extending the performance metric Signal-to-interference ratio (SIR) into the time-varying case. Mass simulation suggests the superiority of the new LTV-SOBI algorithm compared with Yeredor's TV-SOBI algorithm, despite overall results are still non-optimal. In addtion to the full implementation of LTV-SOBI algorithm in _R_, an interactive dashboard is designed to enable further investiagtion of algorithm performance.
 
+`r if(!knitr::is_latex_output()) {"# Tiivistelmä {-}"}`
+
 ```{=latex} 
 \clearpage
 {\setstretch{1}
@@ -62,7 +88,8 @@ JYVÄSKYLÄN YLIOPISTO, Matemaattis-luonnontieteellinen tiedekunta\\Matematiikan
 \begin{table}[H]
 \begin{tabular}{ll}
 \hline
-Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on Autocovariances \\
+Yan Pan: & Aikavaihteleva lähdeerottamin autokovarianssin \\
+& yhteisdiagonaalilla \\
 Pro-gradu -tutkielma: &  s., 1 liitettä ( s.) \\
 Työn ohjaaja: & Yliopiston lehtori Sara Taskinen \\
 Tarkastajat: & \\
@@ -77,6 +104,7 @@ Hakusanat:
 Sokealähdeerottaminen (Blind Source Separation, BSS) pyritään palauttamaan todelliset signaalit havaituista, joista ei mitään aikaisempaa tietoa (sokea) sekoitusmatriisista ole saatavilla. BSS:n ratkaisut ovat perustettu useita menetelmiä, ja etenkin toisen asteen sokeatunnistaminen (SOBI) tunnistaa lähteet alueellisen riippumattomuuden ja toisen asteen tilastojen avulla. Tämän tutkimuksen tarkoituksena on laajentaa toinen asteen lähdeerottamismalli (Second Order Souce Separation, SOS) suhteen aikavaihtelevan sekoitusmekanismin tapauksessa, jonka Yeredor (2003) ehdotti alun perin. Parannettu algoritmi, eli lineaarisesti aikavaihteleva SOBI (linearly time-varying SOBI, LTV-SOBI) ja sen vaihtoehtoja yrittää estimoida sekoitusparametreja ja johtaa lopulta piilevät riippumattomat lähteet autokovarianssin hajoamisen ja yhteisdiagonaalin avulla. LTV-SOBI:n suorituskykyä analysoidaan simuloidulla datalla laajentamalla suorituskykymetriikka Signaali-kohinasuhde aikavaihtelevan tapaukseen. Massasimulaatio esittää uuden LTV-SOBI-algoritmin paremmuuteen verrattuna Yeredorin TV-SOBI, vaikka kokonaistulokset eivät ole vielä optimaalisia. LTV-SOBI-algoritmi on toteutettu kokonaan _R_:ssä ja sen lisäksi, että interaktiivinen kojetaulu on tehty algoritmien suorituskyvyn tutkimiseksi edelleen.
 
 ```{=latex}
-\setcounter{page}{1}
 \tableofcontents
+\pagenumbering{arabic} 
+\setcounter{page}{1}
 ```

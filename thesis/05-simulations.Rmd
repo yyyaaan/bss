@@ -88,11 +88,11 @@ Table: (\#tab:four-sets) Key Parameters of Simulation Set
 
 Supposing the realistic scenario that true source is unobservable while mixture can be observed only at certain sampling rates (aka. sampling frequencies); for example, a piece of sound shall include 4800k samples per second as signal mixture, but the recording equipment can only sample at 48kHz, which means that merely 1 out of every 100 mixture is sampled as observation. Aiming to simulate such fact and evaluate how the observation length could affect LTV-SOBI performance, the simulation study further generates artificial observed mixture and corresponding source upon different sampling rates based on the same source and mixture. Figure \@ref(fig:samplingRate) illustrates the sampling mechanism, and Table \@ref(tab:four_sets) summarized the sampling rates in each set. Consequently, multiple mixtures of different lengths (as a result of sampling rates) are simulated within each set. In brief, instead of generating new pseudo sources and mixtures, the simulation study considers the sampling frequencies as a more robust alternative.
 
-```{r samplingRate, fig.cap='Illustration of 50:1 sampling rate only signals at grey vertical bars are observed', out.width='80%', echo = FALSE}
+```{r samplingRate, fig.cap='Illustration of 10:1 sampling rate - only signals at blue vertical bars are sampled and observed', out.width='85%'}
 plot.ts(fig_mixing$mix[,1:3], main="", ann = FALSE,
         panel = function(x, col = col, bg = bg, pch = pch, type = type, ...){
           lines(x, col = col, bg = bg, pch = pch, type = type, ...)
-          for(a in seq(1, 1000, by=50)) segments(a, -99, a, x[a], col = "darkgrey")
+          for(a in seq(1, 1000, by=10)) segments(a, -99, a, x[a], col = "blue")
         })
 
 ```
@@ -101,7 +101,7 @@ In the next step, LTV-SOBI algorithms along with various alternatives are applie
 
 Finally,  over1000 similar simulation is performed to further eliminated potential bias and outliers, and enable reporting of bootstrap results. Figure \@ref(fig:simOverview) overviews the simulation study in the manner of progress flow, and the full _R_ code is attached in Appendix \@ref(simcode).
 
-```{r simOverview, fig.cap='Overview of Simulation Study Settings', out.width='89%', echo = FALSE}
+```{r simOverview, fig.cap='Overview of Simulation Study Settings', out.width='99%'}
 knitr::include_graphics("bss_sim_flow.png")
 ```
 
@@ -141,21 +141,21 @@ getPlot <- function(criteria, cutoff, setVector, yaxisname, limitsVector){
 }
 ```
 
-```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
+```{r resultA, fig.cap='Performance measured by tvSIR for Set I and II (the larger the better)', out.width='98%', fig.width = 9, fig.height = 5}
 # print(getPlot(4, 90, c("Set I", "Set II"), "tvSIR", c(0,12)))
 ```
 
-```{r resultB, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
+```{r resultB, results='hide', fig.cap='Performance measured by tvSIR for Set III and IV (the larger the better)', out.width='98%', fig.width = 9, fig.height = 5}
 #  print(getPlot(4, 30, c("Set III", "Set IV"), "tvSIR", c(0,12)))
 ```
 
 Using $tvMD$, \@ref(fig:resultA) and \@ref(fig:resultD) demonstrate better performance with lower value, and LTV-SOBI-alt is comparably the best algorithm in most cases except for simulation Set III; larger observation regularly leads to improved performance. The difference between LTV-SOBI and Yeredor's TVSOBI are essentially minimum.
 
-```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
+```{r resultC, fig.cap='Performance measured by tvMD for Set I and II (the smaller the better)', out.width='98%', fig.width = 9, fig.height = 5}
 # print(getPlot(2, 90, c("Set I", "Set II"), "tvMD", c(0.8, 1)))
 ```
 
-```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', echo = FALSE, fig.width = 9, fig.height = 5}
+```{r resultD, fig.cap='Performance measured by tvMD for Set III and IV (the smaller the better)', out.width='98%', fig.width = 9, fig.height = 5}
 # print(getPlot(2, 30, c("Set III", "Set IV"), "tvMD", c(0.8, 1)))
 ```
 
