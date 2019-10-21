@@ -28,30 +28,25 @@ Similar to SOS, the first assumption is non-restrictive and can be achieved thro
 
 ## Yeredor's TV-SOBI Algorithm
 
-TV-SOBI is the original algorithm provided by Yeredor [-@yeredor2003tv] solves the above TV-SOS model. The algorithm first finds the approximate 3-item expression of autocovariances as \@ref(eq:ycovs),
+TV-SOBI is the original algorithm provided by Yeredor [-@yeredor2003tv] solves the above TV-SOS model. Similar to model fitting in time series analysis, a prerequisite is that the desired lags must be chosen beforehand based on the data characteristics (for example with the help of `acf` function; a proper choice of lags could be challenging, and this topic would not be elaborated in this thesis), and suppose $L = \{\tau_1, \tau_2,\dots, \tau_{l}\}$ is the set of pre-defined lags. For convenience, let $\tau\in\{0\} \bigcup L$. Yeredor's algorithm first finds the approximate 3-item expression of autocovariances as \@ref(eq:ycovs),
 
 \begin{equation}
 \begin{aligned}
 \mathbb E(\boldsymbol x_t \boldsymbol x_{t+\tau}') & = \mathbb E[( \boldsymbol I + t \boldsymbol{\mathcal E}) \boldsymbol\Omega_0 \boldsymbol z_t \ \boldsymbol z_{t+\tau}' \boldsymbol\Omega_0' [ \boldsymbol I + (t + \tau) \boldsymbol{\mathcal E}]']
-\\ &= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'
- + t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
- + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
+\\ &= \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'+ t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}') + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
 \\ &\ \ \ \ \ \  + \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')
 + t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
-\\ &= \underline {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'}
- + t (\underline{ \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'  +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'})
+\\ &= \underline {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'} + t (\underline{ \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'  +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'})
 \\ &\ \ \ \ \ \  + t(t+\tau) ( \underline{\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'}) + \tau ( \underline {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'})
-\\ & \approx \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'
- + t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
- + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
+\\ & \approx \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' + t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}') + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
 \\ &:= \boldsymbol R ^{(1)}_\tau + t\, \boldsymbol R ^{(2)}_\tau + t^2\, \boldsymbol R ^{(3)}_\tau
 \end{aligned}
 (\#eq:ycovs)
 \end{equation}
 
-where the shorthand notations are defined as $\boldsymbol R ^{(1)}_\tau = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'$, $\boldsymbol R ^{(2)}_\tau = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$ and $\boldsymbol R ^{(3)}_\tau =\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$, and these 3 items are the decomposition of imperical autocovariances of observed mixture.  Since $\boldsymbol{\mathcal E}$ is assumed to be rather small in quantity, the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ would also be small due to it scale transformation by $\boldsymbol{\mathcal E}$, and Yeredor therefore argues their negligibility.
+where the shorthand notations are defined as $\boldsymbol R ^{(1)}_\tau = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'$, $\boldsymbol R ^{(2)}_\tau = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$ and $\boldsymbol R ^{(3)}_\tau =\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$; these 3 items are the decomposition of imperical autocovariances of observed mixture. Since $\boldsymbol{\mathcal E}$ is assumed to be rather small in quantity, the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ would also be insignificant due to their scale transformation by $\boldsymbol{\mathcal E}$, and Yeredor hence argues their negligibility.
 
-Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)}_l,\ \boldsymbol R ^{(2)}_l$ and $\boldsymbol R ^{(3)}_l$ through a linear least square model. The model is achieved by casting matrix equation \@ref(eq:ycovs) to element-wise real-valued equation of,
+Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)}_\tau,\ \boldsymbol R ^{(2)}_\tau$ and $\boldsymbol R ^{(3)}_\tau$ through a linear least square model. The model is achieved by casting matrix equation \@ref(eq:ycovs) to element-wise real-valued equation of,
 
 \begin{equation}
 \begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
@@ -71,13 +66,13 @@ The LS-estimation leads to,
 Yeredor [-@yeredor2003tv] proposed a practical approach to optimize best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R^{(1)}_0} \big)^{-\frac 1 2}$ and the idea is to use sequential Jacobi rotations and invariate coordinate selection (ICS) [@tyler2009invariant] to optimize,
 
 \begin{equation}
-\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol \Lambda'||^2 \bigg)
+\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg)
 \end{equation}
 
-where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal, and the exact value are unknown. The optimization algrithm only utilizes the property of being diagonal, and the values will become available only after the optimization. In addition, the other paramter $\boldsymbol{\mathcal E}$ can be found through optimization, 
+where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal, but the exact value is unknown. The optimization algrithm, lucily, only utilizes the property of being diagonal, and the values will become available right after the optimization. This procedure is very similar to joint diagnolization procedure that detailed in section \@ref(step2). The other paramter $\boldsymbol{\mathcal E}$ can be found through optimization, 
 
 \begin{equation}
 \min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R^{(2)}_\tau} - \boldsymbol{\mathcal E} \widehat{\boldsymbol R^{(1)}_\tau} - \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol{\mathcal E}' ||^2 \bigg)
 \end{equation}
 
-Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ as in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would indeed affect on the output of TV-SOBI. It is indeed theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be too complicated to find a solution, and the relatively naive approach described above is sufficient to solve the BSS problem.
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, be aware that $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ as in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would truly impact the output of TV-SOBI. It is theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be mathematically too complicated and computationally too costly to find a solution, and the relatively naive approach described above suffices to solve the BSS problem.

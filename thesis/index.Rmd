@@ -17,13 +17,14 @@ output:
   bookdown::gitbook:
     config:
       sharing: null
-      download: ["pdf", "epub", "tex"]
+      download: ["pdf", "epub", "docx"]
   bookdown::pdf_book:
     toc: false
     keep_tex: yes
     includes:
-      in_header: latex_preamble.tex
+      in_header: 00-preamble.tex
   bookdown::epub_book: default
+  bookdown::word_document2: default
 ---
 
 ```{r setup, echo = FALSE}

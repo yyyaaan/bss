@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>BSS Basics</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  { background-color: #f8f8f8; }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 66px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h2 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h3 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h4 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h5 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.section h6 {
+  padding-top: 71px;
+  margin-top: -71px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+.tocify-subheader {
+  display: inline;
+}
+.tocify-subheader .tocify-item {
+  font-size: 0.95em;
+}
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Blind Source Separation</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.Rmd">LTV-SOBI</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Review
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="w_brief.Rmd">TV-SOBI</a>
+    </li>
+    <li>
+      <a href="intro.Rmd">BSS Basics</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Reports
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="/tvsobi">Phase 2 Thesis Manuscript</a>
+    </li>
+    <li>
+      <a href="w_discussion_1.Rmd">Discussion: Methods</a>
+    </li>
+    <li>
+      <a href="/report">Phase 1 Presentation</a>
+    </li>
+    <li>
+      <a href="w_research.Rmd">Phase 1 Research</a>
+    </li>
+    <li>
+      <a href="w_viewer.Rmd">Old Viewer (may not work)</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">BSS Basics</h1>
+
+</div>
+
+
+<p><span class="math display">\[\begin{aligned}
+x= zA^T + \mu
+\\ &amp; z \text{ is source signal, zero-mean}
+\\ &amp; \mu \text{ is location param, }p \text{-vector}
+\\ &amp; A \text{ is mixing matrix; } W:= A^{-1} \text{ unmixing}
+\\
+\\ &amp; W \text{ is not unique up to signs and scales}
+\\ &amp; W^*=CW,\ C_{p\times p} \text{ has exactly one non-zero in each row and column}
+\\ &amp; \text{usually define }x_{st}= (x-\mu)\Sigma^{-1/2},\ \ \Sigma= \text{Cov}(x)=AA^T
+\end{aligned}\]</span></p>
+<div id="joint-diagonalization" class="section level2">
+<h2>Joint Diagonalization</h2>
+<p><span class="math inline">\(S_1,\ S_2\)</span> are know symmetric matrices; <span class="math inline">\(W_{p\times p}\)</span> nonsingular and <span class="math inline">\(D_{p\times p}\)</span> diagonal.</p>
+<p><span class="math display">\[\begin{aligned} \text{Simultaneous Diag Problem }
+&amp; \begin{cases} WS_1 W^T &amp;= I_p \\ W S_2 W^T &amp; = D \end{cases}
+\\
+\\ \text{Simultaneous Diag Solution }
+&amp; \begin{cases} 
+  \text{1. Solve eigen } &amp; S_1 V^T = V^T \Lambda_1 \\ 
+  \text{2. Square root } &amp; S_1^{-1/2} = V^T \Lambda_1 ^{-1/2} V \\ 
+  \text{3. Solve eigen } &amp; \big( S_1^{-1/2}\ S_2\ S_1^{-1/2\ T} \big) U^T = U^T \Lambda_2 \\
+  \text{Solution: } &amp; W=US_1^{-1/2},\ D= \Lambda_2
+  \end{cases} 
+\end{aligned}\]</span></p>
+<p>For more matrices, try to make <span class="math inline">\(WS_K W^T\)</span> as diagonal as possible. <span class="math inline">\(\text{off}(M) = M - \text{diag}(M)\)</span>.</p>
+<p><span class="math display">\[\begin{aligned} 
+\text{To minimize diagonality } &amp; 
+\begin{cases} \sum\limits_{k=1}^K M(WS_K W^T) \\  \\ M(V):= || \text{off}(V)||^2 = \sum\limits_{i\neq j}V_{ij}^2 \text{ as a common choice} \end{cases}
+\\
+\\ \text{Approximation Solution }
+&amp; \begin{cases} 
+  \text{1. Whitening } &amp; S_k^*= S_1^{-1/2}\ S_k\ S_1^{-1/2\ T}\\
+  &amp; S_1 \text{ usually covariance matrix}\\
+  \text{2. Find orthogonal }U &amp; \text{minimize }\sum\limits_{k=2}^K|| \text{off}(US_k^* U^T)||^2  \\
+  \ \ \ \ \ \text{(or) }\iff &amp;\text{maximize }\sum\limits_{k=2}^K|| \text{diag}(US_k^* U^T)||^2 \\
+  \text{use algorithms e.g.}&amp; \text{deflation-based }\textbf{djd} \text{; Given&#39;s rotation }\textbf{rjd}
+\end{cases} 
+\end{aligned}\]</span></p>
+</div>
+<div id="independent-component-analysis" class="section level2">
+<h2>Independent Component Analysis</h2>
+<p><span class="math display">\[\begin{aligned}
+\\ \text{ICA assumptions} 
+&amp; \begin{cases} 
+    \text{source components are mutually independent} \\
+    E(z)=0 \text{ and }E(z^T z) = I_p \\
+    \text{at most one component is Gaussian} \\
+    \text{each component is i.i.d}
+  \end{cases}
+\\
+\\ \text{ICA-FOBI}
+&amp; \begin{cases} 
+    \text{find unmixing } W \ \begin{cases} WS_1(F_x)W^T = I_p \\ WS_2(F_x)W^T = D \end{cases}\\
+    \text{ where, } \begin{aligned} &amp;S_1(F_x)=Cov(x) \\ &amp;S_2(F_x) = \frac{1}{p+2} E \bigg[ \big|\big|S_1^{-1/2} \big(x-Ex\big)\big|\big|^2  \big(x-Ex\big)^T \big(x-Ex\big)\bigg] \end{aligned}
+  \end{cases}
+\\
+\\ \text{ICA-JADE}
+&amp; \begin{cases} 
+    \text{Fourth order cumulant } &amp; C(M):= E[(x_{st}M x_{st}^T)x_{st}^T x_{st}]-M-M^T - \text{tr}(M)I_p \\
+    \text{Joint diagonalize }C(E^{ij}) &amp; E^{ij}=e_i^T e_j,\ \ \ e_k \ p\text{-vector containing all 0 but 1 at }k 
+  \end{cases}
+\\
+\\ \text{ICA-}k \text{-JADE}
+&amp; \begin{cases} 
+    \text{same as JADE, but limit to } \{C(E^{ij}): |i-j|&lt;k\} \\
+    k \text{ is guess of largest multiplicity of identical kurosis}
+  \end{cases}
+\end{aligned}\]</span></p>
+</div>
+<div id="second-order-source-separation" class="section level2">
+<h2>Second Order Source Separation</h2>
+<p><span class="math display">\[\begin{aligned}
+\\ \text{SOS assumptions}
+&amp; \begin{cases} 
+    \text{(time series) } (z_t)_{t=0,\pm 1,\pm 2} \\
+    E(z_t)=0 \text{ and }E(z_t^T z_t) = I_p \\
+    E(z_t^T z_{t+\tau }) = D_\tau \text{ diagonal }\forall \tau \text{ (stationarity)}
+  \end{cases}
+\\
+\\ \text{SOS-AMUSE}
+&amp; \begin{cases} 
+    \text{Given a lag }\tau: \\ 
+    \text{find unmixing } W_\tau \ \begin{cases} W_\tau S_0(F_x)W_\tau^T = I_p \\ W_\tau S_\tau(F_x)W_\tau^T = D_\tau \end{cases}\\
+    \text{ where, } \begin{aligned} &amp;S_0(F_x)=Cov(x) \\ &amp;S_\tau(F_x) = E \big[ \big(x_t-Ex_t\big)^T \big(x_{t+\tau} -Ex_{t}\big)\big] \end{aligned}
+  \end{cases}
+\\
+\\ \text{SOS-SOBI}
+&amp; \begin{cases} 
+    \text{Consider lags }\tau_1,\tau_2,\dots, \tau_k: \\ 
+    \text{find unmixing } W \ \begin{cases} W S_0(F_x)W^T &amp;= I_p \\ W S_{\tau_1}(F_x)W^T &amp;= D_{\tau_1} \\ &amp;\vdots \\ W S_{\tau_K}(F_x)W^T &amp;= D_{\tau_K} \end{cases}\\
+    \text{then, joint diagonalization. } \textbf{rjd} \text{ is preferable}
+  \end{cases}
+\end{aligned}\]</span></p>
+</div>
+<div id="nonstationary-source-separation" class="section level2">
+<h2>Nonstationary Source Separation</h2>
+<p><span class="math display">\[\begin{aligned}
+\\ \text{NSS assumptions}
+&amp; \begin{cases} 
+    E(z_t)=0 \ \forall t\\
+    E(z_t^T z_t) \text{ diagonal and positive definite }\forall t \\
+    E(z_t^T z_{t+\tau })\text{ diagonal }\forall t,\ \tau \text{ (not constant, i.e. non-stationary)}
+  \end{cases}
+\\
+\\ &amp; S_{T,\tau}(F_x):= \frac 1 {|T|-\tau} \sum\limits_{t\in T} E \big[ \big(x_t-Ex_t\big)^T \big(x_{t+\tau} -Ex_{t}\big)\big]
+\\
+\\ \text{NSS-SD}
+&amp; \begin{cases} 
+    \text{simultaneously diagonalize } S_{T_1,0}(F_x), \ S_{T_2,0}(F_x) \\ 
+    \text{choose } T_1,\ T_2\subset [1,n] \text{that makes above as different as possible}
+  \end{cases}
+\\
+\\ \text{NSS-JD}
+&amp; \begin{cases} 
+    \text{1. whitening using covariance }S_{[1,n],0}(F_x)\\
+    \text{2. jointly diagonalize } S_{T_1,0}(F_x), \ S_{T_2,0}(F_x),\dots,\ S_{T_K,0}(F_x)
+  \end{cases}
+\\
+\\ \text{NSS-TD-JD}
+&amp; \begin{cases}
+    \text{consider time dependence, where some intervals may comply SOS} \\
+    \text{1. whitening using covariance }S_{[1,n],0}(F_x)\\
+    \text{2. jointly diagonalize } S_{T_i,\tau_j}(F_x),\ i=1,\dots,K,\ j=1,\dots,L\\
+    \text{length if inteval selection: random effects not too large}\\
+    \text{number of intervals: } K=12 \text{ if large enough, each interval }\gt 100 \text{ obs}
+  \end{cases}  
+\end{aligned}\]</span></p>
+</div>
+<div id="sobi-topic-stationary-time-series" class="section level2">
+<h2>SOBI Topic: Stationary Time Series</h2>
+<p>SOS model <span class="math inline">\(\boldsymbol x_t = \boldsymbol\mu + \boldsymbol\Omega \boldsymbol z_t,\ \ \ t = 0, \pm 1,\pm2,\dots\)</span></p>
+<p>Latent time series are assumed to be uncorrelated and weakly stationary <span class="math inline">\(\begin{cases} \text{A1} &amp;E(\boldsymbol z_t)=0 \\ \text{A1} &amp; E(\boldsymbol z_t \boldsymbol z_t&#39;) = \boldsymbol I_p \\ \text{A2} &amp; E(\boldsymbol z_{t} \boldsymbol z_{t+\tau}&#39;) = e(\boldsymbol z_{t+\tau} \boldsymbol z_{t}&#39;) = \boldsymbol\Lambda_\tau \text{ is diagonal }\forall \tau = 1,2,\dots \end{cases}\)</span></p>
+<p>Given ts-observations, the goal is to estimate <span class="math inline">\(\hat{\boldsymbol \Gamma}:\ \boldsymbol{\Gamma x}\)</span> has uncorrelated components. Clearly, <span class="math inline">\(\boldsymbol\Gamma = \boldsymbol{C\Omega}^{-1}\)</span>, where <span class="math inline">\(\boldsymbol C\)</span> has exactly one non-zero element in each row and each column</p>
+<div id="bss-on-autocovariance-matrix" class="section level3">
+<h3>BSS on Autocovariance Matrix</h3>
+<p>Joint diagonalization; suppose <span class="math inline">\(\boldsymbol \mu = \boldsymbol 0\)</span> <span class="math display">\[\begin{aligned} 
+E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}&#39;) &amp;= E(\boldsymbol{\Omega z}_t \boldsymbol z&#39; _{t+\tau} \boldsymbol\Omega&#39;) = \boldsymbol{\Omega\Lambda}_\tau \boldsymbol{ \Omega}&#39;
+\\ \Rightarrow \boldsymbol\Gamma_\tau \text{ satisfies } &amp; \begin{cases} \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t}&#39;) \boldsymbol \Gamma_\tau&#39; = \boldsymbol I _p \\ \boldsymbol \Gamma_\tau E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}&#39;)\boldsymbol \Gamma_\tau&#39; = \underbrace{ \boldsymbol P_\tau \boldsymbol \Lambda_\tau \boldsymbol P&#39;_\tau}_{\text{decreasing ordered } \boldsymbol\Lambda_\tau }\end{cases} 
+\end{aligned}\]</span></p>
+<p>AMUSE algorithm only consider the unique <span class="math inline">\(\boldsymbol S_0 = E(\boldsymbol x_{t} \boldsymbol x_{t}&#39;), \ \boldsymbol S_\tau = E(\boldsymbol x_{t} \boldsymbol x_{t+\tau}&#39;)\)</span>.</p>
+<p>SOBI algorithm consider lags at <span class="math inline">\(\tau_1, \dots, \tau_K\)</span>, and find unmixing <span class="math inline">\(\boldsymbol\Gamma_{p\times p} = (\gamma_1,\dots,\gamma_p)&#39;\)</span> by <span class="math display">\[\begin{aligned} \text{ under constraint } \boldsymbol {\Gamma S}_0 \boldsymbol \Gamma&#39; = \boldsymbol I _p
+\\ \text{minimize } &amp; \sum\limits_{k=1}^K \big|\big| \text{off}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma &#39;) \big |\big|^2 ,\ \ \ \text{off}( \boldsymbol S) = \boldsymbol S - \text{diag}( \boldsymbol S)
+\\ \Leftrightarrow \text{ maximize } &amp; \sum\limits_{k=1}^K \big|\big| \text{diag}( \boldsymbol{\Gamma S}_k \boldsymbol \Gamma &#39;) \big |\big|^2 = \sum\limits_{j=1}^p \sum\limits_{k=1}^K (\gamma_j&#39; \boldsymbol S_k \gamma_j)^2
+\end{aligned}\]</span></p>
+<p>Facts: <span class="math inline">\(\boldsymbol {\Gamma S}_k \boldsymbol\Gamma&#39; = \boldsymbol I_p \ \Rightarrow \ \boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}\)</span>, where <span class="math inline">\(\boldsymbol U_{p\times p} = (u_1,\dots,u_p)&#39;\)</span> orthogonal.</p>
+<p>Solving the optimization problem depends on the methdology below.</p>
+</div>
+<div id="deflation-based-approach" class="section level3">
+<h3>Deflation-based Approach</h3>
+<p>Find unmixing matrix rows one by one: <span class="math inline">\(\gamma_j = \arg\max \sum\limits_{k=1}^K (\gamma_j&#39; \boldsymbol S_k \gamma_j)^2\)</span> under the constrain <span class="math inline">\(\gamma_j&#39; \boldsymbol S_k \gamma_j = \delta_{ij},\ \ i= 1,\dots,j\)</span>. The solution optimizes the Lagrangian function.</p>
+<p>The estimateing equation: <span class="math display">\[
+T(\gamma_j)= \boldsymbol S_0 \bigg( \sum\limits_{r=1}^j \gamma_r\gamma_r&#39;\bigg) T(\gamma_j)
+\\ \text{where, }\boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma&#39;\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+\]</span></p>
+<p>As <span class="math inline">\(\boldsymbol\Gamma = \boldsymbol {US}_0^{-1/2}\)</span>, solve <span class="math inline">\(u_j\)</span> one by one (after <span class="math inline">\(u_1,\dots, u_{j-1}\)</span> and init) following 2 steps until convergence <span class="math display">\[\begin{aligned} 
+&amp; T(u) := \sum\limits_{k=1}^K(u&#39; \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } &amp; u_j \leftarrow \bigg( \boldsymbol I_p - \sum\limits_{i=1}^{j-1} u_i u_i&#39; \bigg)T(u_j)
+\\ \text{step 2: } &amp; u_j \leftarrow ||u_j||^{-1}u_j
+\\ *\ &amp; \text{different initial values should be tried.}
+\end{aligned}\]</span></p>
+</div>
+<div id="symmetric-approach" class="section level3">
+<h3>Symmetric Approach</h3>
+<p>Simultaneously find all rows, and the estimating equations: <span class="math display">\[\begin{aligned}
+&amp;\begin{cases} \gamma_i&#39; T(\gamma_j) = \gamma_j\ T(\gamma_i)
+\\ \gamma_i&#39; \boldsymbol S_0 \gamma_j = \delta_{ij}
+\end{cases}
+\\ \text{where, } &amp; 2 T(\gamma_j) = \boldsymbol S_0 \bigg( 2 \theta_{jj}\gamma_j + \sum\limits_{i=1}^{j-1}\theta_{ij}\gamma_i + \sum\limits_{i=j+1}^p \theta_{ji}\gamma_i \bigg)
+\\ \text{and } &amp; \boldsymbol T (\gamma) = \sum\limits_{k=1}^k ( \boldsymbol{\gamma&#39;\ S}_k \boldsymbol\gamma) \boldsymbol S_k \boldsymbol\gamma
+\end{aligned}
+\]</span></p>
+<p>Repeat until convergence <span class="math display">\[\begin{aligned} 
+&amp; T(u) := \sum\limits_{k=1}^K(u&#39; \boldsymbol R_k u) \boldsymbol R_k u
+\\ \text{step 1: } &amp; T \leftarrow (T(u_1), \dots, T(u_p))&#39;
+\\ \text{step 2: } &amp; U \leftarrow (TT&#39;)^{-1/2} T
+\end{aligned}\]</span></p>
+</div>
+</div>
+<div id="another-intro-to-ica-and-fobi" class="section level2">
+<h2>Another Intro to ICA and FOBI</h2>
+<p>ICA is a BSS based <span class="math inline">\(\begin{cases} E(z)=0 \\ E(zz&#39;)= I_p \\ z\text{ independent} \end{cases}\)</span>, and the identifiability of parameters requires at most one component is normally distributed.</p>
+<p>Singular value decomposition <span class="math inline">\(\Omega=U\Lambda V&#39;\)</span> and then <span class="math inline">\(\Sigma:=Cov(x)=U\Lambda^2 U&#39;,\ \ VU&#39;\Sigma^{-1/2}(x-\mu)=z\)</span>. Therefore, the orthogonal matrix <span class="math inline">\(VU&#39;\)</span> is the components.</p>
+<p>Scatter matrices, <span class="math inline">\(S_1, S_2\)</span> (symmetric, positive definite and affine equivariant), and solve <span class="math inline">\(\begin{cases} \Gamma S_1 \Gamma&#39;=I_p &amp;\text{standardization} \\ \Gamma S_2 \Gamma&#39; = \Lambda &amp;\text{uncorrelatoin}\end{cases}\)</span>. The solution is eigenvector-eigenvalue of <span class="math inline">\(S_1^{-1}S_2\)</span></p>
+<p>FOBI chooses <span class="math inline">\(\begin{cases} S_1=Cov(x) \\ S_2 = E \bigg( \big(x-E(x)\big)\big(x-E(x)\big)&#39;\ Cov(x)^{-1}\ \big(x-E(x)\big)\big(x-E(x)\big)&#39; \bigg) \end{cases}\)</span></p>
+</div>
+<div id="matrix-calculation-review" class="section level2">
+<h2>Matrix Calculation Review</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">  <span class="co"># covariance of something...</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">A &lt;-<span class="st"> </span><span class="kw">cov</span>(<span class="kw">matrix</span>(<span class="kw">rnorm</span>(<span class="dv">3000</span>), <span class="dt">ncol =</span> <span class="dv">3</span>)) </a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">  <span class="co"># eigen</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">eig &lt;-<span class="st"> </span><span class="kw">eigen</span>(A)</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="co"># eigen decompose = 0</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="kw">round</span>(eig<span class="op">$</span>vectors <span class="op">%*%</span><span class="st"> </span><span class="kw">diag</span>(eig<span class="op">$</span>values) <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(eig<span class="op">$</span>vectors) <span class="op">-</span><span class="st"> </span>A, <span class="dv">5</span>)</a></code></pre></div>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    0    0    0
+## [2,]    0    0    0
+## [3,]    0    0    0</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">  <span class="co"># find sqrt</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">A.sqrt &lt;-<span class="st"> </span>eig<span class="op">$</span>vectors <span class="op">%*%</span><span class="st"> </span><span class="kw">diag</span>(eig<span class="op">$</span>values<span class="op">^</span>{<span class="dv">1</span><span class="op">/</span><span class="dv">2</span>}) <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(eig<span class="op">$</span>vectors)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3"><span class="kw">round</span>(A.sqrt <span class="op">%*%</span><span class="st"> </span>A.sqrt <span class="op">-</span><span class="st"> </span>A, <span class="dv">5</span>)</a></code></pre></div>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    0    0    0
+## [2,]    0    0    0
+## [3,]    0    0    0</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">  <span class="co"># find ^-1/2 = solve(A.sqrt)</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">A.invsqrt &lt;-<span class="st">  </span>eig<span class="op">$</span>vectors <span class="op">%*%</span><span class="st"> </span><span class="kw">diag</span>(eig<span class="op">$</span>values<span class="op">^</span>{<span class="op">-</span><span class="dv">1</span><span class="op">/</span><span class="dv">2</span>}) <span class="op">%*%</span><span class="st"> </span><span class="kw">solve</span>(eig<span class="op">$</span>vectors)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="kw">round</span>(<span class="kw">solve</span>(A.invsqrt <span class="op">%*%</span><span class="st"> </span>A.invsqrt) <span class="op">-</span><span class="st"> </span>A, <span class="dv">5</span>)</a></code></pre></div>
+<pre><code>##      [,1] [,2] [,3]
+## [1,]    0    0    0
+## [2,]    0    0    0
+## [3,]    0    0    0</code></pre>
+</div>
+
+<style>
+p{margin-bottom:19px}    
+h2{color:grey; border-bottom: 3px solid lightgrey; text-align: right; margin:50px}
+h3{color:grey; margin-top:13px}
+pre#runcode_expr {font-size: 10px !important}
+blockquote {
+    font-size: inherit;
+    color: #212121;
+    background-color: #f5f5f5;
+    border: 1px solid #cccccc;
+    border-radius: 3px
+}
+</style>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = false;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
