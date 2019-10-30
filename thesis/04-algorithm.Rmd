@@ -1,6 +1,6 @@
 #  Algorithm Linearly Time-Varying Second Order Blind Identification {#algorithm}
 
-While SOS model can be identified by obtaining one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time-varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
+While the SOS model can be identified by obtaining one single matrix ($\boldsymbol\Omega$), TV-SOS demands at least one more matrix to be effectively estimated, the linear time-varying mixing factor $\boldsymbol{\mathcal E}$ in addition to the pseudo initial mixing matrix $\boldsymbol{\Omega}_0$.
 
 Developed from Yeredor[-@yeredor2003tv]'s original TV-SOBI, this section carefully investigates the autocovariance matrices and introduces the new Linearly Time-Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing improved mathematical accuracy given TV-SOS model \@ref(eq:tvsobi).  LTV-SOBI mainly includes 3 statistical steps using empirical autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operation is heavily utilized in all steps.
 
@@ -96,7 +96,7 @@ It is barely possible to exactly diagonolize all $\boldsymbol\Lambda_{\tau_1},\ 
 
 Joint diagonlization steps conclude with unwhitening, where $\boldsymbol \Omega_0$ is found by $\boldsymbol\Omega_0 = \boldsymbol{R}_0^{1/2} \boldsymbol V$.
 
-The whitening actually requires $\boldsymbol{R}_0$ to be positive semi-definite, and mathematically, it is also embedded with this property as it represents the (unobservable) covariance matrix of the true signal. However, being a blind source, $\boldsymbol R_0$ can only be found through the autocovariance decomposition result \@ref(eq:covsep), which is achieved by a linear estimator from Equation \@ref(eq:olo), and naturally the estimator does not always guarantee the positive semi-definite property due to residuals and linear fitting. Practically, in such case, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] is appointed to replace the problematic $\boldsymbol R_0$ with its nearest (in terms of Frobenius norm) positive definite neighbor. Details about correcting non-positive semi-definite matrix were proposed by Knol and ten Berge [-@knol1989least] and have been further developed by Cheng and Higham [-@cheng1998modified]. 
+The whitening requires $\boldsymbol{R}_0$ to be positive semi-definite, and mathematically, it is also embedded with this property as it represents the (unobservable) covariance matrix of the true signal. However, being a blind source, $\boldsymbol R_0$ can only be found through the autocovariance decomposition result \@ref(eq:covsep), which is achieved by a linear estimator from Equation \@ref(eq:olo), and naturally the estimator does not always guarantee the positive semi-definite property due to residuals and linear fitting. Practically, in such a case, the Nearest Positive Definite Matrix (nearPD) algorithm by Bates and Martin Maechler [-@packageMatrix] is appointed to replace the problematic $\boldsymbol R_0$ with its nearest (in terms of Frobenius norm) positive definite neighbor. Details about correcting non-positive semi-definite matrix were proposed by Knol and ten Berge [-@knol1989least] and have been further developed by Cheng and Higham [-@cheng1998modified]. 
 
 After the above steps, the following matrices \@ref(eq:steptwo) are entirely solved,
 
@@ -172,7 +172,7 @@ Stacking over $\tau\in L$ for \@ref(eq:beta2vecalt) can estimate $\boldsymbol \O
 
 ## Summary of Algorithms
 
-This chapter describes applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of the algorithm are analogous, there are distinguishable differences that almost surely lead to diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm proposed by Yeredor [-@yeredor2003tv] is labelled as "Y-TVSOBI" for convenience.
+This chapter describes applicable statistical approaches to solve linearly time-varying blind source problem using autocovariance. Although the flows of the algorithm are analogous, there are distinguishable differences that almost surely lead to diversified results. Figure \@ref(fig:algorithm) visualizes the different approaches in the manner of flow chart. The original algorithm proposed by Yeredor [-@yeredor2003tv] is labeled as "Y-TVSOBI" for convenience.
 
 ```{r algorithm, fig.cap='Summary of LTV-SOBI and Y-TVSOBI Algorithms', out.width='80%'}
 knitr::include_graphics("bss_algorithms.png")

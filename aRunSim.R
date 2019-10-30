@@ -92,10 +92,10 @@ save_eval <- function(benchmarks, id){
 
 
 multido <- function(E, N, sn){
-  for(i in 1:100){
+  for(i in 1:50){
     Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
     Epsilon <- 10^(-E) * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
-    zall <- sim_good_sources(N = 1e4, 3)
+    zall <- sim_good_sources(10^N, 3)
     xall <- tvmix(zall, Omega, Epsilon)
     
     # loop for freqs
@@ -112,16 +112,20 @@ multido <- function(E, N, sn){
 }
 
 
-seq <- 305
-multido(5,4,seq)
-multido(4,4,seq)
-multido(5,5,seq)
-multido(4,5,seq)
+#seq <- 305
+#multido(5,4,seq)
+#multido(4,4,seq)
+#multido(5,5,seq)
+#multido(4,5,seq)
 
 
-# library(parallel)
-# mclapply(as.list(1:100), function(seq) {
-#   multido(5,5,seq); multido(5,4,seq);
-#   multido(4,5,seq); multido(4,4,seq);
-# })
+library(parallel)
+mclapply(
+  as.list(401:432), 
+  function(seq) { 
+    multido(5,5,seq); #multido(5,4,seq);
+    multido(4,5,seq); #multido(4,4,seq);
+  },
+  mc.cores = detectCores()
+)
 

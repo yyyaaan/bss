@@ -16,17 +16,23 @@ The primary `R`-functions that support LTV-SOBI are listed as following,
 
 - `tvmix(z, Omega, Epsilon, x_only = TRUE)` and `tvunmix <- function(x, Omega_hat, Epsilon_hat)` serve as TV-SOS utility that generates/restores time-varying mixture based on source signal and mixing parameters.
 
-For major computer platform, linear estimation is faster and more reliable compared with inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which becomes a problem if the dimension is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous chapters appoint non-vectorization version.
+For major computer platforms, linear estimation is faster and more reliable compared with the inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which becomes a problem if the dimension is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous chapters appoint a non-vectorization version.
 
 ## Introduction to LTV-SOBI Performance Metric Explorer {#explorer}
 
-As Section \@ref(performance) stated the complexity in presents LTV-SOBI performance due to large number of factors, an interactive dashboard is designed to enable customizable performance exploring. The explorer is available at http://bss.yan.fi and is programmed in `R` with support of `shiny` package. The explorer allows user to view and compare performance metric from different angles.
+As Section \@ref(performance) stated the complexity in presents LTV-SOBI performance due to a large number of factors, an interactive dashboard is designed to enable customizable performance exploring. The explorer is available at http://bss.yan.fi and is programmed in `R` with support of `shiny` package. The explorer allows the user to view and compare performance metrics from different perspectives.
 
 ```{r explorer, fig.cap='Screeshot of BSS Explorer, an interactive dashboard', out.width='99%', echo = FALSE}
 knitr::include_graphics("bss_explorer.png")
 ```
 
+There are 5 dynamic pages designed to aid performance evaluation of multiple algrithms, involving a trend of performance change over the number of observations. The "Simple View" page allows users to select one single cohort and aggregate over 1 or more lags, and the "View All Corhots" will display all 4 plots that representing each cohort on the same page. "View All Lags" shows 3 plots of different lags given user selection of 1 or more cohorts. Control on all possible parameters is available in the "View All Options" page. In addition, the "Method Relationships" attempts to overview the hierarchies of all methods discussed, where the size of blocks shall indicate the number of valid simulations done. 
+
 ## _R_ Code for Simulation Study {#simcode}
+
+```{=latex} 
+\small
+```
 
 ```{r appcode, eval = FALSE, echo = TRUE}
 remove(list = ls()) # clear environment
@@ -81,12 +87,12 @@ save_eval <- function(benchmarks, id){
     df <- data.frame(criteria = attributes(benchmarks)$names[i],
                      value    = benchmarks[[i]]) %>% rbind(df, .)
   }
-  df$detail = benchmarks$method
-  df$method = word(benchmarks$method)
-  df$id     = id
-  df$desc   = str_remove(benchmarks$method, " NearestSPD")
-  df$N      = benchmarks$N
-  df$p      = benchmarks$p
+  df$detail <- benchmarks$method
+  df$method <- word(benchmarks$method)
+  df$id     <- id
+  df$desc   <- str_remove(benchmarks$method, " NearestSPD")
+  df$N      <- benchmarks$N
+  df$p      <- benchmarks$p
   
   df <- df %>% filter(criteria != "N" & criteria != "p")
 
@@ -101,8 +107,9 @@ save_eval <- function(benchmarks, id){
 multido <- function(E, N, sn){
   for(i in 1:100){
     Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
-    Epsilon <- 10^(-E) * matrix(c(-3, -4, 9, 
-                                  6, 2.5, 2.1, -6, 6, 7), ncol = 3)
+    Epsilon <- 10^(-E) * matrix(c(-3, - 4, 9  , 
+                                   6, 2.5, 2.1, 
+                                  -6, 6  , 7  ), ncol = 3)
     zall <- sim_good_sources(N = 1e4, 3)
     xall <- tvmix(zall, Omega, Epsilon)
     
@@ -122,11 +129,19 @@ multido <- function(E, N, sn){
 }
 
 
-library(parallel)
-mclapply(as.list(1:500), function(seq) {
-  multido(5,5,seq); multido(5,4,seq);
-  multido(4,5,seq); multido(4,4,seq);
-})
+library(parallel) # enable parallel processing
+mclapply(
+  as.list(1:500), 
+  function(seq) {
+    multido(5,5,seq)
+    multido(5,4,seq);
+    multido(4,5,seq); 
+    multido(4,4,seq);
+  },
+  mc.cores = detectCores()
+)
+```
 
-
+```{=latex}
+\normalsize
 ```
