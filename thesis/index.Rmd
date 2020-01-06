@@ -29,6 +29,8 @@ output:
 
 ```{r setup, echo = FALSE}
 knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
+library(tidyverse)
+load("thesis.rdata")
 # title, abstract pages are overwritten below (YAML header not in use)
 ```
 
