@@ -26,7 +26,7 @@ As Section \@ref(performance) stated the complexity in presents LTV-SOBI perform
 knitr::include_graphics("bss_explorer.png")
 ```
 
-There are 5 dynamic pages designed to aid performance evaluation of multiple algrithms, involving a trend of performance change over the number of observations. The "Simple View" page allows users to select one single cohort and aggregate over 1 or more lags, and the "View All Corhots" will display all 4 plots that representing each cohort on the same page. "View All Lags" shows 3 plots of different lags given user selection of 1 or more cohorts. Control on all possible parameters is available in the "View All Options" page. In addition, the "Method Relationships" attempts to overview the hierarchies of all methods discussed, where the size of blocks shall indicate the number of valid simulations done. 
+There are 5 dynamic pages designed to aid performance evaluation of multiple algorithms, involving a trend of performance change over the number of observations. The "Simple View" page allows users to select one single cohort and aggregate over 1 or more lags, and the "View All Corhots" will display all 4 plots that representing each cohort on the same page. "View All Lags" shows 3 plots of different lags given user selection of 1 or more cohorts. Control on all possible parameters is available in the "View All Options" page. In addition, the "Method Relationships" attempts to overview the hierarchies of all methods discussed, where the size of blocks shall indicate the number of valid simulations done. 
 
 ## _R_ Code for Simulation Study {#simcode}
 
