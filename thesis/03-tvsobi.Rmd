@@ -1,6 +1,6 @@
 # Time-Varying Second-Order Model Formulation and Yeredor's Solution {#tvsobi}
 
-Presented earlier by Yeredor [-@yeredor2003tv], Time-varying Second-Order Source Separation (TV-SOS) here refers to the existence of subtle change in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model \@ref(eq:SOS), linear time variation can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol\Omega_0$, which is clearly non-constant despite $\boldsymbol{\mathcal E}$ and $\boldsymbol\Omega_0$ are. The initial mixing $\boldsymbol \Omega_0$ is the $p\times p$ mixing matrix at time $t=0$; the time-varying factor $\boldsymbol{\mathcal E}$ is another $p\times p$ matrix that measures the scale of linear variation in mixing matrix over the change of time. In addition to this linear variation, other time-varying structures include periodical [@weisman2006separation], geometric curved [@kaftory2007probabilistic], etc. Figure \@ref(fig:mixingplot) illustrates the difference between an ordinary time-invariant mixture and linearly time-varying one. It can be discovered that the time-varying mixture has a certain trend and it does not demonstrate the stationary property. In fact, the introduction of time-varying factor invalids the stationary property in the observation $\boldsymbol{x}$ almost surely even though the source signals are stationary. This is because $\boldsymbol{\mathcal E}$ changes the scale (second-order statistics) over time $t$. Nevertheless, the aforementioned SOBI and the upcoming LTV-SOBI algorithms do not require such property on the observations; only the source signals are bind to stationarity.
+Time-varying Second-Order Source Separation [TV-SOS, @yeredor2003tv] refers to the existence of subtle change in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model \@ref(eq:SOS), linear time variation can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol\Omega_0$, which is clearly non-constant despite $\boldsymbol{\mathcal E}$ and $\boldsymbol\Omega_0$ are. The initial mixing $\boldsymbol \Omega_0$ is the $p\times p$ mixing matrix at time $t=0$; the time-varying factor $\boldsymbol{\mathcal E}$ is another $p\times p$ matrix that measures the scale of linear variation in mixing matrix over the change of time. In addition to this linear variation, other time-varying structures include periodical [@weisman2006separation], geometric curved [@kaftory2007probabilistic], etc. Figure \@ref(fig:mixingplot) illustrates the difference between an ordinary time-invariant mixture and linearly time-varying one. It can be discovered that the time-varying mixture has a certain trend and it does not demonstrate the stationary property. In fact, the introduction of time-varying factor invalids the stationary property in the observation $\boldsymbol{x}$ almost surely even though the source signals are stationary. This is because $\boldsymbol{\mathcal E}$ changes the scale (second-order statistics) over time $t$. Nevertheless, the aforementioned SOBI and the upcoming LTV-SOBI algorithms do not require such property on the observations; only the source signals are bind to stationarity.
 
 ```{r mixingplot, fig.show='hold', fig.cap='Two types of 4-dimensional signal mixture example: ordinary mixing (left) and time-varying mixing (right).', out.width='50%', echo = FALSE}
 load("thesis.rdata")
@@ -10,12 +10,12 @@ plot.ts(fig_mixing$tvmix,  main = "Time-varying Mixture", ann = FALSE)
 
 ## TV-SOS Model and Assumptions
 
-TV-SOS model serves as an extension to the SOS model \@ref(eq:SOS) and is also a special case of general-TV-SOS where the time-dependent variation is assumed to be linear. Focusing on the realization of stochastic processes, an observable $p$-variate time series in TV-SOS satisfies,
+TV-SOS model serves as an extension to the SOS model \@ref(eq:SOS) and is also a special case of general-TV-SOS where the time-dependent variation is assumed to be linear. Focusing on the realization of stochastic processes, an observable $p$-variate time series in TV-SOS satisfies
 
 \begin{equation}
 \begin{aligned}
-\boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t
-\\ (B1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
+\boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t,
+\\ \text{where } \boldsymbol z_t \text{satisfies } (B1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
 \\ (B2)\ & \text{Cov}( \boldsymbol z_t) = \boldsymbol I
 \\ (B3)\ & \text{Cov}( \boldsymbol z_t, \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all }
 \tau = 1,2,\dots
@@ -63,13 +63,13 @@ The LS-estimation leads to
 \begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
 \end{equation}
 
-Yeredor [-@yeredor2003tv] proposed a practical approach to optimize best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R^{(1)}_0} \big)^{-\frac 1 2}$. The idea is then to apply sequential Jacobi rotations to optimize
+Yeredor [-@yeredor2003tv] proposed a practical approach to optimize the best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R^{(1)}_0} \big)^{-\frac 1 2}$. The idea is then to apply sequential Jacobi rotations to optimize
 
 \begin{equation}
 \min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg)
 \end{equation}
 
-where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal, but the exact value is unknown. The optimization algrithm, luckily, only utilizes the property of being diagonal, and the values will become available right after the optimization. This procedure is similar to the joint diagnolization procedure that will be detailed in section \@ref(step2). The $\boldsymbol{\mathcal E}$ can be found through optimization,
+where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal. This diagonal property is sufficient for the optimization algrithm, and the values of $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ will become available right after the optimization. This procedure is similar to the joint diagnolization procedure that will be detailed in section \@ref(step2). The $\boldsymbol{\mathcal E}$ can be found through optimization,
 
 \begin{equation}
 \min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R^{(2)}_\tau} - \boldsymbol{\mathcal E} \widehat{\boldsymbol R^{(1)}_\tau} - \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol{\mathcal E}' ||^2 \bigg)
