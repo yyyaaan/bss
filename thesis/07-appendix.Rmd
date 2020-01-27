@@ -8,19 +8,19 @@
 
 The primary `R`-functions that support LTV-SOBI are listed as following,
 
-- `ltvsobi(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)` returns list of class `tvbss` that is compatible with `JADE` pacakges's `bss` class;
+- `ltvsobi(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)` returns list of class `tvbss` that is compatible with `JADE` pacakge's `bss` class;
 
 - `ltvsobi2(x, lags = 12, quadratic = TRUE, fix_symmetry = TRUE, verbose = FALSE)` implements the LTV-SOBI-alt in the same manner as `ltvsobi`
 
 - `SIR_all(bss_res, Omega, Epsilon, S)` calculates all applicable performance metric, supporting both `tvbss` class and `bss` class;
 
-- `tvmix(z, Omega, Epsilon, x_only = TRUE)` and `tvunmix <- function(x, Omega_hat, Epsilon_hat)` serve as TV-SOS utility that generates/restores time-varying mixture based on source signal and mixing parameters.
+- `tvmix(z, Omega, Epsilon, x_only = TRUE)` and `tvunmix <- function(x, Omega_hat, Epsilon_hat)` serve as TV-SOS utility that generates and restores time-varying mixture based on source signal and mixing parameters.
 
-For major computer platforms, linear estimation is faster and more reliable compared with the inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which becomes a problem if the dimension is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous chapters appoint a non-vectorization version.
+For major computer platforms, linear estimation is faster and more reliable compared with the inverse matrix. Consequently, inversion is minimized in `LTV-SOBI`. It is possible to use a vectorization version of `ltvsobi`, and it indeed reduces the CPU time in processing compared with looping. However, vectorization and Kronecker product significantly raise the dimension of matrices; therefore, the improvement in CPU time is at the cost of RAM usage, which becomes a problem if the dimension is too high and `R` crash might occur. It is advisable to use non-vectorized version for large $p$ and $T$ ($p \geq 10,\ T \geq 50000$). The previous sections mainly appoint the non-vectorization version.
 
 ## Introduction to LTV-SOBI Performance Metric Explorer {#explorer}
 
-As Section \@ref(performance) stated the complexity in presents LTV-SOBI performance due to a large number of factors, an interactive dashboard is designed to enable customizable performance exploring. The explorer is available at http://bss.yan.fi and is programmed in `R` with support of `shiny` package. The explorer allows the user to view and compare performance metrics from different perspectives.
+As Section \@ref(performance) stated the complexity in presents LTV-SOBI performance due to a large number of factors, an interactive dashboard is designed to enable customizable performance exploring. The explorer is available at http://bss.yan.fi. The simulation results are conducted in `R`, and the data is stored in structured database while the dashboard is enabled with commercial solutions. The explorer allows the user to view and compare performance metrics from different perspectives.
 
 ```{r explorer, fig.cap='Screeshot of BSS Explorer, an interactive dashboard', out.width='99%', echo = FALSE}
 knitr::include_graphics("bss_explorer.png")

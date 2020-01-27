@@ -58,21 +58,21 @@ Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)
 The LS-estimation leads to
 
 \begin{equation}
-\begin{bmatrix} \widehat{\boldsymbol R ^{(1)}_\tau} [i,j] \\ \widehat{\boldsymbol R ^{(2)}_\tau} [i,j] \\ \widehat{\boldsymbol R ^{(3)}_\tau} [i,j]   \end{bmatrix}
+\begin{bmatrix} \widehat{\boldsymbol R} ^{(1)}_\tau [i,j] \\ \widehat{\boldsymbol R} ^{(2)}_\tau [i,j] \\ \widehat{\boldsymbol R} ^{(3)}_\tau [i,j]   \end{bmatrix}
 = \begin{pmatrix}\begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}' \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}   \end{pmatrix} ^{-1} \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}'
 \begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
 \end{equation}
 
-Yeredor [-@yeredor2003tv] proposed a practical approach to optimize the best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R^{(1)}_0} \big)^{-\frac 1 2}$. The idea is then to apply sequential Jacobi rotations to optimize
+Yeredor [-@yeredor2003tv] proposed a practical approach to optimize the best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R}^{(1)}_0 \big)^{-\frac 1 2}$. The idea is then to apply sequential Jacobi rotations to optimize
 
 \begin{equation}
-\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg)
+\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg)
 \end{equation}
 
 where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal. This diagonal property is sufficient for the optimization algrithm, and the values of $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ will become available right after the optimization. This procedure is similar to the joint diagnolization procedure that will be detailed in section \@ref(step2). The $\boldsymbol{\mathcal E}$ can be found through optimization,
 
 \begin{equation}
-\min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R^{(2)}_\tau} - \boldsymbol{\mathcal E} \widehat{\boldsymbol R^{(1)}_\tau} - \widehat{\boldsymbol R^{(1)}_\tau} \boldsymbol{\mathcal E}' ||^2 \bigg)
+\min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R}^{(2)}_\tau - \boldsymbol{\mathcal E} \widehat{\boldsymbol R}^{(1)}_\tau - \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol{\mathcal E}' ||^2 \bigg)
 \end{equation}
 
-Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega_0} = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, notice that $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ shown in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would truly impact the output of TV-SOBI. It is theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be mathematically too complicated and computationally too costly to find a solution, and the relatively naive approach described above suffices to solve the TV-SOS problem.
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega}_0 = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, notice that $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ shown in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would truly impact the output of TV-SOBI. It is theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be mathematically too complicated and computationally too costly to find a solution, and the relatively naive approach described above suffices to solve the TV-SOS problem.
