@@ -2,10 +2,10 @@
 
 Time-varying Second-Order Source Separation [TV-SOS, @yeredor2003tv] refers to the existence of subtle change in mixing matrix $\boldsymbol{\Omega}$. Within the SOS model \@ref(eq:SOS), linear time variation can be represented as $\boldsymbol\Omega_t = (\boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol\Omega_0$, which is clearly non-constant despite $\boldsymbol{\mathcal E}$ and $\boldsymbol\Omega_0$ are. The initial mixing $\boldsymbol \Omega_0$ is the $p\times p$ mixing matrix at time $t=0$; the time-varying factor $\boldsymbol{\mathcal E}$ is another $p\times p$ matrix that measures the scale of linear variation in mixing matrix over the change of time. In addition to this linear variation, other time-varying structures include periodical [@weisman2006separation], geometric curved [@kaftory2007probabilistic], etc. Figure \@ref(fig:mixingplot) illustrates the difference between an ordinary time-invariant mixture and linearly time-varying one. It can be discovered that the time-varying mixture has a certain trend and it does not demonstrate the stationary property. In fact, the introduction of time-varying factor invalids the stationary property in the observation $\boldsymbol{x}$ almost surely even though the source signals are stationary. This is because $\boldsymbol{\mathcal E}$ changes the scale (second-order statistics) over time $t$. Nevertheless, the aforementioned SOBI and the upcoming LTV-SOBI algorithms do not require such property on the observations; only the source signals are bind to stationarity.
 
-```{r mixingplot, fig.show='hold', fig.cap='Two types of 4-dimensional signal mixture example: ordinary mixing (left) and time-varying mixing (right).', out.width='50%', echo = FALSE}
+```{r mixingplot, fig.show='hold', fig.cap='Two types of 4-dimensional signal mixture example: ordinary mixing (upper) and time-varying mixing (lower).', out.width='71%', echo = FALSE}
 load("thesis.rdata")
-plot.ts(fig_mixing$mix,    main = "Ordinary Mixture",     ann = FALSE)
-plot.ts(fig_mixing$tvmix,  main = "Time-varying Mixture", ann = FALSE)
+plot.ts(fig_mixing$mix,    main="")
+plot.ts(fig_mixing$tvmix,  main="")
 ```
 
 ## TV-SOS Model and Assumptions
@@ -15,7 +15,8 @@ TV-SOS model serves as an extension to the SOS model \@ref(eq:SOS) and is also a
 \begin{equation}
 \begin{aligned}
 \boldsymbol x_t =  ( \boldsymbol I + t \boldsymbol{\mathcal E})\boldsymbol \Omega_0 \boldsymbol  z_t,
-\\ \text{where } \boldsymbol z_t \text{satisfies } (B1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
+\text{ where }& \boldsymbol z_t \text{satisfies } 
+\\ (B1)\ & \mathbb E( \boldsymbol z_t) = \boldsymbol 0 
 \\ (B2)\ & \text{Cov}( \boldsymbol z_t) = \boldsymbol I
 \\ (B3)\ & \text{Cov}( \boldsymbol z_t, \boldsymbol z_{t+\tau}') = \boldsymbol\Lambda_\tau \text{ diagonal for all }
 \tau = 1,2,\dots
@@ -24,7 +25,7 @@ TV-SOS model serves as an extension to the SOS model \@ref(eq:SOS) and is also a
 (\#eq:tvsobi)
 \end{equation}
 
-Similar to SOS, the first assumption $(B1)$ is non-restrictive and achievable through data transformation; $(B2)$ is required to tackle the ambiguity of BSS, while $(B3)$ states both stationary and uncorrelated characteristics in source signals. The final and optional assumption ensures that the change of mixing is rather slow so that the meaningfulness of BSS is not greatly compromised [adapted @yeredor2003tv]. It should be noted that the model assumes uncorrelatedness instead of independence in pre-centered source signals, formally, the Pearson sample correlation between different series is always $0$, or $\text{Cov}(\boldsymbol x_i, \boldsymbol x_j) = \boldsymbol 0$ for all $i\neq j$. It is a relatively less-restrictive condition as independence implies uncorrelatedness, while the opposite is not true in general [e.g. @papoulis2002probability].
+Similar to SOS, the first assumption $(B1)$ is non-restrictive and achievable through data transformation; $(B2)$ is required to tackle the ambiguity of BSS, while $(B3)$ states both stationary and uncorrelated characteristics in source signals. The final and optional assumption ensures that the change of mixing is rather slow so that the meaningfulness of BSS is not greatly compromised, and this assumption can simplify BSS process in some algorithm[@yeredor2003tv]. It should be noted that the model assumes uncorrelatedness instead of independence in pre-centered source signals, formally, the Pearson sample correlation between different series is always $0$, or $\text{Cov}(\boldsymbol x_i, \boldsymbol x_j) = \boldsymbol 0$ for all $i\neq j$. It is a relatively less-restrictive condition as independence implies uncorrelatedness, while the opposite is not true in general [e.g. @papoulis2002probability].
 
 ## Yeredor's TV-SOBI Algorithm
 
@@ -39,19 +40,19 @@ TV-SOBI is the original algorithm provided by Yeredor [-@yeredor2003tv] that sol
 \\ &= \underline {\boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'} + t (\underline{ \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'  +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'})
 \\ &\ \ \ \ \ \  + t(t+\tau) ( \underline{\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'}) + \tau ( \underline {\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'})
 \\ & \approx \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' + t ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}') + t^2 ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')
-\\ &:= \boldsymbol R ^{(1)}_\tau + t\, \boldsymbol R ^{(2)}_\tau + t^2\, \boldsymbol R ^{(3)}_\tau
-\end{aligned}
+\\ &:= \boldsymbol R ^{(1)}_\tau + t\, \boldsymbol R ^{(2)}_\tau + t^2\, \boldsymbol R ^{(3)}_\tau\ 
+\end{aligned},
 (\#eq:ycovs)
 \end{equation}
 
-where the shorthand notations are defined as $\boldsymbol R ^{(1)}_\tau = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'$, $\boldsymbol R ^{(2)}_\tau = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$ and $\boldsymbol R ^{(3)}_\tau =\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$; these 3 items are the sample autocovariances decomposition of the observed mixture. Since $\boldsymbol{\mathcal E}$ is assumed to be rather small in quantity, the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ would also be insignificant due to their scale transformation by $\boldsymbol{\mathcal E}$; Yeredor hence argues that they are negligible.
+where the shorthand notations are defined as $\boldsymbol R ^{(1)}_\tau = \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0'$, $\boldsymbol R ^{(2)}_\tau = \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' +  \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$ and $\boldsymbol R ^{(3)}_\tau =\boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}'$; those three items are the sample autocovariances decomposition of the observed mixture. Since $\boldsymbol{\mathcal E}$ is assumed to be rather small in quantity, the items $\tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0')$ and $t \tau ( \boldsymbol{\mathcal E} \boldsymbol\Omega_0 \boldsymbol\Lambda_\tau \boldsymbol \Omega_0' \boldsymbol{\mathcal E}')$ would also be insignificant due to their scale transformation by $\boldsymbol{\mathcal E}$; Yeredor hence argues that they are negligible.
 
 Then, Yeredor tried to estimate the $p\times p$ matrices of $\boldsymbol R ^{(1)}_\tau,\ \boldsymbol R ^{(2)}_\tau$ and $\boldsymbol R ^{(3)}_\tau$ through a linear least-squares model. The model is achieved by casting matrix equation \@ref(eq:ycovs) to  element-wise real-valued equations of
 
 \begin{equation}
 \begin{bmatrix} \boldsymbol x_1 \boldsymbol x_{1+\tau}'\ [i,j] \\ \boldsymbol x_2 \boldsymbol x'_{2+\tau}\ [i,j] \\ \vdots \\ \boldsymbol x_{T-\tau} \boldsymbol x_{T}'\  [i,j]\end{bmatrix}
 = \begin{bmatrix} 1 & 1 & 1^2 \\  1 & 2 & 2^2  \\ \vdots &\vdots &\vdots \\  1 & T-\tau & T^2  \end{bmatrix}
-\begin{bmatrix} \boldsymbol R ^{(1)}_\tau [i,j] \\ \boldsymbol R ^{(2)}_\tau [i,j] \\ \boldsymbol R ^{(3)}_\tau [i,j]   \end{bmatrix} + \text{residuals}
+\begin{bmatrix} \boldsymbol R ^{(1)}_\tau [i,j] \\ \boldsymbol R ^{(2)}_\tau [i,j] \\ \boldsymbol R ^{(3)}_\tau [i,j]   \end{bmatrix} + \text{residuals}.
 (\#eq:ycovmat)
 \end{equation}
 
@@ -66,13 +67,13 @@ The LS-estimation leads to
 Yeredor [-@yeredor2003tv] proposed a practical approach to optimize the best solution for $\boldsymbol \Omega_0$ and $\boldsymbol{\mathcal E}$. Denote the affine transformation (aka. whitening) matrix $\boldsymbol W = \big( \widehat{\boldsymbol R}^{(1)}_0 \big)^{-\frac 1 2}$. The idea is then to apply sequential Jacobi rotations to optimize
 
 \begin{equation}
-\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg)
+\min\limits_{V,\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}} \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \boldsymbol W \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol W' - \boldsymbol {V \Lambda}_\tau \boldsymbol V'||^2 \bigg),
 \end{equation}
 
 where $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ are diagonal. This diagonal property is sufficient for the optimization algrithm, and the values of $\Lambda_{\tau_1}, \dots, \Lambda_{\tau_l}$ will become available right after the optimization. This procedure is similar to the joint diagnolization procedure that will be detailed in section \@ref(step2). The $\boldsymbol{\mathcal E}$ can be found through optimization,
 
 \begin{equation}
-\min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R}^{(2)}_\tau - \boldsymbol{\mathcal E} \widehat{\boldsymbol R}^{(1)}_\tau - \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol{\mathcal E}' ||^2 \bigg)
+\min\limits_{ \boldsymbol{\mathcal E} } \bigg( \sum\limits_{\tau=\tau_1}^{\tau_l} || \widehat{\boldsymbol R}^{(2)}_\tau - \boldsymbol{\mathcal E} \widehat{\boldsymbol R}^{(1)}_\tau - \widehat{\boldsymbol R}^{(1)}_\tau \boldsymbol{\mathcal E}' ||^2 \bigg).
 \end{equation}
 
-Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega}_0 = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, notice that $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ shown in Equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would truly impact the output of TV-SOBI. It is theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be mathematically too complicated and computationally too costly to find a solution, and the relatively naive approach described above suffices to solve the TV-SOS problem.
+Finally, Yeredor's TV-SOBI concludes with $\widehat{\boldsymbol \Omega}_0 = \boldsymbol W ^{-1} \boldsymbol V$ and $\widehat{ \boldsymbol{\mathcal E}}$. It can be noticed in the optimization steps that the value of $\boldsymbol R ^{(3)}_{\tau}$ is not used. In fact, Yeredor even provided an alternative that excludes it from \@ref(eq:ycovs). Nonetheless, notice that $\boldsymbol R ^{(3)}_{\tau}$ is closely associating with $\boldsymbol R ^{(1)}_{\tau}$ and $\boldsymbol R ^{(2)}_{\tau}$ as shown in equation \@ref(eq:ycovmat), suggesting that inclusion or exclusion would truly impact the output of TV-SOBI. It is theoretically possible to include the expression of $\boldsymbol R ^{(3)}_{\tau}$ in optimization procedures, but it would be mathematically too complicated and computationally too costly to find a solution, and the relatively naive approach described above suffices to solve the TV-SOS problem.

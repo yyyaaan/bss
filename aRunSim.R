@@ -62,40 +62,15 @@ save_eval <- function(benchmarks, id){
 }
 
 
-# call --------------------------------------------------------------------
-
-# p <- 3
-# Omega   <- matrix(runif(p^2, -10, 10), ncol = p)
-# Epsilon <-  1e-3 * matrix(runif(p^2, -10, 10), ncol = p)
-
-# Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
-# Epsilon <- 1e-5 * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
-# zall <- sim_good_sources(N = 1e5, 3)
-# xall <- tvmix(zall, Omega, Epsilon)
-# save(Omega, Epsilon, xall, zall, file = paste0(getwd(),"/sim/E5N5_A.rdata"))
-# 
-# # loop for freqs
-# freq_list <- 2^(0:10)
-# for(freq in freq_list){
-#   for(l in c(3,6,12,1)){
-#     ids  <- seq(from = 1, to = nrow(xall), by = freq)
-#     x <- xall[ids,]
-#     z <- zall[ids,]
-#     do_it_once(x, z, lll = l, id = paste0("fixed_freq_E5N5_A_lag", l))
-#   }
-# }
-
-
-
-
-# boosting ----------------------------------------------------------------
-
+# call boosting run -------------------------------------------------------
 
 multido <- function(E, N, sn){
   for(i in 1:50){
-    Omega <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
+    
+    Omega   <- matrix(c(2, -9, -4, -6, 5, 6, 0.5, 3, 8), ncol =3)
     Epsilon <- 10^(-E) * matrix(c(-3, -4, 9, 6, 2.5, 2.1, -6, 6, 7), ncol = 3)
-    zall <- sim_good_sources(10^N, 3)
+    
+    zall <- sim_good_sources(10^N, 3, sim_one = "ma", sim_many = "ma")
     xall <- tvmix(zall, Omega, Epsilon)
     
     # loop for freqs
@@ -105,27 +80,23 @@ multido <- function(E, N, sn){
         ids  <- seq(from = 1, to = nrow(xall), by = freq)
         x <- xall[ids,]
         z <- zall[ids,]
-        do_it_once(x, z, lll = l, id = paste0("seq", sn, "_fixed_freq_E", E, "N", N, "_Boot_lag", l), Omega, Epsilon)
+        do_it_once(x, z, lll = l, id = paste0("seq", sn, "_ALL_MA_E", E, "N", N, "_Boot_lag", l), Omega, Epsilon)
       }
     }
   }
 }
+multido(3, 4, 101)
+multido(2, 4, 101)
 
-
-#seq <- 305
-#multido(5,4,seq)
-#multido(4,4,seq)
-#multido(5,5,seq)
-#multido(4,5,seq)
-
-
-library(parallel)
-mclapply(
-  as.list(401:432), 
-  function(seq) { 
-    multido(5,5,seq); #multido(5,4,seq);
-    multido(4,5,seq); #multido(4,4,seq);
-  },
-  mc.cores = detectCores()
-)
+# 
+# 
+# library(parallel)
+# mclapply(
+#   as.list(401:432), 
+#   function(seq) { 
+#     multido(5,5,seq); #multido(5,4,seq);
+#     multido(4,5,seq); #multido(4,4,seq);
+#   },
+#   mc.cores = detectCores()
+# )
 

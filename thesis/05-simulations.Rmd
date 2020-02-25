@@ -40,7 +40,7 @@ The target signal $\boldsymbol s_\text{signal}$ is not necessarily the exact sou
 (\#eq:sir)
 \end{equation}
 
-The LTV-SOBI algorithm by nature does not involve any external noise, and even if the noise is present in source signals, it shall become a part of true signals. Further, $\boldsymbol e_\text{artif}$ is assumed to be $\boldsymbol 0$ for simplicity. Assume the restored signal to be $\widehat{\boldsymbol z}$ and the permutation/scaling matrix to be $\boldsymbol C$ as defined in \@ref(eq:md); the signal decompose of \@ref(eq:foursignal) is then
+The LTV-SOBI algorithm by nature does not involve any external noise, and even if the noise is present in source signals, it shall become a part of true signals. Further, $\boldsymbol e_\text{artif}$ is assumed to be $\boldsymbol 0$ for simplicity. Assume the restored signal to be $\widehat{\boldsymbol z}$ and the permutation/scaling matrix to be $\boldsymbol C$ as defined in \@ref(eq:md); the signal decomposition of \@ref(eq:foursignal) is then
 
 \begin{equation}
 \begin{aligned}
@@ -164,3 +164,7 @@ knitr::include_graphics("bss_resultD.jpg")
 ```
 
 In conclusion, the extension of MD and SIR grants insights into algorithm performance; the simulation results suggest that time-varying blind source separation problems are yet rather challenging as the tvSIR and tvMD values are not sufficiently good. LTV-SOBI algorithm is a comparably more applicable and effective approach. Nonetheless, the metric is not robust enough under all scenarios, and Section \@ref(discussion) will attempt to detail underlying issues. Finally, the simulation results have to exclude the comparison with ordinary SOBI because of non-compatible metrics; SOBI would be penalized by the time-varying model while benefiting from its ignorance of possible extreme values caused by $\boldsymbol{\mathcal E}$. Supposing the metric is acceptable with SOBI, the results prefer SOBI under large sample sizes and LTV-SOBI when the length of the signal is relatively small. The interactive dashboard provides detailed SOBI results.
+
+## Performance Consistency over Singal Types and Time-Varying Rates
+
+The above simulation includes a series of ECG-signal with doubtful stationarity. Further simulation has been performed to check the performance of LTV-SOBI when source signals are composed of three different moving-average series, and the effect of time-varying speed ($\boldsymbol{\mathcal E}$) is also briefly examined. The results suggest that LTV-SOBI performance stays relatively consistent under different signal types and rates/speed of time-varying. When signal length is set to be 10000, lag selected to be 3, the tvMD averages to $4.33$, $4.29$ and $4.32$ for $\boldsymbol{\mathcal E} = \boldsymbol M \times 10^{-2}$, $\boldsymbol M \times 10^{-3}$ and $\boldsymbol M \times 10^{-4}$ correspondingly using LTVI-SOBI. Performance is also tested to be insensitive to the signal length. The results are similar to those reported in Figure \@ref(fig:resultA) and \@ref(fig:resultB).

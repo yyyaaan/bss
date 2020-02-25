@@ -9,8 +9,10 @@ linestretch: 1.1
 latex_engine: pdflatex
 citation_package: apacite
 bibliography: 99-ref.bib
-biblio-style: apalike
+csl: 99-apa.csl
 link-citations: yes
+nocite: | 
+  @R-tidyverse, @tidyverse2019, @R-JADE
 github-repo: yyyaaan/bss
 always_allow_html: yes
 output:
@@ -53,7 +55,7 @@ Yan Pan\\
 \end{figure}
 Department of Mathematics and Statistics\\
 Statistics\\
-01 February 2020
+25 February 2020
 \end{center}
 \normalsize
 ```
@@ -69,8 +71,8 @@ UNIVERSITY OF JYVÄSKYLÄ, Faculty of Mathematics and Science\\Department of Mat
 \begin{tabular}{ll}
 \hline
 Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on\\ & Autocovariances \\
-MSc thesis: & 30 p., 3 appendices (6 p.) \\
-Supervisor: & Uniaversity lecturer Sara Taskinen \\
+MSc thesis: & 35 p., 3 appendices (4 p.) \\
+Supervisor: & University lecturer Sara Taskinen \\
 Inspectors: & \\
 February 2020  \\ \hline
 \end{tabular}
@@ -79,7 +81,7 @@ February 2020  \\ \hline
 
 Keywords: Blind Source Separation, Second-Order Blind Identification, SOBI, Time-Varying Second-Order Blind Identification, TV-SOBI. 
 
-Blind Source Separation (BSS) seeks to recover the true signals from the observed ones when only limited information about the mixing matrix and the original sources are available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through second-order statistics [@tong1994blind]. This thesis stretches the Second-Order Source Separation (SOS) model in terms of latent time variation in the mixing mechanism that was initially proposed by Yeredor (2003). An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives latent independent sources employing sample autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI is analyzed with simulated data by extending the performance metric Signal-to-interference ratio (SIR, the one that Yeredor (2003) initially applied) into the time-varying case. Simulation results suggest the superiority of the new LTV-SOBI algorithm compared with Yeredor's TV-SOBI algorithm, despite overall results are still non-optimal. In addition to the full implementation of LTV-SOBI algorithm in `R`, an interactive dashboard is designed to enable further outlook of algorithm performance.
+Blind Source Separation (BSS) seeks to recover the true signals from the observed ones when only limited information about the mixing matrix and the original sources are available. There are various methodologies established to solve the BSS problems, and notably, Second-Order Blind Identification (SOBI) identifies sources through second-order statistics [@tong1994blind]. This thesis stretches the Second-Order Source Separation (SOS) model in terms of latent time variation in the mixing mechanism that was initially proposed by Yeredor [-@yeredor2003tv]. An improved algorithm, Linearly Time-Varying SOBI (LTV-SOBI), together with alternatives attempts to estimate mixing parameters and ultimately derives latent independent sources employing sample autocovariance decomposition and joint diagonalization. The performance of LTV-SOBI is analyzed with simulated data by extending the performance metric Signal-to-interference ratio [SIR, @yeredor2003tv] into the time-varying case. Simulation results suggest the superiority of the new LTV-SOBI algorithm compared with Yeredor's TV-SOBI algorithm, despite overall results are still non-optimal. In addition to the full implementation of LTV-SOBI algorithm in `R`, an interactive dashboard is designed to enable further outlook of algorithm performance.
 
 `r if(!knitr::is_latex_output()) {"# Tiivistelmä {-}"}`
 
@@ -93,7 +95,7 @@ JYVÄSKYLÄN YLIOPISTO, Matemaattis-luonnontieteellinen tiedekunta\\Matematiikan
 \hline
 Yan Pan: & Ajassa muuttuvien signaalien erottelu\\
 & autokovarianssimatriisien yhteisdiagonalisoinnilla \\
-Pro-gradu -tutkielma: & 30 s., 3 liitettä (6 s.) \\
+Pro-gradu -tutkielma: & 35 s., 3 liitettä (4 s.) \\
 Työn ohjaaja: & Yliopistonlehtori Sara Taskinen \\
 Tarkastajat: & \\
 Helmikuu 2020  \\ \hline
@@ -104,7 +106,7 @@ Helmikuu 2020  \\ \hline
 
 Hakusanat: Sokea signaalinerottelu, toisen asteen sokea signaalinerottelu, SOBI, ajassa muuttuvien signaalien erottelu, TV-SOBI
 
-Sokealla signaalinerottelulla (Blind Source Separation, BSS) pyritään erottelemaan todelliset signaalit havaituista signaaleista, kun ennakkotietoja sekoitusmatriisista ja todellisista signaaleista on vain vähän saatavilla. BSS-ongelmien ratkaisemiseksi on kehitetty erilaisia menetelmiä. Näistä toisen asteen sokea signaalinerottelu (Second-Order Blind Identification, SOBI) tunnistaa lähteet toisen asteen tunnuslukujen avulla [@tong1994blind]. Tässä opinnäytetyössä tarkastellaan toisen asteen sokean signaalinerottelumallin laajennusta (Yeredor, 2003), jossa sekoitusmatriisi muuttuu ajassa. Työssä esitellään paranneltu versio Yeredorin TV-SOBI (time-varying SOBI) algoritmista sekä sen variaatioita. Algoritmit pyrkivät estimoimaan sekoitusmatriisin ja edelleen latentit signaalit otosautokovarianssimatriisin hajotelman sekä yhteisdiagonalisoinnin avulla. Kehitetyn algoritmin (linearly time-varying SOBI, LTV-SOBI) suorituskysyä arvioidaan simulointien avulla. Suorituskyvyn mittarina käytetään tässä työssä kehitettyä signaali-häiriö suhteen (Signal-to-Inference Ratio, SIR) laajennusta aikamuuttuvan signaalin tapaukseen. Simulaatiotulokset... Lisäksi työssä esitellään LTV-SOBI algorithmin `R` implementointi sekä interaktiivinen `R Shiny` sovellus, jonka avulla algoritmien suorituskykyä voidaan vertailla.
+Sokealla signaalinerottelulla (Blind Source Separation, BSS) pyritään erottelemaan todelliset signaalit havaituista signaaleista, kun ennakkotietoja sekoitusmatriisista ja todellisista signaaleista on vain vähän saatavilla. BSS-ongelmien ratkaisemiseksi on kehitetty erilaisia menetelmiä. Näistä toisen asteen sokea signaalinerottelu (Second-Order Blind Identification, SOBI) tunnistaa lähteet toisen asteen tunnuslukujen avulla [@tong1994blind]. Tässä opinnäytetyössä tarkastellaan toisen asteen sokean signaalinerottelumallin laajennusta (Yeredor, 2003), jossa sekoitusmatriisi muuttuu ajassa. Työssä esitellään paranneltu versio Yeredorin TV-SOBI (time-varying SOBI) algoritmista sekä sen variaatioita. Algoritmit pyrkivät estimoimaan sekoitusmatriisin ja edelleen latentit signaalit otosautokovarianssimatriisin hajotelman sekä yhteisdiagonalisoinnin avulla. Kehitetyn algoritmin (linearly time-varying SOBI, LTV-SOBI) suorituskysyä arvioidaan simulointien avulla. Suorituskyvyn mittarina käytetään tässä työssä kehitettyä signaali-häiriö suhteen [Signal-to-Inference Ratio, SIR, @yeredor2003tv] laajennusta aikamuuttuvan signaalin tapaukseen. Simulaatiotulokset esittävät uuden LTV-SOBI-algoritmin paremmuuteen verrattuna Yeredorin TV-SOBI-algoritmiin, vaikka tulokset eivät ole vielä optimaalisia. Lisäksi työssä esitellään LTV-SOBI algorithmin `R` implementointi sekä interaktiivinen `R Shiny` sovellus, jonka avulla algoritmien suorituskykyä voidaan vertailla.
 
 ```{=latex}
 \tableofcontents

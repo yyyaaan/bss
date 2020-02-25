@@ -35,17 +35,15 @@ There are 5 dynamic pages designed to aid performance evaluation of multiple alg
 ```
 
 ```{r appcode, eval = FALSE, echo = TRUE}
-remove(list = ls()) # clear environment
 path <- paste0(getwd(), "/sim/")
 library(tidyverse)
-source("rfun.R") # contains algorithms and utilities of LTV-SOBI
-source("rsim.R") # contains functions that simulate various sources
-source("rlab_x.R") # an implementation of Yeredors' TV-SOBI
-
+source("rfun.R")  # contains algorithms and utilities of LTV-SOBI
+source("rsim.R")  # contains functions that simulate various sources
+source("rlab_x.R")# an implementation of Yeredors' TV-SOBI
 
 # simulation sampling interval --------------------------------------------
 
-do_it_once <- function(x, z, lll = 6, id = "hi", Omega, Epsilon){
+do_it_once <- function(x, z, lll = 6, id = "ID", Omega, Epsilon){
   
   for (i in 1:8) {
     flag <- TRUE
@@ -80,7 +78,6 @@ do_it_once <- function(x, z, lll = 6, id = "hi", Omega, Epsilon){
   }  
 }
 
-
 save_eval <- function(benchmarks, id){
   df <- NULL
   for(i in 2:length(benchmarks)){
@@ -102,7 +99,7 @@ save_eval <- function(benchmarks, id){
   else  saveRDS(df, file = fname)
 }
 
-# boosting ----------------------------------------------------------------
+# function to run the repeated simulation----------------------------------
 
 multido <- function(E, N, sn){
   for(i in 1:100){
@@ -128,6 +125,7 @@ multido <- function(E, N, sn){
   }
 }
 
+# submitting the job using multi-core--------------------------------------
 
 library(parallel) # enable parallel processing
 mclapply(
