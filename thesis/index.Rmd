@@ -12,7 +12,7 @@ bibliography: 99-ref.bib
 csl: 99-apa.csl
 link-citations: yes
 nocite: | 
-  @R-tidyverse, @tidyverse2019, @R-JADE
+  @R-JADE
 github-repo: yyyaaan/bss
 always_allow_html: yes
 output:
@@ -55,7 +55,7 @@ Yan Pan\\
 \end{figure}
 Department of Mathematics and Statistics\\
 Statistics\\
-25 February 2020
+29 February 2020
 \end{center}
 \normalsize
 ```
@@ -71,9 +71,9 @@ UNIVERSITY OF JYVÄSKYLÄ, Faculty of Mathematics and Science\\Department of Mat
 \begin{tabular}{ll}
 \hline
 Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on\\ & Autocovariances \\
-MSc thesis: & 35 p., 3 appendices (4 p.) \\
+MSc thesis: & 34 p., 4 appendices (5 p.) \\
 Supervisor: & University lecturer Sara Taskinen \\
-Inspectors: & \\
+Inspectors: & Professori Juha Karvanen \\
 February 2020  \\ \hline
 \end{tabular}
 \end{table}
@@ -95,18 +95,17 @@ JYVÄSKYLÄN YLIOPISTO, Matemaattis-luonnontieteellinen tiedekunta\\Matematiikan
 \hline
 Yan Pan: & Ajassa muuttuvien signaalien erottelu\\
 & autokovarianssimatriisien yhteisdiagonalisoinnilla \\
-Pro-gradu -tutkielma: & 35 s., 3 liitettä (4 s.) \\
+Pro-gradu -tutkielma: & 34 s., 4 liitettä (5 s.) \\
 Työn ohjaaja: & Yliopistonlehtori Sara Taskinen \\
-Tarkastajat: & \\
+Tarkastajat: & Professori Juha Karvanen\\
 Helmikuu 2020  \\ \hline
 \end{tabular}
 \end{table}
-
 ```
 
 Hakusanat: Sokea signaalinerottelu, toisen asteen sokea signaalinerottelu, SOBI, ajassa muuttuvien signaalien erottelu, TV-SOBI
 
-Sokealla signaalinerottelulla (Blind Source Separation, BSS) pyritään erottelemaan todelliset signaalit havaituista signaaleista, kun ennakkotietoja sekoitusmatriisista ja todellisista signaaleista on vain vähän saatavilla. BSS-ongelmien ratkaisemiseksi on kehitetty erilaisia menetelmiä. Näistä toisen asteen sokea signaalinerottelu (Second-Order Blind Identification, SOBI) tunnistaa lähteet toisen asteen tunnuslukujen avulla [@tong1994blind]. Tässä opinnäytetyössä tarkastellaan toisen asteen sokean signaalinerottelumallin laajennusta (Yeredor, 2003), jossa sekoitusmatriisi muuttuu ajassa. Työssä esitellään paranneltu versio Yeredorin TV-SOBI (time-varying SOBI) algoritmista sekä sen variaatioita. Algoritmit pyrkivät estimoimaan sekoitusmatriisin ja edelleen latentit signaalit otosautokovarianssimatriisin hajotelman sekä yhteisdiagonalisoinnin avulla. Kehitetyn algoritmin (linearly time-varying SOBI, LTV-SOBI) suorituskysyä arvioidaan simulointien avulla. Suorituskyvyn mittarina käytetään tässä työssä kehitettyä signaali-häiriö suhteen [Signal-to-Inference Ratio, SIR, @yeredor2003tv] laajennusta aikamuuttuvan signaalin tapaukseen. Simulaatiotulokset esittävät uuden LTV-SOBI-algoritmin paremmuuteen verrattuna Yeredorin TV-SOBI-algoritmiin, vaikka tulokset eivät ole vielä optimaalisia. Lisäksi työssä esitellään LTV-SOBI algorithmin `R` implementointi sekä interaktiivinen `R Shiny` sovellus, jonka avulla algoritmien suorituskykyä voidaan vertailla.
+Sokealla signaalinerottelulla (Blind Source Separation, BSS) pyritään erottelemaan todelliset signaalit havaituista signaaleista, kun ennakkotietoja sekoitusmatriisista ja todellisista signaaleista on vain vähän saatavilla. BSS-ongelmien ratkaisemiseksi on kehitetty erilaisia menetelmiä. Näistä toisen asteen sokea signaalinerottelu (Second-Order Blind Identification, SOBI) tunnistaa lähteet toisen asteen tunnuslukujen avulla [@tong1994blind]. Tässä opinnäytetyössä tarkastellaan toisen asteen sokean signaalinerottelumallin laajennusta (Yeredor, 2003), jossa sekoitusmatriisi muuttuu ajassa. Työssä esitellään paranneltu versio Yeredorin TV-SOBI (time-varying SOBI) algoritmista sekä sen variaatioita. Algoritmit pyrkivät estimoimaan sekoitusmatriisin ja edelleen latentit signaalit otosautokovarianssimatriisin hajotelman sekä yhteisdiagonalisoinnin avulla. Kehitetyn algoritmin (linearly time-varying SOBI, LTV-SOBI) suorituskysyä arvioidaan simulointien avulla. Suorituskyvyn mittarina käytetään tässä työssä kehitettyä signaali-häiriö suhteen [Signal-to-Inference Ratio, SIR, @yeredor2003tv] laajennusta aikamuuttuvan signaalin tapaukseen. Simulaatiotulokset osoittavat uuden LTV-SOBI-algoritmin paremmuuden verrattuna Yeredorin TV-SOBI-algoritmiin. Tulokset eivät tosin ole vielä optimaalisia. Lisäksi työssä esitellään LTV-SOBI algorithmin `R` implementointi sekä interaktiivinen `R Shiny` sovellus, jonka avulla algoritmien suorituskykyä voidaan vertailla.
 
 ```{=latex}
 \tableofcontents
