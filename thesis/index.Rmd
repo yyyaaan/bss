@@ -34,6 +34,7 @@ knitr::opts_chunk$set(echo = FALSE, fig.pos = "h")
 library(tidyverse)
 load("thesis.rdata")
 # title, abstract pages are overwritten below (YAML header not in use)
+# `r if(!knitr::is_latex_output()) {"# Abstract {-}"}`
 ```
 
 ```{=latex} 
@@ -71,9 +72,9 @@ UNIVERSITY OF JYVÄSKYLÄ, Faculty of Mathematics and Science\\Department of Mat
 \begin{tabular}{ll}
 \hline
 Yan Pan: & Time-Varying Source Separation by Joint Diagnolization on\\ & Autocovariances \\
-MSc thesis: & 34 p., 4 appendices (5 p.) \\
+MSc thesis: & 33 p., 4 appendices (5 p.) \\
 Supervisor: & University lecturer Sara Taskinen \\
-Inspectors: & Professori Juha Karvanen \\
+Inspectors: & Professor Juha Karvanen \\
 February 2020  \\ \hline
 \end{tabular}
 \end{table}
@@ -95,7 +96,7 @@ JYVÄSKYLÄN YLIOPISTO, Matemaattis-luonnontieteellinen tiedekunta\\Matematiikan
 \hline
 Yan Pan: & Ajassa muuttuvien signaalien erottelu\\
 & autokovarianssimatriisien yhteisdiagonalisoinnilla \\
-Pro-gradu -tutkielma: & 34 s., 4 liitettä (5 s.) \\
+Pro-gradu -tutkielma: & 33 s., 4 liitettä (5 s.) \\
 Työn ohjaaja: & Yliopistonlehtori Sara Taskinen \\
 Tarkastajat: & Professori Juha Karvanen\\
 Helmikuu 2020  \\ \hline

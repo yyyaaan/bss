@@ -149,7 +149,6 @@ mclapply(
 Figure \@ref(fig:resultX) contains the identical configuration as Figure \@ref(fig:resultB) with an extra comparison with the original SOBI algorithm. Further views can be found in the interactive performance metric explorer (Appendix \@ref(explorer)).
 
 ```{r resultX, fig.cap='Signal separation performance measured by tvSIR for Cohort III and IV when the sources are separted using SOBI, LTV-SOBI, LTV-SOBI-alt and Yeredor TVSOBI. Larger value indicates better separation performance.', out.width='98%'}
-#  print(getPlot(4, 30, c("Set III", "Set IV"), "tvSIR", c(0,12)))
-knitr::include_graphics("bss_resultB.jpg")
+knitr::include_graphics("bss_resultX.jpg")
 ```
 

@@ -1,6 +1,6 @@
 #  Algorithm for Linearly Time-Varying Second Order Blind Identification {#algorithm}
 
-This section introduces the new Linearly Time-Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing improved mathematical accuracy given TV-SOS model \@ref(eq:tvsobi). This algrorithm is developed from Yeredor's [-@yeredor2003tv] original TV-SOBI algorithm, but does not the assumption $(B4)$ in model \@ref(eq:tvsobi). LTV-SOBI mainly includes three steps which use sample autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operations are heavily utilized in all steps.
+This section introduces the new Linearly Time-Varying Second Order Blind Identification (LTV-SOBI) algorithm pursuing improved mathematical accuracy given TV-SOS model \@ref(eq:tvsobi). This algrorithm is developed from Yeredor's [-@yeredor2003tv] original TV-SOBI algorithm, but does not require the assumption $(B4)$ in model \@ref(eq:tvsobi). LTV-SOBI mainly includes three steps which use sample autocovariance matrices and applying joint diagonalization after applicable decomposition. Various matrix operations are heavily utilized in all steps.
 
 ## Decomposition of Autocovariance Structure {#step1}
 
@@ -142,7 +142,7 @@ The aforementioned three steps lead to closed-form estimates of parameters $\bol
 
 ## Minor Alternatives for LTV-SOBI
 
-Sections \@ref(step1), \@ref(step2) and \@ref(step3) composed the three steps of LTV-SOBI algorithm, and after signal restoration, the TV-SOS problem is fully identified. It can also be perceived that in the decomposition of autocovariance matrices (step 1, section \@ref(step1)), the estimated $\widehat{ \boldsymbol\beta}_{3,\tau}$ is never used in later steps within the proposed LTV-SOBI algorithm (note that it affects the estimation of other components). To resolve such redundancy, one naive way is to avoid estimating it by replacing \@ref(eq:covvec) with the approximate equation, and this alternative is referred as linear form LTV-SOBI, programmed in _R_-function as a binary optional parameter `quadratic = FALSE`.  The naming of quadratic and linear form originates from the greatest power of $t$. The approximate equation is now
+Sections \@ref(step1), \@ref(step2) and \@ref(step3) composed the three steps of LTV-SOBI algorithm, and after signal restoration, the TV-SOS problem is fully identified. It can also be perceived that in the decomposition of autocovariance matrices (step 1, section \@ref(step1)), the estimated $\widehat{ \boldsymbol\beta}_{3,\tau}$ is never used in later steps within the proposed LTV-SOBI algorithm (note that it affects the estimation of other components). To resolve such redundancy, one naive way is to avoid estimating it by replacing \@ref(eq:covvec) with the approximate equation, and this alternative is referred as linear form LTV-SOBI, programmed in _R_-function `ltvsobi` as a binary optional parameter `quadratic = FALSE`.  The naming of quadratic and linear form originates from the greatest power of $t$. The approximate equation is now
 
 \begin{equation}
 {\begin{bmatrix} \text{vec}(\boldsymbol x_1 \boldsymbol x_{1+\tau}') \\ \text{vec}(\boldsymbol x_2 \boldsymbol x'_{2+\tau}) \\ \vdots \\ \text{vec}(\boldsymbol x_{T-\tau} \boldsymbol x_{T}')\end{bmatrix}}

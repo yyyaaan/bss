@@ -1,4 +1,3 @@
-# rstudioapi::viewer("https://boring.fi/bss")
 # x %*% t(y) (tcrossprod).
 # follow [p,p,NN]
 ## as.vector = vec()
